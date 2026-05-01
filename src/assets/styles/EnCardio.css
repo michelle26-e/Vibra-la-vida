@@ -1,0 +1,381 @@
+.pagina-riesgo {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f7fafc;
+}
+
+.boton-regresar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 46px;
+  padding: 13px 22px;
+  border: 1px solid #dbe3ef;
+  border-radius: 999px;
+  color: #253858;
+  background: #ffffff;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+}
+
+.contenedor-riesgo {
+  max-width: 980px;
+  margin: 0 auto;
+  border-radius: 34px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.encabezado-riesgo {
+  padding: 48px 30px 44px;
+  text-align: center;
+  color: #ffffff;
+  background: #f50046;
+}
+
+.icono-encabezado {
+  display: grid;
+  place-items: center;
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 26px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 46px;
+  font-weight: 900;
+}
+
+.encabezado-riesgo h1 {
+  margin: 0 0 14px;
+  font-size: clamp(34px, 5vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.encabezado-riesgo p {
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.contenido-riesgo {
+  padding: 46px;
+}
+
+.tarjeta-advertencia {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 48px;
+  padding: 24px;
+  border: 1px solid #facc15;
+  border-radius: 18px;
+  background: #fff9e8;
+  box-shadow: 0 10px 24px rgba(234, 179, 8, 0.12);
+}
+
+.icono-advertencia {
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #d97706;
+  background: #fef3c7;
+  font-weight: 900;
+}
+
+.tarjeta-advertencia h2 {
+  margin: 0 0 8px;
+  color: #7c2d12;
+  font-size: 17px;
+}
+
+.tarjeta-advertencia p {
+  margin: 0;
+  color: #9a3412;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.formulario-riesgo {
+  display: grid;
+  gap: 34px;
+}
+
+.opciones-sexo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.boton-sexo {
+  min-height: 74px;
+  border: 2px solid #dbe3ef;
+  border-radius: 18px;
+  color: #64748b;
+  background: #f8fafc;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.boton-sexo.activo {
+  color: #e60045;
+  border-color: #f50046;
+  background: #fff1f4;
+}
+
+.rejilla-campos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.grupo-campo {
+  display: grid;
+  gap: 8px;
+}
+
+.grupo-campo label {
+  color: #13233f;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.grupo-campo input {
+  width: 100%;
+  min-height: 68px;
+  padding: 0 22px;
+  border: 1px solid #dbe3ef;
+  border-radius: 18px;
+  color: #13233f;
+  background: #f8fafc;
+  font-size: 19px;
+  font-weight: 700;
+  outline: none;
+}
+
+.grupo-campo input:focus {
+  border-color: #f50046;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(245, 0, 70, 0.08);
+}
+
+.grupo-campo small {
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rejilla-opciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.tarjeta-opcion {
+  display: flex;
+  align-items: center;
+  min-height: 78px;
+  gap: 18px;
+  padding: 20px 24px;
+  border: 1px solid #dbe3ef;
+  border-radius: 18px;
+  color: #13233f;
+  background: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tarjeta-opcion input {
+  display: none;
+}
+
+.tarjeta-opcion span {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.tarjeta-opcion input:checked + span {
+  border-color: #f50046;
+  background:
+    linear-gradient(#f50046, #f50046) center / 14px 14px no-repeat,
+    #ffffff;
+}
+
+.boton-calcular {
+  min-height: 78px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 18px;
+  color: #ffffff;
+  background: #f50046;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(245, 0, 70, 0.28);
+}
+
+.seccion-resultado {
+  padding: 20px 0 10px;
+  text-align: center;
+}
+
+.titulo-resultado {
+  margin: 0 0 24px;
+  color: #475569;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.contenedor-resultado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 34px;
+}
+
+.circulo-riesgo {
+  display: grid;
+  place-items: center;
+  width: 205px;
+  height: 205px;
+  border: 6px solid;
+  border-radius: 50%;
+  font-size: 58px;
+  font-weight: 950;
+}
+
+.etiqueta-riesgo {
+  min-width: 170px;
+  margin-left: -6px;
+  padding: 17px 28px;
+  border: 2px solid;
+  border-radius: 999px;
+  background: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.circulo-riesgo.bajo {
+  color: #05b77f;
+  border-color: #05b77f;
+  background: #e8fbf3;
+}
+
+.etiqueta-riesgo.bajo {
+  color: #05b77f;
+  border-color: #05b77f;
+}
+
+.circulo-riesgo.moderado {
+  color: #f59e0b;
+  border-color: #f59e0b;
+  background: #fff7ed;
+}
+
+.etiqueta-riesgo.moderado {
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.circulo-riesgo.alto {
+  color: #e11d48;
+  border-color: #e11d48;
+  background: #fff1f4;
+}
+
+.etiqueta-riesgo.alto {
+  color: #e11d48;
+  border-color: #e11d48;
+}
+
+.tarjeta-recomendacion {
+  display: flex;
+  gap: 20px;
+  max-width: 670px;
+  margin: 0 auto 34px;
+  padding: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #f8fafc;
+  text-align: left;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.icono-recomendacion {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: #64748b;
+  background: #e8eef7;
+  font-size: 24px;
+}
+
+.tarjeta-recomendacion h3 {
+  margin: 0 0 8px;
+  color: #13233f;
+  font-size: 17px;
+}
+
+.tarjeta-recomendacion p {
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.boton-reiniciar {
+  border: 0;
+  border-radius: 14px;
+  padding: 17px 30px;
+  color: #13233f;
+  background: #f1f5f9;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .pagina-riesgo {
+    padding: 18px;
+  }
+
+  .contenido-riesgo {
+    padding: 28px 22px;
+  }
+
+  .tarjeta-advertencia {
+    flex-direction: column;
+  }
+
+  .opciones-sexo,
+  .rejilla-campos,
+  .rejilla-opciones {
+    grid-template-columns: 1fr;
+  }
+
+  .contenedor-resultado {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .etiqueta-riesgo {
+    margin-left: 0;
+  }
+
+  .tarjeta-recomendacion {
+    flex-direction: column;
+  }
+}
