@@ -1,0 +1,276 @@
+.pagina-registro {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #ffffff;
+}
+
+.lado-formulario {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px;
+  background: #ffffff;
+}
+
+.boton-volver {
+  position: absolute;
+  top: 28px;
+  left: 38px;
+  color: #8aa0bc;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.contenedor-registro {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.logo-registro {
+  width: 95px;
+  height: auto;
+  margin-bottom: 24px;
+}
+
+.etiqueta-registro {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: #047857;
+  background: #cffafe;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.contenedor-registro h1 {
+  margin: 0 0 12px;
+  color: #111827;
+  font-size: clamp(28px, 3.5vw, 34px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.descripcion-registro {
+  margin: 0 0 28px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.formulario-registro {
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+
+.grupo-campo {
+  display: grid;
+  gap: 7px;
+}
+
+.grupo-campo label {
+  color: #263751;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.campo-registro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1px solid #dbe3ef;
+  border-radius: 13px;
+  background: #f8fafc;
+}
+
+.campo-registro:focus-within {
+  border-color: #00b871;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(0, 184, 113, 0.08);
+}
+
+.icono-campo {
+  color: #8aa0bc;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.campo-registro input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  color: #111827;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.campo-registro input::placeholder {
+  color: #8a94a6;
+}
+
+.boton-ver {
+  border: 0;
+  color: #009966;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.grupo-campo small {
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.boton-crear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 13px;
+  color: #ffffff;
+  background: #10182e;
+  font-size: 15px;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 12px 22px rgba(16, 24, 46, 0.18);
+}
+
+.boton-crear span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mensaje-correcto {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  color: #047857;
+  background: #dcfce7;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.texto-login {
+  margin: 24px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.texto-login a {
+  color: #009966;
+  font-weight: 950;
+  text-decoration: none;
+}
+
+.lado-imagen {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100vh;
+  padding: 70px;
+  background:
+    linear-gradient(rgba(0, 20, 20, 0.25), rgba(0, 10, 20, 0.72)),
+    url('/img/fondo-registro.jpg') center center / cover no-repeat;
+  background-color: #8aa0bc;
+  overflow: hidden;
+}
+
+.capa-oscura {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 20, 30, 0.22);
+}
+
+.texto-imagen {
+  position: relative;
+  z-index: 1;
+  max-width: 460px;
+  color: #ffffff;
+}
+
+.texto-imagen span {
+  display: block;
+  width: 70px;
+  height: 5px;
+  margin-bottom: 26px;
+  border-radius: 999px;
+  background: #06b6d4;
+}
+
+.texto-imagen h2 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.18;
+  letter-spacing: -0.04em;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.texto-imagen p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 980px) {
+  .pagina-registro {
+    grid-template-columns: 1fr;
+  }
+
+  .lado-formulario {
+    padding: 90px 24px 42px;
+  }
+
+  .boton-volver {
+    top: 24px;
+    left: 24px;
+  }
+
+  .lado-imagen {
+    min-height: 360px;
+    padding: 42px;
+  }
+}
+
+@media (max-width: 640px) {
+  .descripcion-registro {
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .campo-registro {
+    min-height: 48px;
+  }
+
+  .campo-registro input {
+    font-size: 14px;
+  }
+
+  .boton-crear {
+    min-height: 50px;
+    font-size: 15px;
+  }
+
+  .texto-imagen h2 {
+    font-size: 28px;
+  }
+
+  .texto-imagen p {
+    font-size: 15px;
+  }
+}

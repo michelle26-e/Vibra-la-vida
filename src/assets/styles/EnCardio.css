@@ -20,9 +20,9 @@
 }
 
 .contenedor-riesgo {
-  max-width: 980px;
+  max-width: 760px;
   margin: 0 auto;
-  border-radius: 34px;
+  border-radius: 28px;
   background: #ffffff;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
   overflow: hidden;

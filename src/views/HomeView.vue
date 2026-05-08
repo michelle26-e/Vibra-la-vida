@@ -1,9 +1,12 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const seccionActiva = ref('inicio')
 
-const logoVibra = '/img/logo-vibra.png'
+const logo = '/src/assets/logo-vibra.png'
+const logoVibra = '/src/assets/logotexto.png'
 const imagenHabitos = '/img/habitos.jpg'
 const imagenFrutas = '/img/frutas.jpg'
 
@@ -11,39 +14,47 @@ const elementosMenu = [
   {
     titulo: 'Inicio',
     icono: 'IN',
-    activo: true,
+    idSeccion: 'inicio',
   },
   {
     titulo: 'Adolescencia y Adultez Temprana',
     icono: 'AD',
+    idSeccion: 'adolescencia',
   },
   {
     titulo: 'Hábitos de Vida Saludable',
     icono: 'HV',
+    idSeccion: 'habitos',
   },
   {
     titulo: 'Riesgo Cardiometabólico',
     icono: 'RC',
+    idSeccion: 'riesgo-cardiometabolico',
   },
   {
     titulo: 'Diabetes Mellitus',
     icono: 'DM',
+    idSeccion: 'diabetes',
   },
   {
     titulo: 'Trastornos del Ritmo Cardíaco',
     icono: 'TR',
+    idSeccion: 'ritmo-cardiaco',
   },
   {
     titulo: 'Sobrepeso y Obesidad',
     icono: 'SO',
+    idSeccion: 'sobrepeso',
   },
   {
     titulo: 'Salud Mental y Autocuidado',
     icono: 'SM',
+    idSeccion: 'salud-mental',
   },
   {
     titulo: 'Nuestra App',
     icono: 'AP',
+    idSeccion: 'nuestra-app',
   },
 ]
 
@@ -202,6 +213,7 @@ const seccionesTemario = [
           'Evalúa tu índice de masa corporal rápidamente y conoce en qué rango te encuentras.',
         boton: 'Calcular ahora',
         color: 'naranja',
+        ruta: '/calculadora-imc',
       },
       {
         icono: 'CAL',
@@ -210,6 +222,7 @@ const seccionesTemario = [
           'Estima tu gasto calórico diario según tu actividad física.',
         boton: 'Calcular ahora',
         color: 'verde',
+        ruta: '/calculadora-calorias',
       },
     ],
   },
@@ -229,6 +242,7 @@ const seccionesTemario = [
           'Escala para identificar niveles de depresión, ansiedad y estrés. Conoce cómo te has sentido durante la última semana.',
         boton: 'Comenzar encuesta',
         color: 'cian',
+        ruta: '/evaluacion-dass21',
       },
       {
         icono: 'AIS',
@@ -237,6 +251,7 @@ const seccionesTemario = [
           'Cuestionario breve para evaluar la calidad de tu sueño y detectar posibles dificultades al dormir.',
         boton: 'Comenzar encuesta',
         color: 'morado',
+        ruta: '/escala-insomnio-atenas',
       },
     ],
   },
@@ -245,6 +260,19 @@ const seccionesTemario = [
 const irAlTemario = () => {
   const seccion = document.getElementById('temario')
   seccion?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const irASeccion = (idSeccion) => {
+  seccionActiva.value = idSeccion
+
+  const seccion = document.getElementById(idSeccion)
+
+  if (seccion) {
+    seccion.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
 }
 
 const abrirTarjeta = (tarjeta) => {
@@ -262,24 +290,32 @@ const abrirTarjeta = (tarjeta) => {
       </div>
 
       <div class="botones-acceso">
-        <button class="boton boton-login">Iniciar Sesión</button>
-        <button class="boton boton-registro">Crear Cuenta</button>
+        <button class="boton boton-login" @click="router.push('/iniciar-sesion')">
+          Iniciar Sesión
+        </button>
+        <button class="boton boton-registro" @click="router.push('/registro')">
+          Crear Cuenta
+        </button>
       </div>
 
       <p class="titulo-menu">Temario informativo</p>
 
       <nav class="menu-lateral">
-        <a
+        <button
           v-for="elemento in elementosMenu"
           :key="elemento.titulo"
-          href="#temario"
+          type="button"
           class="enlace-menu"
-          :class="{ activo: elemento.activo }"
+          :class="{ activo: seccionActiva === elemento.idSeccion }"
+          @click="irASeccion(elemento.idSeccion)"
         >
           <span class="icono-menu">{{ elemento.icono }}</span>
           <span>{{ elemento.titulo }}</span>
-          <span v-if="elemento.activo" class="punto-activo"></span>
-        </a>
+          <span
+            v-if="seccionActiva === elemento.idSeccion"
+            class="punto-activo"
+          ></span>
+        </button>
       </nav>
 
       <div class="tarjeta-descarga">
@@ -289,7 +325,7 @@ const abrirTarjeta = (tarjeta) => {
       </div>
     </aside>
 
-    <main class="contenido-principal">
+    <main id="inicio" class="contenido-principal">
       <section class="tarjeta-aviso">
         <div class="icono-aviso">!</div>
 
@@ -327,13 +363,14 @@ const abrirTarjeta = (tarjeta) => {
         </div>
 
         <div class="imagen-bienvenida">
-          <img :src="logoVibra" alt="Imagen principal Vibra la Vida" />
+          <img :src="logo" alt="Imagen principal Vibra la Vida" />
         </div>
       </section>
 
       <section id="temario" class="contenedor-temario">
         <article
           v-for="seccion in seccionesTemario"
+          :id="seccion.id"
           :key="seccion.id"
           class="bloque-tema"
         >
@@ -382,7 +419,8 @@ const abrirTarjeta = (tarjeta) => {
           </div>
         </article>
 
-        <section class="seccion-app">
+        <section id="nuestra-app" class="seccion-app">
+
           <div class="contenido-app">
             <span class="etiqueta-app">Disponible ahora</span>
 

@@ -71,13 +71,18 @@
   display: flex;
   align-items: center;
   gap: 13px;
+  width: 100%;
   min-height: 54px;
   padding: 10px 14px;
+  border: 0;
   border-radius: 15px;
   color: #52657d;
+  background: transparent;
+  text-align: left;
   text-decoration: none;
   font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -152,8 +157,8 @@
 }
 
 .contenido-principal {
-  margin-left: 360px;
-  padding: 90px 8vw 80px;
+  margin-left: 330px;
+  padding: 70px 4vw 80px;
 }
 
 .tarjeta-aviso {
@@ -625,4 +630,12 @@
   .titulo-seccion h2 {
     font-size: 24px;
   }
+
+  #inicio,
+  .bloque-tema,
+  .seccion-app {
+    scroll-margin-top: 30px;
+  }
+  
+  
 }
