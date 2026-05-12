@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-
+import { registrarUsuario } from '../services/authService'
 const router = useRouter()
 
 const formulario = ref({
@@ -46,18 +46,60 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
-const crearCuenta = () => {
+const crearCuenta = async () => {
   mensaje.value = ''
 
   if (!validarFormulario()) {
     return
   }
 
-  mensaje.value = 'Cuenta creada correctamente.'
+  try {
+    await registrarUsuario({
+      nombre: formulario.value.nombre,
+      correo: formulario.value.correo,
+      contrasena: formulario.value.contrasena,
+    })
 
-  setTimeout(() => {
-    router.push('/iniciar-sesion')
-  }, 900)
+    mensaje.value = 'Cuenta creada correctamente.'
+
+    setTimeout(() => {
+      router.push('/iniciar-sesion')
+    }, 900)
+  } catch (error) {
+  console.error('Error al crear cuenta:', error.code, error.message)
+
+  if (error.code === 'auth/email-already-in-use') {
+    errores.value.correo = 'Este correo ya está registrado.'
+    return
+  }
+
+  if (error.code === 'auth/invalid-email') {
+    errores.value.correo = 'El correo no es válido.'
+    return
+  }
+
+  if (error.code === 'auth/weak-password') {
+    errores.value.contrasena = 'La contraseña es muy débil.'
+    return
+  }
+
+  if (error.code === 'auth/operation-not-allowed') {
+    mensaje.value = 'Debes activar Email/Password en Firebase Authentication.'
+    return
+  }
+
+  if (error.code === 'auth/invalid-api-key') {
+    mensaje.value = 'La configuración de Firebase no está cargando bien. Revisa el archivo .env.'
+    return
+  }
+
+  if (error.code === 'permission-denied') {
+    mensaje.value = 'La cuenta se creó, pero Firestore no permitió guardar los datos.'
+    return
+  }
+
+    mensaje.value = `Error: ${error.code || 'desconocido'}`
+  }
 }
 </script>
 

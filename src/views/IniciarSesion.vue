@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { iniciarSesionUsuario } from '../services/authService'
 
 const router = useRouter()
 
@@ -33,18 +34,44 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
-const iniciarSesion = () => {
+const iniciarSesion = async () => {
   mensaje.value = ''
 
   if (!validarFormulario()) {
     return
   }
 
-  mensaje.value = 'Inicio de sesión validado correctamente.'
+  try {
+    await iniciarSesionUsuario({
+      correo: formulario.value.correo,
+      contrasena: formulario.value.contrasena,
+    })
 
-  setTimeout(() => {
-    router.push('/')
-  }, 900)
+    mensaje.value = 'Inicio de sesión correcto.'
+
+    setTimeout(() => {
+      router.push('/')
+    }, 700)
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error.code, error.message)
+
+    if (error.code === 'auth/invalid-credential') {
+      mensaje.value = 'Correo o contraseña incorrectos.'
+      return
+    }
+
+    if (error.code === 'auth/user-not-found') {
+      mensaje.value = 'No existe una cuenta con este correo.'
+      return
+    }
+
+    if (error.code === 'auth/wrong-password') {
+      mensaje.value = 'Contraseña incorrecta.'
+      return
+    }
+
+    mensaje.value = 'No se pudo iniciar sesión. Intenta nuevamente.'
+  }
 }
 </script>
 

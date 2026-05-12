@@ -7,6 +7,7 @@ import EvaluacionDass21View from '../views/EvaDASS-21.vue'
 import EscalaInsomnioAtenasView from '../views/EsInsomnioAtenas.vue'
 import IniciarSesionView from '../views/IniciarSesion.vue'
 import CrearCuentaView from '../views/CrearCuenta.vue'
+import MiCuentaView from '../views/MiCuenta.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/registro',
       name: 'registro',
       component: CrearCuentaView,
+    },
+    {
+      path: '/mi-cuenta',
+      name: 'mi-cuenta',
+      component: MiCuentaView,
     },
   ],
 })

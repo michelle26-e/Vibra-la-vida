@@ -1,14 +1,59 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../firebase/firebaseConfig'
+import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authService'
+
+import logoPrincipal from '../assets/logo-vibra.png'
+import logoVibra from '../assets/logotexto.png'
 
 const router = useRouter()
+
+const usuarioActual = ref(null)
+const datosUsuario = ref(null)
 const seccionActiva = ref('inicio')
 
-const logo = '/src/assets/logo-vibra.png'
-const logoVibra = '/src/assets/logotexto.png'
+let detenerObservador = null
+
 const imagenHabitos = '/img/habitos.jpg'
 const imagenFrutas = '/img/frutas.jpg'
+
+const nombreUsuario = computed(() => {
+  const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
+  const primerNombre = nombreCompleto.trim().split(' ')[0]
+
+  return primerNombre.charAt(0).toUpperCase() + primerNombre.slice(1)
+})
+
+const irAMiCuenta = () => {
+  router.push('/mi-cuenta')
+}
+
+onMounted(() => {
+  detenerObservador = onAuthStateChanged(auth, async (usuario) => {
+    usuarioActual.value = usuario
+
+    if (usuario) {
+      datosUsuario.value = await obtenerDatosUsuario(usuario.uid)
+    } else {
+      datosUsuario.value = null
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (detenerObservador) {
+    detenerObservador()
+  }
+})
+
+const cerrarSesion = async () => {
+  await cerrarSesionUsuario()
+  usuarioActual.value = null
+  datosUsuario.value = null
+  router.push('/')
+}
 
 const elementosMenu = [
   {
@@ -290,12 +335,29 @@ const abrirTarjeta = (tarjeta) => {
       </div>
 
       <div class="botones-acceso">
-        <button class="boton boton-login" @click="router.push('/iniciar-sesion')">
-          Iniciar Sesión
-        </button>
-        <button class="boton boton-registro" @click="router.push('/registro')">
-          Crear Cuenta
-        </button>
+        <div v-if="usuarioActual" class="caja-cuenta">
+          <h3 class="saludo-cuenta">
+            Hola {{ nombreUsuario }}
+          </h3>
+
+          <button class="boton-mi-cuenta" @click="irAMiCuenta">
+            Mi cuenta
+          </button>
+
+          <button class="boton-cerrar" @click="cerrarSesion">
+            Cerrar sesión
+          </button>
+        </div>
+
+        <div v-else class="acciones-sesion">
+          <button class="boton boton-login" @click="router.push('/iniciar-sesion')">
+            Iniciar Sesión
+          </button>
+
+          <button class="boton boton-registro" @click="router.push('/registro')">
+            Crear Cuenta
+          </button>
+        </div>
       </div>
 
       <p class="titulo-menu">Temario informativo</p>
@@ -334,7 +396,9 @@ const abrirTarjeta = (tarjeta) => {
           <p>
             La información contenida en esta página tiene fines exclusivamente
             educativos e informativos.
-            <strong>No emitimos prescripciones médicas, diagnósticos ni tratamientos.</strong>
+            <strong>
+              No emitimos prescripciones médicas, diagnósticos ni tratamientos.
+            </strong>
             Ante cualquier duda o síntoma, consulte siempre a un profesional de
             la salud calificado.
           </p>
@@ -363,7 +427,7 @@ const abrirTarjeta = (tarjeta) => {
         </div>
 
         <div class="imagen-bienvenida">
-          <img :src="logo" alt="Imagen principal Vibra la Vida" />
+          <img :src="logoPrincipal" alt="Imagen principal Vibra la Vida" />
         </div>
       </section>
 
@@ -402,6 +466,8 @@ const abrirTarjeta = (tarjeta) => {
                 v-for="tarjeta in seccion.tarjetas"
                 :key="tarjeta.titulo"
                 class="tarjeta-accion"
+                :class="`tarjeta-${tarjeta.color}`"
+                @click="abrirTarjeta(tarjeta)"
               >
                 <div class="icono-tarjeta" :class="tarjeta.color">
                   {{ tarjeta.icono }}
@@ -410,7 +476,7 @@ const abrirTarjeta = (tarjeta) => {
                 <h3>{{ tarjeta.titulo }}</h3>
                 <p>{{ tarjeta.texto }}</p>
 
-                <button :class="tarjeta.color" @click="abrirTarjeta(tarjeta)">
+                <button :class="tarjeta.color">
                   {{ tarjeta.boton }}
                   <span>→</span>
                 </button>
@@ -420,7 +486,6 @@ const abrirTarjeta = (tarjeta) => {
         </article>
 
         <section id="nuestra-app" class="seccion-app">
-
           <div class="contenido-app">
             <span class="etiqueta-app">Disponible ahora</span>
 

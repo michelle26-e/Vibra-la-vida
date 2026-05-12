@@ -1,0 +1,276 @@
+.pagina-cuenta {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f7fafc;
+  color: #10182e;
+}
+
+.boton-volver {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 34px;
+  color: #526b91;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.tarjeta-cargando,
+.contenedor-cuenta {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.tarjeta-cargando {
+  padding: 28px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  font-weight: 800;
+}
+
+.encabezado-cuenta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 30px;
+  padding: 34px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #10182e, #063b4a);
+  color: #ffffff;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.16);
+}
+
+.avatar-perfil {
+  display: grid;
+  place-items: center;
+  flex: 0 0 86px;
+  width: 86px;
+  height: 86px;
+  border-radius: 26px;
+  background: #dcfce7;
+  color: #047857;
+  font-size: 42px;
+  font-weight: 950;
+}
+
+.etiqueta-cuenta {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.encabezado-cuenta h1 {
+  margin: 0 0 10px;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1;
+}
+
+.encabezado-cuenta p {
+  max-width: 680px;
+  margin: 0;
+  color: #dbeafe;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.rejilla-cuenta {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.tarjeta-perfil,
+.tarjeta-resumen,
+.seccion-herramientas,
+.seccion-historial {
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.tarjeta-perfil h2,
+.tarjeta-resumen h2,
+.seccion-herramientas h2,
+.seccion-historial h2 {
+  margin: 0 0 20px;
+  color: #10182e;
+  font-size: 24px;
+}
+
+.dato-perfil {
+  display: grid;
+  gap: 6px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dato-perfil span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dato-perfil strong {
+  color: #10182e;
+  font-size: 16px;
+  word-break: break-word;
+}
+
+.boton-secundario {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 22px;
+  border: 0;
+  border-radius: 14px;
+  color: #047857;
+  background: #dcfce7;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.rejilla-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.rejilla-resumen div {
+  padding: 18px;
+  border-radius: 18px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.rejilla-resumen strong {
+  display: block;
+  color: #047857;
+  font-size: 34px;
+}
+
+.rejilla-resumen span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tarjeta-resumen p {
+  margin: 0;
+  color: #526b91;
+  line-height: 1.7;
+}
+
+.seccion-herramientas {
+  margin-bottom: 26px;
+}
+
+.rejilla-herramientas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.rejilla-herramientas button {
+  display: grid;
+  gap: 10px;
+  min-height: 120px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  color: #10182e;
+  background: #f8fafc;
+  font-size: 15px;
+  font-weight: 900;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.rejilla-herramientas button:hover {
+  transform: translateY(-3px);
+  border-color: #86efac;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.rejilla-herramientas span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  color: #047857;
+  background: #dcfce7;
+  font-size: 12px;
+}
+
+.tarjeta-vacia {
+  padding: 24px;
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.tarjeta-vacia strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #10182e;
+  font-size: 18px;
+}
+
+.tarjeta-vacia p {
+  margin: 0;
+  color: #526b91;
+  line-height: 1.7;
+}
+
+.boton-cerrar-sesion {
+  min-height: 50px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 14px;
+  color: #ffffff;
+  background: #e11d48;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .rejilla-cuenta,
+  .rejilla-herramientas {
+    grid-template-columns: 1fr;
+  }
+
+  .encabezado-cuenta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .pagina-cuenta {
+    padding: 20px;
+  }
+
+  .encabezado-cuenta,
+  .tarjeta-perfil,
+  .tarjeta-resumen,
+  .seccion-herramientas,
+  .seccion-historial {
+    padding: 22px;
+  }
+
+  .rejilla-resumen {
+    grid-template-columns: 1fr;
+  }
+}
