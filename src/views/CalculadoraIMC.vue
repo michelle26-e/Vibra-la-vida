@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const formulario = ref({
   edad: 18,
@@ -11,6 +12,7 @@ const formulario = ref({
 
 const errores = ref({})
 const calculado = ref(false)
+const mensajeGuardado = ref('')
 
 const resultadoIMC = ref({
   valor: '--',
@@ -22,6 +24,7 @@ const resultadoIMC = ref({
 
 const ocultarResultado = () => {
   calculado.value = false
+  mensajeGuardado.value = ''
 
   resultadoIMC.value = {
     valor: '--',
@@ -99,7 +102,39 @@ const obtenerCategoriaIMC = (valorIMC) => {
   }
 }
 
-const calcularIMC = () => {
+
+const guardarResultadoIMC = async () => {
+  mensajeGuardado.value = ''
+
+  try {
+    await guardarResultadoBienestar({
+      tipo: 'imc',
+      nombreHerramienta: 'Calculadora de IMC',
+      edad: Number(formulario.value.edad),
+      genero: formulario.value.genero,
+      alturaCm: Number(formulario.value.altura),
+      pesoKg: Number(formulario.value.peso),
+      imc: resultadoIMC.value.valor,
+      categoria: resultadoIMC.value.categoria,
+      descripcion: resultadoIMC.value.descripcion,
+    })
+
+    mensajeGuardado.value = 'Resultado guardado correctamente en Mi cuenta.'
+  } catch (error) {
+    console.error('Error al guardar el resultado de IMC:', error)
+
+    if (error.message?.includes('iniciar sesión')) {
+      mensajeGuardado.value =
+        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+      return
+    }
+
+    mensajeGuardado.value =
+      'Resultado calculado, pero no se pudo guardar en este momento.'
+  }
+}
+
+const calcularIMC = async () => {
   if (!validarFormulario()) {
     calculado.value = false
     return
@@ -126,6 +161,7 @@ const calcularIMC = () => {
   }
 
   calculado.value = true
+  await guardarResultadoIMC()
 }
 </script>
 
@@ -268,6 +304,10 @@ const calcularIMC = () => {
             escala estándar como una referencia educativa general.
           </p>
         </div>
+
+        <p v-if="mensajeGuardado" class="mensaje-guardado">
+          {{ mensajeGuardado }}
+        </p>
       </div>
     </section>
   </main>

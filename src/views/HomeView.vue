@@ -16,7 +16,6 @@ import tip from '../assets/t2.png'
 import dia from '../assets/d1.png'
 import diab from '../assets/d2.png'
 import trc from '../assets/tr.png'
-import imc from '../assets/imc.png'
 
 
 const router = useRouter()
@@ -71,11 +70,6 @@ const informacionTemario = {
     },
   ],
 
-  sobrepeso: [
-    {
-      imagen: imc,
-    },
-  ],
 }
 
 const nombreUsuario = computed(() => {
@@ -206,7 +200,7 @@ const seccionesTemario = [
         icono: 'RC',
         titulo: 'Riesgo Cardiovascular',
         texto:
-          'Realiza una simulación educativa para estimar riesgos cardiovasculares básicos.',
+          'Conoce tu nivel de riesgo cardiometabólico',
         boton: 'Comenzar simulación',
         color: 'rosa',
         ruta: '/riesgo-cardiovascular',
@@ -257,7 +251,7 @@ const seccionesTemario = [
         icono: 'IMC',
         titulo: 'Calculadora de IMC',
         texto:
-          'Evalúa tu índice de masa corporal rápidamente y conoce en qué rango te encuentras.',
+          'Conoce tu Índice de Masa Corporal de forma rápida. Esta herramienta educativa te ayuda a identificar si tu peso se encuentra en un rango bajo, normal, sobrepeso u obesidad.',
         boton: 'Calcular ahora',
         color: 'naranja',
         ruta: '/calculadora-imc',
@@ -266,7 +260,7 @@ const seccionesTemario = [
         icono: 'CAL',
         titulo: 'Calculadora de Calorías',
         texto:
-          'Estima tu gasto calórico diario según tu actividad física.',
+          'Conoce una estimación de tu gasto calórico diario y aprende cómo la actividad física influye en tus necesidades de energía.',
         boton: 'Calcular ahora',
         color: 'verde',
         ruta: '/calculadora-calorias',
@@ -290,7 +284,7 @@ const seccionesTemario = [
         icono: 'D21',
         titulo: 'Evaluación con DASS-21',
         texto:
-          'Escala para identificar niveles de depresión, ansiedad y estrés. Conoce cómo te has sentido durante la última semana.',
+          'Responde un breve cuestionario para identificar señales relacionadas con depresión, ansiedad y estrés durante los últimos días. Esta evaluación es educativa y no sustituye un diagnóstico profesional.',
         boton: 'Comenzar encuesta',
         color: 'cian',
         ruta: '/evaluacion-dass21',
@@ -299,7 +293,7 @@ const seccionesTemario = [
         icono: 'AIS',
         titulo: 'Escala de Insomnio de Atenas',
         texto:
-          'Cuestionario breve para evaluar la calidad de tu sueño y detectar posibles dificultades al dormir.',
+          'Evalúa la calidad de tu sueño mediante un cuestionario breve. Esta herramienta puede ayudarte a identificar posibles dificultades para dormir o descansar adecuadamente.',
         boton: 'Comenzar encuesta',
         color: 'morado',
         ruta: '/escala-insomnio-atenas',

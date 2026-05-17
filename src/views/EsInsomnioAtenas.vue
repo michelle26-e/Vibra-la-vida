@@ -1,9 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const respuestas = ref({})
 const mostrarResultado = ref(false)
+const mensajeGuardado = ref('')
 
 const preguntas = [
   {
@@ -167,12 +169,46 @@ const resultado = computed(() => {
 const responderPregunta = (numeroPregunta, valor) => {
   respuestas.value[numeroPregunta] = valor
   mostrarResultado.value = false
+  mensajeGuardado.value = ''
 }
 
-const verResultado = () => {
+
+const guardarResultadoAtenas = async () => {
+  mensajeGuardado.value = ''
+
+  try {
+    await guardarResultadoBienestar({
+      tipo: 'insomnio',
+      nombreHerramienta: 'Escala de Insomnio de Atenas',
+      puntajeTotal: puntajeTotal.value,
+      puntajeMaximo: 24,
+      nivel: resultado.value.nivel,
+      categoria: resultado.value.nivel,
+      descripcion: resultado.value.descripcion,
+      resultado: `${puntajeTotal.value} / 24 puntos`,
+    })
+
+    mensajeGuardado.value = 'Resultado guardado correctamente en Mi cuenta.'
+  } catch (error) {
+    console.error('Error al guardar el resultado de Atenas:', error)
+
+    if (error.message?.includes('iniciar sesión')) {
+      mensajeGuardado.value =
+        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+      return
+    }
+
+    mensajeGuardado.value =
+      'Resultado calculado, pero no se pudo guardar en este momento.'
+  }
+}
+
+const verResultado = async () => {
   if (!evaluacionCompleta.value) return
 
   mostrarResultado.value = true
+
+  await guardarResultadoAtenas()
 
   setTimeout(() => {
     const seccionResultado = document.getElementById('resultado-atenas')
@@ -183,6 +219,7 @@ const verResultado = () => {
 const reiniciarEvaluacion = () => {
   respuestas.value = {}
   mostrarResultado.value = false
+  mensajeGuardado.value = ''
 
   setTimeout(() => {
     window.scrollTo({
@@ -296,6 +333,10 @@ const reiniciarEvaluacion = () => {
         Esta herramienta es únicamente informativa y no sustituye una valoración
         médica, psicológica o de sueño realizada por un profesional.
       </div>
+
+      <p v-if="mensajeGuardado" class="mensaje-guardado">
+        {{ mensajeGuardado }}
+      </p>
 
       <button class="boton-reiniciar" @click="reiniciarEvaluacion">
         Realizar nuevamente

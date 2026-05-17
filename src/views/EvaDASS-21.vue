@@ -1,11 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const pantallaActual = ref('dimensiones')
 const dimensionSeleccionada = ref(null)
 const respuestas = ref({})
 const mostrarResultado = ref(false)
+const mensajeGuardado = ref('')
 
 const opcionesRespuesta = [
   {
@@ -242,6 +244,7 @@ const seleccionarDimension = (idDimension) => {
   dimensionSeleccionada.value = idDimension
   respuestas.value = {}
   mostrarResultado.value = false
+  mensajeGuardado.value = ''
   pantallaActual.value = 'evaluacion'
 
   setTimeout(() => {
@@ -257,17 +260,57 @@ const volverADimensiones = () => {
   dimensionSeleccionada.value = null
   respuestas.value = {}
   mostrarResultado.value = false
+  mensajeGuardado.value = ''
 }
 
 const responderPregunta = (numeroPregunta, valor) => {
   respuestas.value[numeroPregunta] = valor
   mostrarResultado.value = false
+  mensajeGuardado.value = ''
 }
 
-const completarEvaluacion = () => {
+
+const guardarResultadoDASS21 = async () => {
+  mensajeGuardado.value = ''
+
+  if (!dimensionActiva.value) return
+
+  try {
+    await guardarResultadoBienestar({
+      tipo: 'dass21',
+      nombreHerramienta: `Evaluación DASS-21 - ${dimensionActiva.value.titulo}`,
+      dimension: dimensionActiva.value.id,
+      dimensionTitulo: dimensionActiva.value.titulo,
+      puntajeDirecto: puntajeDirecto.value,
+      puntajeFinal: puntajeFinal.value,
+      puntajeMaximo: 42,
+      nivel: resultado.value.nivel,
+      categoria: resultado.value.nivel,
+      recomendacion: resultado.value.recomendacion,
+      resultado: `${puntajeFinal.value} / 42 puntos`,
+    })
+
+    mensajeGuardado.value = 'Resultado guardado correctamente en Mi cuenta.'
+  } catch (error) {
+    console.error('Error al guardar el resultado DASS-21:', error)
+
+    if (error.message?.includes('iniciar sesión')) {
+      mensajeGuardado.value =
+        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+      return
+    }
+
+    mensajeGuardado.value =
+      'Resultado calculado, pero no se pudo guardar en este momento.'
+  }
+}
+
+const completarEvaluacion = async () => {
   if (!evaluacionCompleta.value) return
 
   mostrarResultado.value = true
+
+  await guardarResultadoDASS21()
 
   setTimeout(() => {
     const resultado = document.getElementById('resultado-dass')
@@ -424,8 +467,12 @@ const completarEvaluacion = () => {
           diagnóstico médico o psicológico.
         </p>
 
+        <p v-if="mensajeGuardado" class="mensaje-guardado">
+          {{ mensajeGuardado }}
+        </p>
+
         <button class="boton-secundario" @click="volverADimensiones">
-          Evaluar otra dimensión
+          Realizar otra evaluación
         </button>
       </section>
     </section>

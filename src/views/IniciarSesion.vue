@@ -91,7 +91,7 @@ const iniciarSesion = async () => {
         <h1>Iniciar Sesión</h1>
 
         <p class="descripcion-login">
-          Ingresa tus credenciales para continuar tu viaje de bienestar.
+          Ingresa tus datos para continuar tu viaje de bienestar.
         </p>
 
         <form class="formulario-login" @submit.prevent="iniciarSesion">

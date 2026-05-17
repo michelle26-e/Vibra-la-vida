@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const formulario = ref({
   sexo: 'hombre',
@@ -12,6 +13,7 @@ const formulario = ref({
 
 const errores = ref({})
 const calculado = ref(false)
+const mensajeGuardado = ref('')
 
 const resultadoCalorias = ref({
   metabolismoBasal: 0,
@@ -45,6 +47,7 @@ const nivelesActividad = [
 
 const ocultarResultado = () => {
   calculado.value = false
+  mensajeGuardado.value = ''
 }
 
 const seleccionarSexo = (sexo) => {
@@ -94,7 +97,47 @@ const calcularMetabolismoBasal = () => {
   return 10 * peso + 6.25 * altura - 5 * edad - 161
 }
 
-const calcularCalorias = () => {
+
+const guardarResultadoCalorias = async () => {
+  mensajeGuardado.value = ''
+
+  const nivelActividad = nivelesActividad.find(
+    (nivel) => nivel.valor === formulario.value.actividad,
+  )
+
+  try {
+    await guardarResultadoBienestar({
+      tipo: 'calorias',
+      nombreHerramienta: 'Calculadora de Calorías',
+      sexo: formulario.value.sexo,
+      edad: Number(formulario.value.edad),
+      pesoKg: Number(formulario.value.peso),
+      alturaCm: Number(formulario.value.altura),
+      actividad: nivelActividad?.texto || formulario.value.actividad,
+      metabolismoBasal: resultadoCalorias.value.metabolismoBasal,
+      caloriasMantenimiento: resultadoCalorias.value.caloriasMantenimiento,
+      caloriasPerderPeso: resultadoCalorias.value.caloriasPerderPeso,
+      caloriasGanarPeso: resultadoCalorias.value.caloriasGanarPeso,
+      resultado: `${resultadoCalorias.value.caloriasMantenimiento} kcal/día`,
+      categoria: 'Gasto energético estimado',
+    })
+
+    mensajeGuardado.value = 'Resultado guardado correctamente en Mi cuenta.'
+  } catch (error) {
+    console.error('Error al guardar el resultado de calorías:', error)
+
+    if (error.message?.includes('iniciar sesión')) {
+      mensajeGuardado.value =
+        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+      return
+    }
+
+    mensajeGuardado.value =
+      'Resultado calculado, pero no se pudo guardar en este momento.'
+  }
+}
+
+const calcularCalorias = async () => {
   if (!validarFormulario()) {
     calculado.value = false
     return
@@ -113,6 +156,7 @@ const calcularCalorias = () => {
   }
 
   calculado.value = true
+  await guardarResultadoCalorias()
 }
 </script>
 
@@ -250,6 +294,10 @@ const calcularCalorias = () => {
             Esta herramienta es educativa. Las necesidades reales pueden variar
             según salud, composición corporal, crecimiento, medicamentos y otros
             factores. En adolescentes, lo ideal es consultar a un profesional.
+          </p>
+
+          <p v-if="mensajeGuardado" class="mensaje-guardado">
+            {{ mensajeGuardado }}
           </p>
         </section>
       </div>

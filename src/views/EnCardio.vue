@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { auth } from '../firebase/firebaseConfig'
+import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const formulario = ref({
   sexo: 'hombre',
@@ -13,6 +15,8 @@ const formulario = ref({
 
 const errores = ref({})
 const mostrarResultado = ref(false)
+const mensajeGuardado = ref('')
+const guardandoResultado = ref(false)
 
 const resultado = computed(() => {
   const edad = Number(formulario.value.edad)
@@ -117,12 +121,53 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
-const calcularRiesgo = () => {
+const guardarResultadoCardiovascular = async () => {
+  mensajeGuardado.value = ''
+
+  if (!auth.currentUser) {
+    mensajeGuardado.value =
+      'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+    return
+  }
+
+  try {
+    guardandoResultado.value = true
+
+    await guardarResultadoBienestar({
+      tipo: 'riesgo_cardiometabolico',
+      nombreHerramienta: 'Encuesta de Riesgo Cardiovascular',
+      porcentaje: resultado.value.porcentaje,
+      resultado: `${resultado.value.porcentaje}%`,
+      nivelRiesgo: resultado.value.nivel,
+      categoria: resultado.value.nivel,
+      tipoRiesgo: resultado.value.tipo,
+      respuestas: {
+        sexo: formulario.value.sexo,
+        edad: Number(formulario.value.edad),
+        presionSistolica: Number(formulario.value.presionSistolica),
+        colesterolTotal: Number(formulario.value.colesterolTotal),
+        fumador: formulario.value.fumador,
+        diagnosticoDiabetes: formulario.value.diagnosticoDiabetes,
+      },
+    })
+
+    mensajeGuardado.value = 'Resultado guardado correctamente en Mi cuenta.'
+  } catch (error) {
+    console.error('Error al guardar el resultado cardiovascular:', error)
+    mensajeGuardado.value = 'No se pudo guardar el resultado. Inténtalo nuevamente.'
+  } finally {
+    guardandoResultado.value = false
+  }
+}
+
+const calcularRiesgo = async () => {
   if (!validarFormulario()) {
     return
   }
 
   mostrarResultado.value = true
+
+  await guardarResultadoCardiovascular()
 
   setTimeout(() => {
     window.scrollTo({
@@ -134,6 +179,7 @@ const calcularRiesgo = () => {
 
 const calcularNuevamente = () => {
   mostrarResultado.value = false
+  mensajeGuardado.value = ''
 }
 </script>
 
@@ -287,6 +333,14 @@ const calcularNuevamente = () => {
               </p>
             </div>
           </div>
+
+          <p v-if="guardandoResultado" class="mensaje-guardado">
+            Guardando resultado...
+          </p>
+
+          <p v-if="mensajeGuardado" class="mensaje-guardado">
+            {{ mensajeGuardado }}
+          </p>
 
           <button class="boton-reiniciar" @click="calcularNuevamente">
             ↻ Calcular nuevamente
