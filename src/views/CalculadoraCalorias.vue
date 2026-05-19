@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { calcularCaloriasApi } from '../services/calculadorasApi'
 import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const formulario = ref({
@@ -13,6 +14,7 @@ const formulario = ref({
 
 const errores = ref({})
 const calculado = ref(false)
+const calculando = ref(false)
 const mensajeGuardado = ref('')
 
 const resultadoCalorias = ref({
@@ -48,6 +50,7 @@ const nivelesActividad = [
 const ocultarResultado = () => {
   calculado.value = false
   mensajeGuardado.value = ''
+  errores.value = {}
 }
 
 const seleccionarSexo = (sexo) => {
@@ -84,19 +87,6 @@ const validarFormulario = () => {
 
   return Object.keys(nuevosErrores).length === 0
 }
-
-const calcularMetabolismoBasal = () => {
-  const edad = Number(formulario.value.edad)
-  const peso = Number(formulario.value.peso)
-  const altura = Number(formulario.value.altura)
-
-  if (formulario.value.sexo === 'hombre') {
-    return 10 * peso + 6.25 * altura - 5 * edad + 5
-  }
-
-  return 10 * peso + 6.25 * altura - 5 * edad - 161
-}
-
 
 const guardarResultadoCalorias = async () => {
   mensajeGuardado.value = ''
@@ -143,20 +133,40 @@ const calcularCalorias = async () => {
     return
   }
 
-  const metabolismoBasal = calcularMetabolismoBasal()
-  const factorActividad = Number(formulario.value.actividad)
+  calculando.value = true
+  mensajeGuardado.value = ''
 
-  const caloriasMantenimiento = metabolismoBasal * factorActividad
+  try {
+    const respuesta = await calcularCaloriasApi({
+      sexo: formulario.value.sexo,
+      edad: Number(formulario.value.edad),
+      peso: Number(formulario.value.peso),
+      altura: Number(formulario.value.altura),
+      actividad: Number(formulario.value.actividad),
+    })
 
-  resultadoCalorias.value = {
-    metabolismoBasal: Math.round(metabolismoBasal),
-    caloriasMantenimiento: Math.round(caloriasMantenimiento),
-    caloriasPerderPeso: Math.round(caloriasMantenimiento - 400),
-    caloriasGanarPeso: Math.round(caloriasMantenimiento + 300),
+    resultadoCalorias.value = {
+      metabolismoBasal: respuesta.resultado.metabolismoBasal,
+      caloriasMantenimiento: respuesta.resultado.caloriasMantenimiento,
+      caloriasPerderPeso: respuesta.resultado.caloriasPerderPeso,
+      caloriasGanarPeso: respuesta.resultado.caloriasGanarPeso,
+    }
+
+    calculado.value = true
+    await guardarResultadoCalorias()
+  } catch (error) {
+    console.error('Error al calcular calorías desde la API:', error)
+
+    if (error.errores) {
+      errores.value = error.errores
+    }
+
+    calculado.value = false
+    mensajeGuardado.value =
+      'No se pudieron calcular las calorías. Verifica que la API esté activa.'
+  } finally {
+    calculando.value = false
   }
-
-  calculado.value = true
-  await guardarResultadoCalorias()
 }
 </script>
 
@@ -257,8 +267,12 @@ const calcularCalorias = async () => {
             </select>
           </div>
 
-          <button type="submit" class="boton-calcular">
-            Calcular Calorías
+          <button
+            type="submit"
+            class="boton-calcular"
+            :disabled="calculando"
+          >
+            {{ calculando ? 'Calculando...' : 'Calcular Calorías' }}
           </button>
         </form>
 

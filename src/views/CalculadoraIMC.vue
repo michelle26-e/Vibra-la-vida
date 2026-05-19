@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { calcularIMCApi } from '../services/calculadorasApi'
 import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const formulario = ref({
@@ -12,6 +13,7 @@ const formulario = ref({
 
 const errores = ref({})
 const calculado = ref(false)
+const calculando = ref(false)
 const mensajeGuardado = ref('')
 
 const resultadoIMC = ref({
@@ -25,6 +27,7 @@ const resultadoIMC = ref({
 const ocultarResultado = () => {
   calculado.value = false
   mensajeGuardado.value = ''
+  errores.value = {}
 
   resultadoIMC.value = {
     valor: '--',
@@ -70,39 +73,6 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
-const obtenerCategoriaIMC = (valorIMC) => {
-  if (valorIMC < 18.5) {
-    return {
-      categoria: 'Bajo peso',
-      clase: 'bajo-peso',
-      descripcion: 'Un IMC menor a 18.5 se considera bajo peso en adultos.',
-    }
-  }
-
-  if (valorIMC >= 18.5 && valorIMC < 25) {
-    return {
-      categoria: 'Normal',
-      clase: 'normal',
-      descripcion: 'Un IMC entre 18.5 y 24.9 se considera normal en adultos.',
-    }
-  }
-
-  if (valorIMC >= 25 && valorIMC < 30) {
-    return {
-      categoria: 'Sobrepeso',
-      clase: 'sobrepeso',
-      descripcion: 'Un IMC entre 25 y 29.9 se considera sobrepeso en adultos.',
-    }
-  }
-
-  return {
-    categoria: 'Obesidad',
-    clase: 'obesidad',
-    descripcion: 'Un IMC de 30 o más se considera obesidad en adultos.',
-  }
-}
-
-
 const guardarResultadoIMC = async () => {
   mensajeGuardado.value = ''
 
@@ -140,28 +110,42 @@ const calcularIMC = async () => {
     return
   }
 
-  const alturaMetros = Number(formulario.value.altura) / 100
-  const peso = Number(formulario.value.peso)
+  calculando.value = true
+  mensajeGuardado.value = ''
 
-  const valorIMC = peso / (alturaMetros * alturaMetros)
+  try {
+    const respuesta = await calcularIMCApi({
+      edad: Number(formulario.value.edad),
+      peso: Number(formulario.value.peso),
+      altura: Number(formulario.value.altura),
+      genero: formulario.value.genero,
+    })
 
-  const datosCategoria = obtenerCategoriaIMC(valorIMC)
+    const datosResultado = respuesta.resultado
 
-  const posicionIndicador = Math.min(
-    100,
-    Math.max(0, ((valorIMC - 15) / (40 - 15)) * 100),
-  )
+    resultadoIMC.value = {
+      valor: String(datosResultado.valor),
+      categoria: datosResultado.categoria,
+      clase: datosResultado.clase,
+      descripcion: datosResultado.descripcion,
+      posicionIndicador: datosResultado.posicionIndicador,
+    }
 
-  resultadoIMC.value = {
-    valor: valorIMC.toFixed(1),
-    categoria: datosCategoria.categoria,
-    clase: datosCategoria.clase,
-    descripcion: datosCategoria.descripcion,
-    posicionIndicador,
+    calculado.value = true
+    await guardarResultadoIMC()
+  } catch (error) {
+    console.error('Error al calcular IMC desde la API:', error)
+
+    if (error.errores) {
+      errores.value = error.errores
+    }
+
+    calculado.value = false
+    mensajeGuardado.value =
+      'No se pudo calcular el IMC. Verifica que la API esté activa.'
+  } finally {
+    calculando.value = false
   }
-
-  calculado.value = true
-  await guardarResultadoIMC()
 }
 </script>
 
@@ -259,8 +243,12 @@ const calcularIMC = async () => {
             <small v-if="errores.peso">{{ errores.peso }}</small>
           </div>
 
-          <button type="submit" class="boton-calcular">
-            Calcular IMC
+          <button
+            type="submit"
+            class="boton-calcular"
+            :disabled="calculando"
+          >
+            {{ calculando ? 'Calculando...' : 'Calcular IMC' }}
           </button>
         </form>
       </div>
