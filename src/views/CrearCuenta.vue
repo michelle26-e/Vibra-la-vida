@@ -1,369 +1,249 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/firebaseConfig'
-import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authService'
-import {
-  guardarResultadoBienestar,
-  obtenerResultadosUsuario,
-} from '../services/resultadosService'
+import { registrarUsuario } from '../services/authService'
 
 const router = useRouter()
 
-const usuarioActual = ref(null)
-const datosUsuario = ref(null)
-const cargando = ref(true)
-const probandoGuardado = ref(false)
-const resultados = ref([])
-
-let detenerObservador = null
-
-const nombreUsuario = computed(() => {
-  const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
-  const primerNombre = nombreCompleto.trim().split(' ')[0]
-
-  return primerNombre.charAt(0).toUpperCase() + primerNombre.slice(1)
+const formulario = ref({
+  nombre: '',
+  correo: '',
+  contrasena: '',
+  confirmarContrasena: '',
 })
 
-const inicialUsuario = computed(() => {
-  return nombreUsuario.value.charAt(0).toUpperCase()
-})
+const errores = ref({})
+const mensaje = ref('')
+const mensajeError = ref('')
+const cargando = ref(false)
+const mostrarContrasena = ref(false)
+const mostrarConfirmar = ref(false)
 
-const correoUsuario = computed(() => {
-  return usuarioActual.value?.email || datosUsuario.value?.correo || 'Sin correo registrado'
-})
+const validarFormulario = () => {
+  const nuevosErrores = {}
 
-const imcRegistrados = computed(() => {
-  return resultados.value.filter((resultado) => resultado.tipo === 'imc').length
-})
-
-const encuestasRealizadas = computed(() => {
-  return resultados.value.filter((resultado) =>
-    ['dass21', 'insomnio', 'riesgo_cardiometabolico'].includes(resultado.tipo)
-  ).length
-})
-
-const registrosGuardados = computed(() => {
-  return resultados.value.length
-})
-
-const historialReciente = computed(() => {
-  return [...resultados.value]
-    .sort((a, b) => obtenerTiempoFecha(b.fecha) - obtenerTiempoFecha(a.fecha))
-    .slice(0, 5)
-})
-
-const obtenerTiempoFecha = (fecha) => {
-  if (!fecha) return 0
-
-  if (typeof fecha.toDate === 'function') {
-    return fecha.toDate().getTime()
+  if (!formulario.value.nombre.trim()) {
+    nuevosErrores.nombre = 'Ingresa tu nombre completo.'
   }
 
-  const fechaConvertida = new Date(fecha)
-  return Number.isNaN(fechaConvertida.getTime()) ? 0 : fechaConvertida.getTime()
+  if (!formulario.value.correo.trim()) {
+    nuevosErrores.correo = 'Ingresa tu correo electrónico.'
+  } else if (!formulario.value.correo.includes('@')) {
+    nuevosErrores.correo = 'Ingresa un correo válido.'
+  }
+
+  if (!formulario.value.contrasena.trim()) {
+    nuevosErrores.contrasena = 'Ingresa una contraseña.'
+  } else if (formulario.value.contrasena.length < 6) {
+    nuevosErrores.contrasena = 'La contraseña debe tener al menos 6 caracteres.'
+  }
+
+  if (!formulario.value.confirmarContrasena.trim()) {
+    nuevosErrores.confirmarContrasena = 'Confirma tu contraseña.'
+  } else if (formulario.value.contrasena !== formulario.value.confirmarContrasena) {
+    nuevosErrores.confirmarContrasena = 'Las contraseñas no coinciden.'
+  }
+
+  errores.value = nuevosErrores
+
+  return Object.keys(nuevosErrores).length === 0
 }
 
-const formatearFecha = (fecha) => {
-  if (!fecha) return 'Fecha no disponible'
-
-  const fechaConvertida =
-    typeof fecha.toDate === 'function' ? fecha.toDate() : new Date(fecha)
-
-  if (Number.isNaN(fechaConvertida.getTime())) {
-    return 'Fecha no disponible'
+const limpiarFormulario = () => {
+  formulario.value = {
+    nombre: '',
+    correo: '',
+    contrasena: '',
+    confirmarContrasena: '',
   }
-
-  return new Intl.DateTimeFormat('es-MX', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(fechaConvertida)
 }
 
-const obtenerNombreHerramienta = (tipo) => {
-  const nombres = {
-    imc: 'Calculadora de IMC',
-    calorias: 'Calculadora de Calorías',
-    dass21: 'Evaluación DASS-21',
-    insomnio: 'Insomnio de Atenas',
-    riesgo_cardiometabolico: 'Riesgo cardiometabólico',
-    prueba: 'Prueba de guardado',
+const crearCuenta = async () => {
+  mensaje.value = ''
+  mensajeError.value = ''
+
+  if (!validarFormulario()) {
+    return
   }
-
-  return nombres[tipo] || 'Resultado guardado'
-}
-
-const obtenerClaseHistorial = (tipo) => {
-  const clases = {
-    imc: 'historial-naranja',
-    calorias: 'historial-verde',
-    dass21: 'historial-cian',
-    insomnio: 'historial-morado',
-    riesgo_cardiometabolico: 'historial-rosa',
-    prueba: 'historial-azul',
-  }
-
-  return clases[tipo] || 'historial-azul'
-}
-
-const obtenerIconoHistorial = (tipo) => {
-  const iconos = {
-    imc: 'IMC',
-    calorias: 'CAL',
-    dass21: 'D21',
-    insomnio: 'AIS',
-    riesgo_cardiometabolico: 'RC',
-    prueba: 'OK',
-  }
-
-  return iconos[tipo] || 'RS'
-}
-
-const obtenerDescripcionResultado = (resultado) => {
-  if (resultado.tipo === 'imc') {
-    const valorIMC = resultado.imc || resultado.resultado || 'Sin dato'
-    const categoria = resultado.categoria || 'Sin categoría'
-    return `IMC: ${valorIMC}. Categoría: ${categoria}.`
-  }
-
-  if (resultado.tipo === 'calorias') {
-    const calorias = resultado.calorias || resultado.resultado || 'Sin dato'
-    return `Estimación calórica diaria: ${calorias}.`
-  }
-
-  if (resultado.tipo === 'dass21') {
-    const depresion = resultado.nivelDepresion || resultado.depresion || 'Sin dato'
-    const ansiedad = resultado.nivelAnsiedad || resultado.ansiedad || 'Sin dato'
-    const estres = resultado.nivelEstres || resultado.estres || 'Sin dato'
-
-    return `Depresión: ${depresion}. Ansiedad: ${ansiedad}. Estrés: ${estres}.`
-  }
-
-  if (resultado.tipo === 'insomnio') {
-    const puntuacion = resultado.puntuacion || resultado.resultado || 'Sin dato'
-    const interpretacion = resultado.interpretacion || resultado.categoria || 'Sin interpretación'
-
-    return `Puntuación: ${puntuacion}. ${interpretacion}.`
-  }
-
-  if (resultado.tipo === 'riesgo_cardiometabolico') {
-    const nivel = resultado.nivelRiesgo || resultado.categoria || 'Sin clasificación'
-    const puntuacion = resultado.puntuacion || resultado.resultado || 'Sin dato'
-
-    return `Nivel de riesgo: ${nivel}. Puntuación: ${puntuacion}.`
-  }
-
-  return resultado.resultado || resultado.categoria || 'Resultado guardado correctamente.'
-}
-
-const cargarResultadosUsuario = async () => {
-  resultados.value = await obtenerResultadosUsuario()
-}
-
-const cerrarSesion = async () => {
-  await cerrarSesionUsuario()
-  router.push('/iniciar-sesion')
-}
-
-const irARuta = (ruta) => {
-  router.push(ruta)
-}
-
-const probarGuardadoResultado = async () => {
-  if (probandoGuardado.value) return
 
   try {
-    probandoGuardado.value = true
+    cargando.value = true
 
-    await guardarResultadoBienestar({
-      tipo: 'prueba',
-      nombreHerramienta: 'Prueba desde Mi cuenta',
-      resultado: 'Resultado guardado correctamente',
-      categoria: 'Prueba',
+    await registrarUsuario({
+      nombre: formulario.value.nombre.trim(),
+      correo: formulario.value.correo.trim(),
+      contrasena: formulario.value.contrasena,
     })
 
-    await cargarResultadosUsuario()
+    mensaje.value = 'Cuenta creada correctamente.'
+    limpiarFormulario()
 
-    alert('Resultado de prueba guardado correctamente.')
+    setTimeout(() => {
+      router.push('/')
+    }, 900)
   } catch (error) {
-    console.error('Error al guardar el resultado:', error)
-    alert(error.message || 'No se pudo guardar el resultado.')
+    console.error('Error al crear cuenta:', error)
+
+    if (error.code === 'auth/email-already-in-use') {
+      mensajeError.value = 'Este correo ya está registrado.'
+    } else if (error.code === 'auth/invalid-email') {
+      mensajeError.value = 'El correo electrónico no es válido.'
+    } else if (error.code === 'auth/weak-password') {
+      mensajeError.value = 'La contraseña es demasiado débil.'
+    } else if (error.code === 'permission-denied') {
+      mensajeError.value = 'No tienes permisos para guardar el usuario en la base de datos.'
+    } else {
+      mensajeError.value = 'No se pudo crear la cuenta. Intenta nuevamente.'
+    }
   } finally {
-    probandoGuardado.value = false
+    cargando.value = false
   }
 }
-
-onMounted(() => {
-  detenerObservador = onAuthStateChanged(auth, async (usuario) => {
-    if (!usuario) {
-      router.push('/iniciar-sesion')
-      return
-    }
-
-    try {
-      cargando.value = true
-      usuarioActual.value = usuario
-      datosUsuario.value = await obtenerDatosUsuario(usuario.uid)
-      await cargarResultadosUsuario()
-    } catch (error) {
-      console.error('Error al cargar la cuenta:', error)
-      alert('No se pudo cargar la información de tu cuenta.')
-    } finally {
-      cargando.value = false
-    }
-  })
-})
-
-onUnmounted(() => {
-  if (detenerObservador) {
-    detenerObservador()
-  }
-})
 </script>
 
 <template>
-  <main class="pagina-cuenta">
-    <RouterLink to="/" class="boton-volver">
-      ← Volver al inicio
-    </RouterLink>
+  <main class="pagina-registro">
+    <section class="lado-formulario">
+      <RouterLink to="/" class="boton-volver">
+        ← Volver
+      </RouterLink>
 
-    <section v-if="cargando" class="tarjeta-cargando">
-      Cargando información de la cuenta...
+      <div class="contenedor-registro">
+        <span class="etiqueta-registro">
+          Comienza tu viaje
+        </span>
+
+        <h1>Crear Cuenta</h1>
+
+        <p class="descripcion-registro">
+          Únete a nuestra comunidad y mejora tu bienestar.
+        </p>
+
+        <form class="formulario-registro" @submit.prevent="crearCuenta">
+          <div class="grupo-campo">
+            <label for="nombre">Nombre completo</label>
+
+            <div class="campo-registro">
+              <span class="icono-campo">♡</span>
+
+              <input
+                id="nombre"
+                v-model="formulario.nombre"
+                type="text"
+                placeholder="Tu nombre"
+              />
+            </div>
+
+            <small v-if="errores.nombre">{{ errores.nombre }}</small>
+          </div>
+
+          <div class="grupo-campo">
+            <label for="correo">Correo Electrónico</label>
+
+            <div class="campo-registro">
+              <span class="icono-campo">@</span>
+
+              <input
+                id="correo"
+                v-model="formulario.correo"
+                type="email"
+                placeholder="tu@email.com"
+              />
+            </div>
+
+            <small v-if="errores.correo">{{ errores.correo }}</small>
+          </div>
+
+          <div class="grupo-campo">
+            <label for="contrasena">Contraseña</label>
+
+            <div class="campo-registro">
+              <span class="icono-campo">#</span>
+
+              <input
+                id="contrasena"
+                v-model="formulario.contrasena"
+                :type="mostrarContrasena ? 'text' : 'password'"
+                placeholder="Contraseña"
+              />
+
+              <button
+                type="button"
+                class="boton-ver"
+                @click="mostrarContrasena = !mostrarContrasena"
+              >
+                {{ mostrarContrasena ? 'Ocultar' : 'Ver' }}
+              </button>
+            </div>
+
+            <small v-if="errores.contrasena">{{ errores.contrasena }}</small>
+          </div>
+
+          <div class="grupo-campo">
+            <label for="confirmar">Confirmar Contraseña</label>
+
+            <div class="campo-registro">
+              <span class="icono-campo">#</span>
+
+              <input
+                id="confirmar"
+                v-model="formulario.confirmarContrasena"
+                :type="mostrarConfirmar ? 'text' : 'password'"
+                placeholder="Confirmar contraseña"
+              />
+
+              <button
+                type="button"
+                class="boton-ver"
+                @click="mostrarConfirmar = !mostrarConfirmar"
+              >
+                {{ mostrarConfirmar ? 'Ocultar' : 'Ver' }}
+              </button>
+            </div>
+
+            <small v-if="errores.confirmarContrasena">
+              {{ errores.confirmarContrasena }}
+            </small>
+          </div>
+
+          <p v-if="mensajeError" class="mensaje-error">
+            {{ mensajeError }}
+          </p>
+
+          <button type="submit" class="boton-crear" :disabled="cargando">
+            {{ cargando ? 'Creando cuenta...' : 'Crear mi cuenta' }}
+            <span v-if="!cargando">→</span>
+          </button>
+
+          <p v-if="mensaje" class="mensaje-correcto">
+            {{ mensaje }}
+          </p>
+        </form>
+
+        <p class="texto-login">
+          ¿Ya tienes una cuenta?
+          <RouterLink to="/iniciar-sesion">Inicia sesión</RouterLink>
+        </p>
+      </div>
     </section>
 
-    <section v-else class="contenedor-cuenta">
-      <section class="encabezado-cuenta">
-        <div class="avatar-perfil">
-          {{ inicialUsuario }}
-        </div>
+    <section class="lado-imagen">
+      <div class="capa-oscura"></div>
 
-        <div>
-          <span class="etiqueta-cuenta">Mi cuenta</span>
-          <h1>Hola {{ nombreUsuario }}</h1>
-          <p>
-            Aquí puedes consultar tu información y acceder rápidamente a tus
-            herramientas de autocuidado.
-          </p>
-        </div>
-      </section>
+      <div class="texto-imagen">
+        <span></span>
 
-      <section class="rejilla-cuenta">
-        <article class="tarjeta-perfil">
-          <h2>Datos de la cuenta</h2>
+        <h2>
+          Un paso más hacia tu equilibrio.
+        </h2>
 
-          <div class="dato-perfil">
-            <span>Nombre</span>
-            <strong>{{ datosUsuario?.nombre || 'No registrado' }}</strong>
-          </div>
-
-          <div class="dato-perfil">
-            <span>Correo electrónico</span>
-            <strong>{{ correoUsuario }}</strong>
-          </div>
-
-        </article>
-
-        <article class="tarjeta-resumen">
-          <h2>Resumen de bienestar</h2>
-
-          <div class="rejilla-resumen">
-            <div>
-              <strong>{{ imcRegistrados }}</strong>
-              <span>IMC registrados</span>
-            </div>
-
-            <div>
-              <strong>{{ encuestasRealizadas }}</strong>
-              <span>Encuestas realizadas</span>
-            </div>
-
-            <div>
-              <strong>{{ registrosGuardados }}</strong>
-              <span>Registros guardados</span>
-            </div>
-          </div>
-
-          <p>
-            Cuando guardes resultados de IMC, calorías o cuestionarios, aquí se
-            mostrará un resumen de tu progreso.
-          </p>
-
-          <button
-            class="boton-prueba-guardar"
-            :disabled="probandoGuardado"
-            @click="probarGuardadoResultado"
-          >
-            {{ probandoGuardado ? 'Guardando...' : 'Probar guardado de resultado' }}
-          </button>
-        </article>
-      </section>
-
-      <section class="seccion-herramientas">
-        <h2>Herramientas rápidas</h2>
-
-        <div class="rejilla-herramientas">
-          <button @click="irARuta('/calculadora-imc')">
-            <span>IMC</span>
-            Calculadora de IMC
-          </button>
-
-          <button @click="irARuta('/calculadora-calorias')">
-            <span>CAL</span>
-            Calculadora de Calorías
-          </button>
-
-          <button @click="irARuta('/evaluacion-dass21')">
-            <span>D21</span>
-            Evaluación DASS-21
-          </button>
-
-          <button @click="irARuta('/escala-insomnio-atenas')">
-            <span>AIS</span>
-            Insomnio de Atenas
-          </button>
-        </div>
-      </section>
-
-      <section class="seccion-historial">
-        <h2>Historial reciente</h2>
-
-        <div v-if="historialReciente.length" class="lista-historial">
-          <article
-            v-for="resultado in historialReciente"
-            :key="resultado.id"
-            class="item-historial"
-          >
-            <div
-              class="icono-historial"
-              :class="obtenerClaseHistorial(resultado.tipo)"
-            >
-              {{ obtenerIconoHistorial(resultado.tipo) }}
-            </div>
-
-            <div class="contenido-historial">
-              <span>{{ obtenerNombreHerramienta(resultado.tipo) }}</span>
-              <strong>{{ resultado.nombreHerramienta || obtenerNombreHerramienta(resultado.tipo) }}</strong>
-              <p>{{ obtenerDescripcionResultado(resultado) }}</p>
-              <small>{{ formatearFecha(resultado.fecha) }}</small>
-            </div>
-          </article>
-        </div>
-
-        <div v-else class="tarjeta-vacia">
-          <strong>Aún no hay resultados guardados</strong>
-          <p>
-            Más adelante podrás ver aquí tus evaluaciones, cálculos y avances
-            registrados dentro de Vibra la Vida.
-          </p>
-        </div>
-      </section>
-
-      <button class="boton-cerrar-sesion" @click="cerrarSesion">
-        Cerrar sesión
-      </button>
+        <p>
+          Regístrate en Vibra la Vida y accede a herramientas, encuestas
+          interactivas y recursos personalizados para ti.
+        </p>
+      </div>
     </section>
   </main>
 </template>
 
-<style scoped src="../assets/styles/MiCuenta.css"></style>
+<style scoped src="../assets/styles/CrearCuenta.css"></style>

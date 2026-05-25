@@ -1,3 +1,19 @@
+/*
+  Su función es mostrar un formulario donde el usuario ingresa sus datos,
+  como sexo, edad, peso, altura y nivel de actividad física.
+
+  Primero se revisa que los datos estén correctos. Después, cuando el usuario
+  presiona el botón "Calcular Calorías", se envía la información a la API para
+  obtener el cálculo de calorías.
+
+  La API se usa dentro de la función calcularCalorias(), específicamente en:calcularCaloriasApi
+
+  Esa parte manda los datos del formulario al servidor y recibe como respuesta
+  el metabolismo basal, las calorías para mantener el peso, perder peso y ganar peso.
+
+  Después de calcular, el resultado se muestra en la pantalla y también se intenta
+  guardar en la sección de Mi cuenta.
+*/
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
