@@ -1,6 +1,5 @@
 <script setup>
 // Importamos componentes reutilizables
-import ApartadoSlot from '../components/ApartadoSlot.vue'
 import TarjetaAccion from '../components/TarjetaAccion.vue'
 
 // Importamos lo que necesitamos de Vue
@@ -93,8 +92,16 @@ const informacionTemario = {
 
 // Obtenemos el primer nombre del usuario para mostrar un saludo personal
 const nombreUsuario = computed(() => {
-  const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
-  const primerNombre = nombreCompleto.trim().split(' ')[0]
+  // En Firestore guardamos el nombre completo,
+  // pero en la interfaz solo mostramos el primer nombre.
+  // También dejamos compatibilidad temporal con usuarios antiguos
+  // que todavía tengan el campo "nombre".
+  const nombreCompleto =
+    datosUsuario.value?.nombreCompleto ||
+    datosUsuario.value?.nombre ||
+    'Usuario'
+
+  const primerNombre = nombreCompleto.trim().split(/\s+/)[0]
 
   return primerNombre.charAt(0).toUpperCase() + primerNombre.slice(1)
 })
@@ -216,7 +223,7 @@ const seccionesTemario = [
     id: 'riesgo-cardiometabolico',
     icono: 'RC',
     titulo: 'Riesgo Cardiometabólico',
-    color: 'rosa',
+    color: 'azul',
     parrafos: [
       'Un factor de riesgo es cualquier característica, condición o comportamiento que incrementa la probabilidad de desarrollar una enfermedad. En el ámbito cardiometabólico, los factores más relevantes en adolescentes incluyen el exceso de peso corporal, las dislipidemias, la hipertensión arterial, la resistencia a la insulina y las alteraciones en los niveles de glucosa en sangre (International Diabetes Federation, 2007).',
       'Cuando varios de estos factores se presentan de manera constante, se establece el síndrome metabólico, el cual se asocia con una mayor probabilidad de desarrollar diabetes tipo 2 y enfermedades cardiovasculares en la adultez (International Diabetes Federation, 2007). En adolescentes, la presencia temprana de estos factores es una señal de alerta, ya que las trayectorias de salud que se establecen en esta etapa pueden determinar riesgos a largo plazo (International Diabetes Federation, 2007). Por ello, se resalta la importancia de monitorear indicadores clave y fomentar programas e información preventivos desde el entorno escolar y familiar (World Health Organization, 2021).',
@@ -229,7 +236,7 @@ const seccionesTemario = [
         titulo: 'Riesgo Cardiovascular',
         texto: 'Conoce tu nivel de riesgo cardiometabólico',
         boton: 'Comenzar simulación',
-        color: 'rosa',
+        color: 'azul',
         ruta: '/riesgo-cardiovascular',
       },
     ],
@@ -251,7 +258,7 @@ const seccionesTemario = [
     id: 'ritmo-cardiaco',
     icono: 'TR',
     titulo: 'Trastornos del Ritmo Cardíaco',
-    color: 'rojo',
+    color: 'verde',
     parrafos: [
       'Los trastornos del ritmo cardíaco, también conocidos como arritmias cardíacas, son alteraciones en la forma en que late el corazón. Estas pueden hacer que el corazón lata demasiado rápido, demasiado lento o de manera irregular. Este problema se relaciona principalmente con fallas en el sistema eléctrico del corazón, el cual se encarga de coordinar los impulsos que permiten que las cavidades cardíacas se contraigan y relajen de forma ordenada para bombear sangre al resto del cuerpo (Brigham and Women’s Hospital, s. f.; NHLBI, 2022). ',
       'En condiciones normales, el corazón mantiene un ritmo regular que permite una circulación adecuada de la sangre. En cambio, cuando los impulsos eléctricos se generan de manera anormal, se bloquean o viajan por rutas incorrectas, el ritmo cardíaco puede alterarse. Algunas arritmias pueden presentarse en personas aparentemente sanas y no causar consecuencias importantes, pero otras pueden indicar la presencia de una enfermedad cardiovascular más seria o convertirse en un riesgo para la salud si no se detectan y tratan oportunamente (Brigham and Women’s Hospital, s. f.; Mayo Clinic, 2026). ',
@@ -267,7 +274,7 @@ const seccionesTemario = [
     id: 'sobrepeso',
     icono: 'SO',
     titulo: 'Sobrepeso y Obesidad',
-    color: 'naranja',
+    color: 'cian',
     parrafos: [
       'El exceso de peso suele evaluarse mediante el Índice de Masa Corporal (IMC), una medida que relaciona el peso de una persona con su estatura al cuadrado y que permite clasificar el estado nutricional de forma práctica y rápida. La Organización Mundial de la Salud (OMS) reconoce la obesidad como una enfermedad crónica, compleja y multifactorial, cuyo desarrollo está influido por factores biológicos, conductuales y ambientales. Su atención requiere un enfoque integral que contemple de manera simultánea la alimentación, la actividad física, la salud mental, el sueño y las condiciones sociales del individuo (World Health Organization,2025b).',
       'En México, los datos de la Encuesta Nacional de Salud y Nutrición (ENSANUT) muestran una alta prevalencia de sobrepeso y obesidad tanto en la población escolar como en la adolescente, lo que refuerza la necesidad urgente de implementar acciones preventivas desde edades tempranas (Instituto Nacional de Salud Pública, 2024). El exceso de peso en esta etapa de la vida no solo afecta el bienestar físico y emocional de los adolescentes, sino que también incrementa de manera significativa el riesgo de desarrollar enfermedades como diabetes tipo 2, hipertensión arterial y otras complicaciones cardiometabólicas en la edad adulta (Instituto Nacional de Salud Pública, 2024; Secretaría de Salud, 2025).',
@@ -279,7 +286,7 @@ const seccionesTemario = [
         titulo: 'Calculadora de IMC',
         texto: 'Conoce tu Índice de Masa Corporal de forma rápida. Esta herramienta educativa te ayuda a identificar si tu peso se encuentra en un rango bajo, normal, sobrepeso u obesidad.',
         boton: 'Calcular ahora',
-        color: 'naranja',
+        color: 'cian',
         ruta: '/calculadora-imc',
       },
       {
@@ -318,7 +325,7 @@ const seccionesTemario = [
         titulo: 'Escala de Insomnio de Atenas',
         texto: 'Evalúa la calidad de tu sueño mediante un cuestionario breve. Esta herramienta puede ayudarte a identificar posibles dificultades para dormir o descansar adecuadamente.',
         boton: 'Comenzar encuesta',
-        color: 'morado',
+        color: 'azul',
         ruta: '/escala-insomnio-atenas',
       },
     ],
@@ -376,10 +383,6 @@ const abrirTarjeta = (tarjeta) => {
   }
 }
 
-// Función para abrir una ruta desde las tarjetas que están dentro del slot
-const abrirRuta = (ruta) => {
-  router.push(ruta)
-}
 </script>
 
 <template>
@@ -488,63 +491,6 @@ const abrirRuta = (ruta) => {
         </div>
       </section>
 
-      <!-- 
-        Aquí se usa el componente ApartadoSlot.
-        El contenido que está dentro de <ApartadoSlot> entra en el <slot></slot>
-        del componente hijo.
-      -->
-      <ApartadoSlot
-        titulo="Herramientas de bienestar"
-        descripcion="Selecciona una herramienta para conocer más sobre tu salud y bienestar."
-      >
-        <div class="rejilla-tarjetas">
-          <TarjetaAccion
-            icono="IMC"
-            titulo="Calculadora de IMC"
-            texto="Conoce tu Índice de Masa Corporal de forma rápida."
-            boton="Calcular ahora"
-            color="naranja"
-            @abrir="abrirRuta('/calculadora-imc')"
-          />
-
-          <TarjetaAccion
-            icono="CAL"
-            titulo="Calculadora de Calorías"
-            texto="Conoce una estimación de tu gasto calórico diario."
-            boton="Calcular ahora"
-            color="verde"
-            @abrir="abrirRuta('/calculadora-calorias')"
-          />
-
-          <TarjetaAccion
-            icono="RC"
-            titulo="Riesgo Cardiovascular"
-            texto="Conoce tu nivel de riesgo cardiometabólico."
-            boton="Comenzar simulación"
-            color="rosa"
-            @abrir="abrirRuta('/riesgo-cardiovascular')"
-          />
-
-          <TarjetaAccion
-            icono="D21"
-            titulo="Evaluación DASS-21"
-            texto="Identifica señales relacionadas con depresión, ansiedad y estrés."
-            boton="Comenzar encuesta"
-            color="cian"
-            @abrir="abrirRuta('/evaluacion-dass21')"
-          />
-
-          <TarjetaAccion
-            icono="AIS"
-            titulo="Escala de Insomnio de Atenas"
-            texto="Evalúa posibles dificultades relacionadas con el sueño."
-            boton="Comenzar encuesta"
-            color="morado"
-            @abrir="abrirRuta('/escala-insomnio-atenas')"
-          />
-        </div>
-      </ApartadoSlot>
-
       <section id="temario" class="contenedor-temario">
         <article
           v-for="seccion in seccionesTemario"
@@ -600,7 +546,6 @@ const abrirRuta = (ruta) => {
               <TarjetaAccion
                 v-for="tarjeta in seccion.tarjetas"
                 :key="tarjeta.titulo"
-                :icono="tarjeta.icono"
                 :titulo="tarjeta.titulo"
                 :texto="tarjeta.texto"
                 :boton="tarjeta.boton"

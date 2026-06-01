@@ -401,7 +401,7 @@ const completarEvaluacion = async () => {
           :class="dimensionActiva.color"
         >
           <h3>
-            {{ pregunta.numero }}. {{ pregunta.texto }}
+            {{ pregunta.texto }}
           </h3>
 
           <div class="opciones-pregunta">

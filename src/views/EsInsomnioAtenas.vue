@@ -14,7 +14,6 @@ const preguntas = [
     numero: 1,
     titulo: 'Pregunta 1',
     descripcion: 'Inducción del sueño: tiempo que tarda en dormirse una vez acostado.',
-    icono: 'SU',
     opciones: [
       { valor: 0, texto: 'Sin problema' },
       { valor: 1, texto: 'Levemente retrasado' },
@@ -26,7 +25,6 @@ const preguntas = [
     numero: 2,
     titulo: 'Pregunta 2',
     descripcion: 'Despertares durante la noche.',
-    icono: 'NO',
     opciones: [
       { valor: 0, texto: 'Sin problema' },
       { valor: 1, texto: 'Problema menor' },
@@ -38,7 +36,6 @@ const preguntas = [
     numero: 3,
     titulo: 'Pregunta 3',
     descripcion: 'Despertar final más temprano de lo deseado.',
-    icono: 'DE',
     opciones: [
       { valor: 0, texto: 'Sin problema' },
       { valor: 1, texto: 'Levemente más temprano' },
@@ -50,7 +47,6 @@ const preguntas = [
     numero: 4,
     titulo: 'Pregunta 4',
     descripcion: 'Duración total del sueño.',
-    icono: 'DU',
     opciones: [
       { valor: 0, texto: 'Suficiente' },
       { valor: 1, texto: 'Levemente insuficiente' },
@@ -62,7 +58,6 @@ const preguntas = [
     numero: 5,
     titulo: 'Pregunta 5',
     descripcion: 'Calidad general del sueño.',
-    icono: 'CA',
     opciones: [
       { valor: 0, texto: 'Satisfactoria' },
       { valor: 1, texto: 'Levemente insatisfactoria' },
@@ -74,7 +69,6 @@ const preguntas = [
     numero: 6,
     titulo: 'Pregunta 6',
     descripcion: 'Sensación de bienestar durante el día.',
-    icono: 'BI',
     opciones: [
       { valor: 0, texto: 'Normal' },
       { valor: 1, texto: 'Levemente disminuida' },
@@ -86,7 +80,6 @@ const preguntas = [
     numero: 7,
     titulo: 'Pregunta 7',
     descripcion: 'Funcionamiento físico y mental durante el día.',
-    icono: 'FU',
     opciones: [
       { valor: 0, texto: 'Normal' },
       { valor: 1, texto: 'Levemente disminuido' },
@@ -98,7 +91,6 @@ const preguntas = [
     numero: 8,
     titulo: 'Pregunta 8',
     descripcion: 'Somnolencia durante el día.',
-    icono: 'SO',
     opciones: [
       { valor: 0, texto: 'Ninguna' },
       { valor: 1, texto: 'Leve' },
@@ -176,7 +168,6 @@ const responderPregunta = (numeroPregunta, valor) => {
   mensajeGuardado.value = ''
 }
 
-
 // Guardamos el resultado de la encuesta en la cuenta del usuario
 const guardarResultadoAtenas = async () => {
   mensajeGuardado.value = ''
@@ -221,18 +212,6 @@ const verResultado = async () => {
   }, 100)
 }
 
-const reiniciarEvaluacion = () => {
-  respuestas.value = {}
-  mostrarResultado.value = false
-  mensajeGuardado.value = ''
-
-  setTimeout(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-  }, 100)
-}
 </script>
 
 <template>
@@ -256,11 +235,27 @@ const reiniciarEvaluacion = () => {
     <section class="tarjeta-escala">
       <h2>Escala de calificación</h2>
 
-      <p>
-        Cada pregunta se califica de 0 a 3, donde 0 indica “sin problema” y 3
-        indica “problema severo”. Selecciona la opción que mejor describa tu
-        experiencia.
-      </p>
+      <div class="rejilla-escala">
+        <div class="item-escala">
+          <strong>0:</strong>
+          <span>No me ha ocurrido</span>
+        </div>
+
+        <div class="item-escala">
+          <strong>1:</strong>
+          <span>Me ha ocurrido un poco, o durante parte del tiempo</span>
+        </div>
+
+        <div class="item-escala">
+          <strong>2:</strong>
+          <span>Me ha ocurrido bastante, o durante una buena parte del tiempo</span>
+        </div>
+
+        <div class="item-escala">
+          <strong>3:</strong>
+          <span>Me ha ocurrido mucho, o la mayor parte del tiempo</span>
+        </div>
+      </div>
     </section>
 
     <section class="contenedor-preguntas">
@@ -269,14 +264,9 @@ const reiniciarEvaluacion = () => {
         :key="pregunta.numero"
         class="tarjeta-pregunta"
       >
-        <div class="encabezado-pregunta">
-          <span class="icono-pregunta">{{ pregunta.icono }}</span>
-
-          <div>
-            <h2>{{ pregunta.titulo }}</h2>
-            <p>{{ pregunta.descripcion }}</p>
-          </div>
-        </div>
+        <p class="texto-pregunta">
+          {{ pregunta.descripcion }}
+        </p>
 
         <div class="opciones-respuesta">
           <button
@@ -289,8 +279,7 @@ const reiniciarEvaluacion = () => {
             }"
             @click="responderPregunta(pregunta.numero, opcion.valor)"
           >
-            <span>{{ opcion.valor }}</span>
-            {{ opcion.texto }}
+            {{ opcion.valor }}
           </button>
         </div>
       </article>
@@ -298,10 +287,7 @@ const reiniciarEvaluacion = () => {
 
     <section class="barra-final">
       <div class="contenedor-progreso">
-        <div
-          class="progreso-actual"
-          :style="{ width: `${progreso}%` }"
-        ></div>
+        <div class="progreso-actual" :style="{ width: `${progreso}%` }"></div>
       </div>
 
       <span>{{ preguntasRespondidas }} de {{ totalPreguntas }}</span>
@@ -323,29 +309,35 @@ const reiniciarEvaluacion = () => {
     >
       <h2>Resultado de la Escala de Insomnio de Atenas</h2>
 
-      <div class="resultado-principal">
-        <span>{{ puntajeTotal }}</span>
-        <p>puntos de 24</p>
+      <div class="resumen-resultado">
+        <article class="dato-resultado">
+          <span>Puntaje obtenido</span>
+          <strong>{{ puntajeTotal }} / 24</strong>
+        </article>
+
+        <article class="dato-resultado">
+          <span>Preguntas respondidas</span>
+          <strong>{{ preguntasRespondidas }} / {{ totalPreguntas }}</strong>
+        </article>
+
+        <article class="dato-resultado">
+          <span>Nivel</span>
+          <strong>{{ resultado.nivel }}</strong>
+        </article>
       </div>
 
-      <h3>{{ resultado.nivel }}</h3>
-
-      <p>
+      <p class="descripcion-resultado">
         {{ resultado.descripcion }}
       </p>
 
       <div class="tarjeta-aviso">
-        Esta herramienta es únicamente informativa y no sustituye una valoración
-        médica, psicológica o de sueño realizada por un profesional.
+        Esta autoevaluación es únicamente informativa y no representa un
+        diagnóstico médico, psicológico ni de trastorno del sueño.
       </div>
 
       <p v-if="mensajeGuardado" class="mensaje-guardado">
         {{ mensajeGuardado }}
       </p>
-
-      <button class="boton-reiniciar" @click="reiniciarEvaluacion">
-        Realizar nuevamente
-      </button>
     </section>
   </main>
 </template>

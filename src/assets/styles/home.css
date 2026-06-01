@@ -1,25 +1,42 @@
+/* ==========================================================
+   HOME VIEW - VIBRA LA VIDA
+   Paleta inspirada en el logo
+   ========================================================== */
+
 .pagina-inicio {
   min-height: 100vh;
-  background: #f7faf9;
+  background: #f7fafb;
 }
+
+/* ==========================================================
+   BARRA LATERAL
+   ========================================================== */
 
 .barra-lateral {
   position: fixed;
   top: 24px;
   left: 24px;
   bottom: 24px;
+
   width: 290px;
-  padding: 24px 16px;
+
+  padding: 22px 16px;
+
+  border: 1px solid #e7eef1;
   border-radius: 22px;
+
   background: #ffffff;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+
+  box-shadow: 0 14px 34px rgba(7, 58, 78, 0.07);
+
   overflow-y: auto;
 }
 
 .contenedor-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 28px;
+
+  margin-bottom: 24px;
 }
 
 .contenedor-logo img {
@@ -27,32 +44,46 @@
   height: auto;
 }
 
+
+/* ==========================================================
+   CUENTA / SESIÓN
+   ========================================================== */
+
 .botones-acceso {
   width: 100%;
-  margin: 24px 0 30px;
+
+  margin: 20px 0 28px;
 }
 
 .acciones-sesion {
   display: grid;
-  gap: 12px;
+
+  gap: 10px;
 }
 
 .caja-cuenta {
   display: grid;
-  gap: 12px;
+
+  gap: 10px;
+
   width: 100%;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  background: #f8fafc;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+
+  padding: 15px;
+
+  border: 1px solid #e2eaed;
+  border-radius: 18px;
+
+  background: #f9fbfc;
 }
 
 .saludo-cuenta {
   margin: 0 0 4px;
-  color: #10182e;
-  font-size: 18px;
+
+  color: #173b57;
+
+  font-size: 17px;
   font-weight: 900;
+
   text-align: center;
 }
 
@@ -61,90 +92,134 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 100%;
-  min-height: 46px;
+
+  min-height: 44px;
+
   border: 0;
-  border-radius: 14px;
-  font-size: 15px;
+  border-radius: 13px;
+
+  font-size: 14px;
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
+
   transition:
     background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .boton-mi-cuenta {
-  color: #047857;
-  background: #dcfce7;
+  color: #0f6e83;
+  background: #eaf7f8;
 }
 
 .boton-mi-cuenta:hover {
-  background: #bbf7d0;
-  transform: translateY(-2px);
+  color: #ffffff;
+  background: #0aa7b8;
+
+  transform: translateY(-1px);
 }
 
+/* Se conserva rojo para la acción destructiva */
 .boton-cerrar {
   color: #ffffff;
-  background: #e11d48;
+  background: #d7264e;
 }
 
 .boton-cerrar:hover {
-  background: #be123c;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 18px rgba(225, 29, 72, 0.18);
+  background: #b91c3f;
+
+  transform: translateY(-1px);
 }
 
 .boton {
   border: 0;
-  border-radius: 14px;
-  padding: 13px 16px;
+  border-radius: 13px;
+
+  padding: 12px 15px;
+
   font-weight: 800;
+  font-family: inherit;
+
   cursor: pointer;
 }
 
 .boton-login {
-  color: #047857;
-  background: #e7fbf2;
+  color: #0f6e83;
+  background: #eaf7f8;
+}
+
+.boton-login:hover {
+  background: #dff2f4;
 }
 
 .boton-registro {
   color: #ffffff;
-  background: #10182e;
-  box-shadow: 0 8px 18px rgba(16, 24, 46, 0.2);
+  background: #0f6e83;
+
+  box-shadow: 0 8px 18px rgba(15, 110, 131, 0.16);
 }
 
+.boton-registro:hover {
+  background: #0b5c6d;
+}
+
+
+/* ==========================================================
+   MENÚ LATERAL
+   ========================================================== */
+
 .titulo-menu {
-  margin: 0 0 14px 8px;
-  font-size: 12px;
+  margin: 0 0 12px 8px;
+
+  color: #8a9ba7;
+
+  font-size: 11px;
   font-weight: 800;
-  color: #8aa0bc;
+
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 }
 
 .menu-lateral {
   display: grid;
-  gap: 8px;
+
+  gap: 7px;
 }
 
 .enlace-menu {
   position: relative;
+
   display: flex;
   align-items: center;
-  gap: 13px;
+
+  gap: 12px;
+
   width: 100%;
-  min-height: 54px;
-  padding: 10px 14px;
+  min-height: 51px;
+
+  padding: 9px 13px;
+
   border: 0;
-  border-radius: 15px;
-  color: #52657d;
+  border-radius: 14px;
+
+  color: #52697c;
   background: transparent;
+
   text-align: left;
   text-decoration: none;
-  font-size: 14px;
+
+  font-size: 13px;
   font-weight: 700;
+  font-family: inherit;
+
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -152,170 +227,281 @@
 }
 
 .enlace-menu:hover {
-  background: #f1f5f9;
+  color: #0f6e83;
+  background: #f3f9fa;
+
   transform: translateX(2px);
 }
 
 .enlace-menu.activo {
-  color: #ffffff;
-  background: #10182e;
+  color: #0f6e83;
+  background: #e7f5f7;
 }
 
 .icono-menu {
   display: grid;
   place-items: center;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+
+  flex: 0 0 32px;
+
+  width: 32px;
+  height: 32px;
+
   border-radius: 50%;
-  background: #eef8ff;
-  color: #0ea5e9;
-  font-size: 11px;
+
+  color: #0f6e83;
+  background: #eaf7f8;
+
+  font-size: 10px;
   font-weight: 900;
 }
 
 .enlace-menu.activo .icono-menu {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
+  background: #0aa7b8;
 }
 
 .punto-activo {
   position: absolute;
-  right: 15px;
-  width: 7px;
-  height: 7px;
+  right: 14px;
+
+  width: 6px;
+  height: 6px;
+
   border-radius: 50%;
-  background: #a3e635;
+
+  background: #78c832;
 }
 
+
+/* ==========================================================
+   DESCARGA APP EN SIDEBAR
+   ========================================================== */
+
 .tarjeta-descarga {
-  margin-top: 34px;
-  padding: 22px;
+  margin-top: 30px;
+
+  padding: 20px;
+
   border-radius: 18px;
+
   color: #ffffff;
-  background: linear-gradient(135deg, #7c3aed, #c026d3);
+
+  background:
+    linear-gradient(
+      145deg,
+      #0f6e83,
+      #087f8f 55%,
+      #1b8e57
+    );
 }
 
 .tarjeta-descarga h3 {
   margin: 0 0 8px;
-  font-size: 15px;
+
+  font-size: 14px;
 }
 
 .tarjeta-descarga p {
-  margin: 0 0 16px;
+  margin: 0 0 15px;
+
+  color: #e6f7f8;
+
   font-size: 12px;
   line-height: 1.5;
 }
 
 .tarjeta-descarga button {
   width: 100%;
+
+  padding: 10px 12px;
+
   border: 0;
   border-radius: 999px;
-  padding: 11px 12px;
-  color: #7c3aed;
+
+  color: #0f6e83;
   background: #ffffff;
+
   font-weight: 800;
+  font-family: inherit;
+
   cursor: pointer;
 }
 
+
+/* ==========================================================
+   CONTENIDO PRINCIPAL
+   ========================================================== */
+
 .contenido-principal {
   margin-left: 330px;
-  padding: 70px 4vw 80px;
+
+  padding: 58px 4vw 78px;
 }
+
+
+/* ==========================================================
+   AVISO IMPORTANTE
+   Se mantiene la semaforización amarilla
+   ========================================================== */
 
 .tarjeta-aviso {
   display: flex;
-  gap: 18px;
+
+  gap: 16px;
+
   max-width: 1100px;
-  margin: 0 auto 34px;
-  padding: 22px;
-  border: 1px solid #facc15;
+
+  margin: 0 auto 28px;
+
+  padding: 19px 20px;
+
+  border: 1px solid #f2cf71;
   border-radius: 16px;
-  background: #fff9e8;
-  box-shadow: 0 10px 24px rgba(234, 179, 8, 0.12);
+
+  background: #fffaf0;
 }
 
 .icono-aviso {
   display: grid;
   place-items: center;
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
+
+  flex: 0 0 36px;
+
+  width: 36px;
+  height: 36px;
+
   border-radius: 50%;
-  color: #d97706;
-  background: #fef3c7;
+
+  color: #a85b00;
+  background: #fff0bf;
+
   font-weight: 900;
 }
 
 .tarjeta-aviso h3 {
-  margin: 0 0 8px;
-  color: #7c2d12;
-  font-size: 16px;
+  margin: 0 0 7px;
+
+  color: #7c4a0d;
+
+  font-size: 15px;
 }
 
 .tarjeta-aviso p {
   margin: 0;
-  color: #9a3412;
-  font-size: 14px;
-  line-height: 1.7;
+
+  color: #805b2a;
+
+  font-size: 13px;
+  line-height: 1.65;
 }
+
+
+/* ==========================================================
+   BIENVENIDA
+   ========================================================== */
 
 .seccion-bienvenida {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(260px, 0.8fr);
+
   align-items: center;
-  gap: 40px;
+
+  gap: 36px;
+
   max-width: 1180px;
-  min-height: 560px;
+
+  min-height: 520px;
+
   margin: 0 auto;
 }
 
 .etiqueta {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 40px;
-  padding: 10px 18px;
+
+  margin-bottom: 30px;
+
+  padding: 8px 16px;
+
   border-radius: 999px;
-  color: #4d7c0f;
-  background: #ecfccb;
-  font-size: 14px;
+
+  color: #417415;
+  background: #edf8df;
+
+  font-size: 13px;
   font-weight: 800;
 }
 
 .texto-bienvenida h1 {
   margin: 0;
-  color: #111827;
-  font-size: clamp(46px, 5vw, 72px);
+
+  color: #173b57;
+
+  font-size: clamp(44px, 5vw, 68px);
+
   line-height: 1.05;
+
   letter-spacing: -0.05em;
 }
 
 .texto-bienvenida h1 span {
   display: block;
-  background: linear-gradient(90deg, #65c600, #00b7d8);
+
+  background:
+    linear-gradient(
+      90deg,
+      #2e9b32,
+      #0aa7b8,
+      #0b4f7a
+    );
+
   background-clip: text;
   -webkit-background-clip: text;
+
   color: transparent;
 }
 
 .texto-bienvenida p {
   max-width: 720px;
-  margin: 44px 0 36px;
-  color: #64748b;
-  font-size: 19px;
+
+  margin: 34px 0 30px;
+
+  color: #607585;
+
+  font-size: 17px;
   line-height: 1.75;
 }
 
 .boton-principal {
+  padding: 15px 30px;
+
   border: 0;
   border-radius: 999px;
-  padding: 18px 34px;
+
   color: #ffffff;
-  background: #10182e;
-  font-size: 15px;
+  background: #0f6e83;
+
+  font-size: 14px;
   font-weight: 900;
-  box-shadow: 0 18px 32px rgba(16, 24, 46, 0.25);
+  font-family: inherit;
+
+  box-shadow: 0 12px 24px rgba(15, 110, 131, 0.18);
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-principal:hover {
+  background: #0aa7b8;
+
+  transform: translateY(-1px);
 }
 
 .imagen-bienvenida {
@@ -324,64 +510,95 @@
 }
 
 .imagen-bienvenida img {
-  width: min(360px, 100%);
-  filter: drop-shadow(0 20px 30px rgba(15, 23, 42, 0.12));
+  width: min(340px, 100%);
+
+  filter: drop-shadow(0 18px 28px rgba(7, 58, 78, 0.11));
 }
+
+
+/* ==========================================================
+   TEMARIO
+   ========================================================== */
 
 .contenedor-temario {
   max-width: 1100px;
-  margin: 60px auto 0;
-  padding-bottom: 100px;
+
+  margin: 48px auto 0;
+
+  padding-bottom: 90px;
 }
 
 .bloque-tema {
-  margin-bottom: 70px;
+  margin-bottom: 58px;
 }
 
 .titulo-seccion {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 24px;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
 }
 
 .titulo-seccion span {
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 16px;
-  font-size: 13px;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 14px;
+
+  font-size: 12px;
   font-weight: 900;
 }
 
 .titulo-seccion h2 {
   margin: 0;
-  color: #111827;
-  font-size: 30px;
+
+  color: #173b57;
+
+  font-size: 27px;
 }
 
 .tarjeta-tema {
-  padding: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 24px;
+  padding: 32px;
+
+  border: 1px solid #e6edef;
+  border-radius: 22px;
+
   background: #ffffff;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+
+  box-shadow: 0 10px 26px rgba(7, 58, 78, 0.045);
 }
 
 .descripcion-tema {
-  margin: 0 0 30px;
-  color: #475569;
-  font-size: 15px;
+  margin: 0 0 26px;
+
+  color: #52697c;
+
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.texto-seccion {
+  color: #52697c;
+  font-size: 14px;
   line-height: 1.8;
 }
 
 .rejilla-imagenes {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   justify-items: center;
-  gap: 24px;
-  margin-top: 28px;
+
+  gap: 22px;
+
+  margin-top: 25px;
 }
 
 .rejilla-imagenes:has(.contenido-imagen:only-child) {
@@ -390,259 +607,182 @@
 
 .contenido-imagen img {
   display: block;
+
   width: 100%;
   max-width: 430px;
+
   height: auto;
   max-height: 280px;
+
   object-fit: contain;
-  margin: 0 auto 18px;
-  border-radius: 18px;
-  background: #f1f5f9;
+
+  margin: 0 auto 16px;
+
+  border-radius: 16px;
+
+  background: #f5f9fa;
 }
 
 .contenido-imagen h3 {
-  margin: 14px 0 6px;
-  color: #111827;
-  font-size: 16px;
+  margin: 13px 0 6px;
+
+  color: #173b57;
+
+  font-size: 15px;
 }
 
 .contenido-imagen p {
   margin: 0;
-  color: #64748b;
-  font-size: 13px;
+
+  color: #697d8b;
+
+  font-size: 12px;
   line-height: 1.6;
 }
 
 .rejilla-tarjetas {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 32px;
-  padding-top: 28px;
-  border-top: 1px solid #e5e7eb;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-top: 28px;
+
+  padding-top: 24px;
+
+  border-top: 1px solid #e7edef;
 }
 
-.tarjeta-accion {
-  padding: 26px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #f8fafc;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+
+/* ==========================================================
+   COLORES DE LOS ICONOS DE SECCIÓN
+   Limitados a colores del logo
+   ========================================================== */
+
+.titulo-seccion span.verde {
+  color: #2e8b2f;
+  background: #eaf6e3;
 }
 
-.tarjeta-accion:hover {
-  transform: translateY(-3px);
+.titulo-seccion span.azul {
+  color: #0b5f8e;
+  background: #e8f2f8;
 }
 
-.tarjeta-accion.tarjeta-rosa:hover {
-  border-color: #fb7185;
-  background: #fff1f4;
-  box-shadow: 0 14px 28px rgba(225, 29, 72, 0.14);
+.titulo-seccion span.cian {
+  color: #0b8795;
+  background: #e5f6f7;
 }
 
-.tarjeta-accion.tarjeta-rosa:hover h3,
-.tarjeta-accion.tarjeta-rosa:hover button {
-  color: #e11d48;
-}
-
-.tarjeta-accion.tarjeta-naranja:hover {
-  border-color: #fdba74;
-  background: #fff7ed;
-  box-shadow: 0 14px 28px rgba(249, 115, 22, 0.12);
-}
-
-.tarjeta-accion.tarjeta-naranja:hover h3 {
-  color: #f97316;
-}
-
-.tarjeta-accion.tarjeta-verde:hover {
-  border-color: #86efac;
-  background: #f0fdf4;
-  box-shadow: 0 14px 28px rgba(22, 163, 74, 0.12);
-}
-
-.tarjeta-accion.tarjeta-verde:hover h3 {
-  color: #16a34a;
-}
-
-.tarjeta-accion.tarjeta-cian:hover {
-  border-color: #67e8f9;
-  background: #ecfeff;
-  box-shadow: 0 14px 28px rgba(6, 182, 212, 0.12);
-}
-
-.tarjeta-accion.tarjeta-cian:hover h3 {
-  color: #0891b2;
-}
-
-.tarjeta-accion.tarjeta-morado:hover {
-  border-color: #c4b5fd;
-  background: #f5f3ff;
-  box-shadow: 0 14px 28px rgba(124, 58, 237, 0.12);
-}
-
-.tarjeta-accion.tarjeta-morado:hover h3 {
-  color: #7c3aed;
-}
-
-.icono-tarjeta {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  margin-bottom: 22px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.tarjeta-accion h3 {
-  margin: 0 0 10px;
-  color: #111827;
-  font-size: 16px;
-}
-
-.tarjeta-accion p {
-  margin: 0 0 18px;
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.tarjeta-accion button {
-  border: 0;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.titulo-seccion span.verde,
-.icono-tarjeta.verde {
-  color: #16a34a;
-  background: #dcfce7;
-}
-
-.titulo-seccion span.azul,
-.icono-tarjeta.azul {
-  color: #2563eb;
-  background: #dbeafe;
-}
+/* Compatibilidad por si queda alguna clase antigua.
+   Todas se llevan a la paleta del logo. */
 
 .titulo-seccion span.rosa,
-.icono-tarjeta.rosa {
-  color: #e11d48;
-  background: #ffe4e6;
-}
-
-.titulo-seccion span.rojo,
-.icono-tarjeta.rojo {
-  color: #ef4444;
-  background: #fee2e2;
+.titulo-seccion span.rojo {
+  color: #2e8b2f;
+  background: #eaf6e3;
 }
 
 .titulo-seccion span.naranja,
-.icono-tarjeta.naranja {
-  color: #f97316;
-  background: #ffedd5;
+.titulo-seccion span.morado {
+  color: #0b5f8e;
+  background: #e8f2f8;
 }
 
-.titulo-seccion span.cian,
-.icono-tarjeta.cian {
-  color: #06b6d4;
-  background: #cffafe;
-}
 
-.titulo-seccion span.morado,
-.icono-tarjeta.morado {
-  color: #7c3aed;
-  background: #ede9fe;
-}
-
-.tarjeta-accion button.verde {
-  color: #16a34a;
-}
-
-.tarjeta-accion button.azul {
-  color: #2563eb;
-}
-
-.tarjeta-accion button.rosa {
-  color: #e11d48;
-}
-
-.tarjeta-accion button.rojo {
-  color: #ef4444;
-}
-
-.tarjeta-accion button.naranja {
-  color: #f97316;
-}
-
-.tarjeta-accion button.cian {
-  color: #0891b2;
-}
-
-.tarjeta-accion button.morado {
-  color: #7c3aed;
-}
+/* ==========================================================
+   SECCIÓN APP
+   ========================================================== */
 
 .seccion-app {
   display: grid;
+
   grid-template-columns: 1.1fr 0.9fr;
+
   align-items: center;
-  gap: 40px;
-  margin-top: 80px;
-  padding: 48px;
-  border-radius: 34px;
+
+  gap: 36px;
+
+  margin-top: 70px;
+
+  padding: 42px;
+
+  border-radius: 30px;
+
   color: #ffffff;
-  background: radial-gradient(circle at top right, #312e81, #10182e 45%, #083344);
-  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(126, 202, 45, 0.23),
+      transparent 28%
+    ),
+    linear-gradient(
+      145deg,
+      #0b4f7a,
+      #0f6e83 48%,
+      #176d4d
+    );
+
+  box-shadow: 0 20px 40px rgba(7, 58, 78, 0.16);
 }
 
 .etiqueta-app {
   display: inline-flex;
-  margin-bottom: 28px;
-  padding: 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  margin-bottom: 24px;
+
+  padding: 8px 15px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
+
+  color: #ecfeff;
+
   font-size: 12px;
   font-weight: 800;
-  color: #e0f2fe;
 }
 
 .contenido-app h2 {
-  margin: 0 0 22px;
-  font-size: 38px;
+  margin: 0 0 20px;
+
+  font-size: 36px;
   line-height: 1.15;
+
   letter-spacing: -0.04em;
 }
 
 .contenido-app h2 span {
   display: block;
-  color: #d946ef;
+
+  color: #b8ee4a;
 }
 
 .contenido-app p {
   max-width: 420px;
-  margin: 0 0 30px;
-  color: #dbeafe;
+
+  margin: 0 0 27px;
+
+  color: #e2f5f7;
+
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.75;
 }
 
 .boton-tienda {
+  padding: 13px 24px;
+
   border: 0;
   border-radius: 12px;
-  padding: 14px 26px;
-  color: #10182e;
+
+  color: #0f6e83;
   background: #ffffff;
+
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
 }
 
@@ -653,44 +793,71 @@
 
 .pantalla-celular {
   width: 180px;
+
   min-height: 320px;
+
   padding: 18px;
-  border: 6px solid #e5e7eb;
+
+  border: 6px solid rgba(255, 255, 255, 0.7);
   border-radius: 34px;
-  background: #f8fafc;
-  box-shadow: 0 24px 45px rgba(0, 0, 0, 0.25);
+
+  background: #f8fbfc;
+
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.2);
 }
 
 .encabezado-celular {
   margin: -18px -18px 20px;
+
   padding: 26px 18px 22px;
+
   border-radius: 26px 26px 8px 8px;
-  background: linear-gradient(135deg, #a3e635, #06b6d4);
+
+  background:
+    linear-gradient(
+      135deg,
+      #69b936,
+      #0aa7b8,
+      #0b5f8e
+    );
 }
 
 .encabezado-celular span,
 .encabezado-celular strong {
   display: block;
+
   color: #ffffff;
+
   font-size: 11px;
 }
 
 .encabezado-celular h3 {
   margin: 8px 0 0;
+
   color: #ffffff;
+
   font-size: 30px;
 }
 
 .tarjeta-celular {
   margin-bottom: 12px;
+
   padding: 14px;
+
+  border: 1px solid #e7edef;
   border-radius: 12px;
-  color: #334155;
+
+  color: #355267;
   background: #ffffff;
+
   font-size: 13px;
   font-weight: 800;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }
+
+
+/* ==========================================================
+   SCROLL
+   ========================================================== */
 
 #inicio,
 .bloque-tema,
@@ -698,21 +865,31 @@
   scroll-margin-top: 30px;
 }
 
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
 @media (max-width: 1024px) {
   .barra-lateral {
     position: static;
+
     width: auto;
+
     margin: 20px;
   }
 
   .contenido-principal {
     margin-left: 0;
+
     padding: 40px 24px 70px;
   }
 
   .seccion-bienvenida {
     grid-template-columns: 1fr;
+
     min-height: auto;
+
     text-align: center;
   }
 
@@ -735,6 +912,7 @@
 
   .seccion-app {
     padding: 32px 24px;
+
     text-align: center;
   }
 
@@ -747,6 +925,7 @@
 @media (max-width: 640px) {
   .barra-lateral {
     margin: 12px;
+
     padding: 18px 12px;
   }
 
@@ -759,7 +938,7 @@
   }
 
   .texto-bienvenida h1 {
-    font-size: 42px;
+    font-size: 40px;
   }
 
   .texto-bienvenida p {
@@ -767,6 +946,6 @@
   }
 
   .titulo-seccion h2 {
-    font-size: 24px;
+    font-size: 23px;
   }
 }

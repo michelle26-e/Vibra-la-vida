@@ -1,87 +1,172 @@
+/* ==========================================================
+   CALCULADORA IMC - VIBRA LA VIDA
+   Identidad visual propia: azul profundo + verde lima
+   ========================================================== */
+
 .pagina-imc {
   min-height: 100vh;
-  padding: 32px;
-  background: #f7fafc;
+  padding: 24px 3vw 44px;
+  background: #f7fafb;
 }
+
+
+/* ==========================================================
+   BOTÓN REGRESAR
+   ========================================================== */
 
 .boton-regresar {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 46px;
-  padding: 13px 22px;
-  border: 1px solid #dbe3ef;
+
+  margin-bottom: 22px;
+
+  padding: 11px 18px;
+
+  border: 1px solid #dbe7ea;
   border-radius: 999px;
-  color: #253858;
+
+  color: #0b5f8e;
   background: #ffffff;
+
+  font-size: 14px;
   font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+
+  box-shadow: 0 5px 14px rgba(7, 58, 78, 0.06);
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
+
+.boton-regresar:hover {
+  color: #ffffff;
+  background: #0b5f8e;
+  transform: translateX(-2px);
+}
+
+
+/* ==========================================================
+   CONTENEDOR PRINCIPAL
+   Más amplio para aprovechar la pantalla
+   ========================================================== */
 
 .contenedor-imc {
   display: grid;
-  grid-template-columns: 1fr 0.95fr;
-  gap: 60px;
-  max-width: 850px;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 34px;
+
+  width: min(100%, 1320px);
   margin: 0 auto;
-  padding: 40px;
-  border: 1px solid #e2e8f0;
-  border-radius: 34px;
+
+  padding: 34px;
+
+  border: 1px solid #e4edef;
+  border-radius: 28px;
+
   background: #ffffff;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+
+  box-shadow: 0 14px 34px rgba(7, 58, 78, 0.07);
+}
+
+
+/* ==========================================================
+   COLUMNA DEL FORMULARIO
+   ========================================================== */
+
+.columna-formulario {
+  padding: 10px 8px 10px 4px;
 }
 
 .columna-formulario h1 {
-  margin: 0 0 22px;
-  color: #0f172a;
-  font-size: clamp(32px, 4vw, 42px);
+  margin: 0 0 14px;
+
+  color: #0b4f7a;
+
+  font-size: clamp(30px, 3vw, 42px);
   letter-spacing: -0.04em;
+  line-height: 1.05;
 }
 
 .descripcion {
-  margin: 0 0 42px;
-  color: #526b91;
-  font-size: 18px;
+  max-width: 620px;
+
+  margin: 0 0 28px;
+
+  color: #607585;
+
+  font-size: 15px;
   line-height: 1.7;
 }
 
+
+/* ==========================================================
+   FORMULARIO
+   ========================================================== */
+
 .formulario-imc {
   display: grid;
-  gap: 30px;
+  gap: 22px;
 }
 
 .fila-superior {
   display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 28px;
+  grid-template-columns: minmax(150px, 0.75fr) minmax(0, 1.25fr);
+  gap: 16px;
 }
 
 .grupo-campo {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .grupo-campo label {
-  color: #0f1f3d;
-  font-size: 16px;
+  color: #173b57;
+
+  font-size: 13px;
   font-weight: 900;
 }
 
 .grupo-campo small {
-  color: #e11d48;
-  font-size: 13px;
+  color: #d7264e;
+
+  font-size: 12px;
   font-weight: 800;
 }
+
+
+/* ==========================================================
+   CAMPOS
+   ========================================================== */
 
 .campo-con-unidad {
   display: flex;
   align-items: center;
-  min-height: 64px;
-  padding: 0 18px;
-  border: 1px solid #dbe3ef;
-  border-radius: 16px;
-  background: #f8fafc;
+
+  min-height: 54px;
+
+  padding: 0 16px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 14px;
+
+  background: #f8fbfc;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.campo-con-unidad:focus-within {
+  border-color: #6fbe33;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 4px rgba(111, 190, 51, 0.09);
 }
 
 .campo-largo {
@@ -90,161 +175,274 @@
 
 .campo-con-unidad input {
   width: 100%;
+
   border: 0;
   outline: none;
-  color: #0f1f3d;
+
+  color: #173b57;
   background: transparent;
-  font-size: 19px;
+
+  font-size: 16px;
   font-weight: 900;
+  font-family: inherit;
 }
 
 .campo-con-unidad span {
-  color: #94a3b8;
-  font-size: 18px;
+  color: #8ea0ac;
+
+  font-size: 14px;
   font-weight: 900;
 }
+
+
+/* ==========================================================
+   SELECTOR GÉNERO
+   ========================================================== */
 
 .selector-genero {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  min-height: 64px;
-  padding: 6px;
-  border: 1px solid #dbe3ef;
-  border-radius: 16px;
-  background: #f8fafc;
+
+  min-height: 54px;
+
+  padding: 5px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 14px;
+
+  background: #f8fbfc;
 }
 
 .selector-genero button {
   border: 0;
-  border-radius: 12px;
-  color: #526b91;
+  border-radius: 11px;
+
+  color: #607585;
   background: transparent;
-  font-size: 16px;
+
+  font-size: 14px;
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .selector-genero button.activo {
-  color: #2563eb;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  color: #3d7417;
+
+  background: #eef8e6;
+
+  box-shadow: 0 4px 12px rgba(80, 140, 33, 0.08);
 }
+
+
+/* ==========================================================
+   BOTÓN CALCULAR
+   Verde predominante para diferenciar IMC
+   ========================================================== */
 
 .boton-calcular {
-  min-height: 74px;
-  margin-top: 22px;
+  min-height: 58px;
+
+  margin-top: 4px;
+
   border: 0;
-  border-radius: 17px;
+  border-radius: 15px;
+
   color: #ffffff;
-  background: #2563eb;
-  font-size: 21px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4f9e2a,
+      #78c832
+    );
+
+  font-size: 16px;
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+
+  box-shadow: 0 12px 24px rgba(83, 156, 45, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
+.boton-calcular:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 16px 30px rgba(83, 156, 45, 0.24);
+}
+
+
+/* ==========================================================
+   COLUMNA DE RESULTADO
+   ========================================================== */
+
 .columna-resultado {
-  align-self: center;
+  align-self: stretch;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 30px;
+
+  border: 1px solid #e4edef;
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fbfefd,
+      #f3f9f4
+    );
 }
 
 .texto-resultado {
-  margin: 0 0 12px;
-  color: #526b91;
-  font-size: 22px;
+  margin: 0 0 10px;
+
+  color: #607585;
+
+  font-size: 15px;
   font-weight: 900;
 }
 
 .valor-imc {
   display: flex;
   align-items: baseline;
+
   gap: 8px;
-  color: #111827;
-  font-size: clamp(58px, 7vw, 78px);
+
+  color: #0b4f7a;
+
+  font-size: clamp(52px, 6vw, 72px);
   font-weight: 950;
   line-height: 1;
 }
 
 .valor-imc span {
-  color: #526b91;
-  font-size: 30px;
+  color: #607585;
+
+  font-size: 24px;
   font-weight: 900;
 }
 
 .columna-resultado h2 {
-  margin: 16px 0 34px;
-  font-size: 28px;
+  margin: 14px 0 28px;
+
+  font-size: 24px;
   font-weight: 950;
 }
+
+
+/* ==========================================================
+   SEMAFORIZACIÓN IMC
+   Se conserva porque tiene significado funcional
+   ========================================================== */
 
 .columna-resultado h2.bajo-peso {
   color: #3b82f6;
 }
 
 .columna-resultado h2.normal {
-  color: #00b871;
+  color: #16a34a;
 }
 
 .columna-resultado h2.sobrepeso {
-  color: #f59e0b;
+  color: #e59a08;
 }
 
 .columna-resultado h2.obesidad {
-  color: #ef4444;
+  color: #dc3545;
 }
 
 .columna-resultado h2.sin-calcular {
   color: #64748b;
 }
 
+
+/* ==========================================================
+   BARRA IMC
+   ========================================================== */
+
 .barra-imc {
   position: relative;
-  height: 24px;
+
+  height: 18px;
+
   border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #60a5fa 0%,
-    #60a5fa 24%,
-    #34d399 24%,
-    #34d399 40%,
-    #fbbf24 40%,
-    #fbbf24 58%,
-    #fb7185 58%,
-    #fb7185 100%
-  );
+
+  background:
+    linear-gradient(
+      90deg,
+      #60a5fa 0%,
+      #60a5fa 24%,
+      #34d399 24%,
+      #34d399 40%,
+      #fbbf24 40%,
+      #fbbf24 58%,
+      #fb7185 58%,
+      #fb7185 100%
+    );
 }
 
 .indicador-imc {
   position: absolute;
   top: 50%;
-  width: 28px;
-  height: 28px;
-  border: 4px solid #0f172a;
+
+  width: 24px;
+  height: 24px;
+
+  border: 4px solid #173b57;
   border-radius: 50%;
+
   background: #ffffff;
+
   transform: translate(-50%, -50%);
 }
 
 .marcas-imc {
   display: flex;
   justify-content: space-between;
-  margin: 14px 4px 48px;
-  color: #64748b;
-  font-size: 16px;
+
+  margin: 11px 3px 28px;
+
+  color: #718391;
+
+  font-size: 13px;
   font-weight: 700;
 }
 
+
+/* ==========================================================
+   INFORMACIÓN
+   ========================================================== */
+
 .tarjeta-informacion {
-  padding: 28px;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  background: #f8fafc;
+  padding: 20px;
+
+  border: 1px solid #dfe9ec;
+  border-radius: 16px;
+
+  background: #ffffff;
 }
 
 .tarjeta-informacion p {
-  margin: 0 0 24px;
-  color: #0f1f3d;
-  font-size: 16px;
-  line-height: 1.8;
+  margin: 0 0 16px;
+
+  color: #355267;
+
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .tarjeta-informacion p:last-child {
@@ -252,14 +450,21 @@
 }
 
 .tarjeta-informacion .nota {
-  color: #526b91;
-  font-size: 14px;
+  color: #718391;
+
+  font-size: 12px;
 }
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
 
 @media (max-width: 980px) {
   .contenedor-imc {
     grid-template-columns: 1fr;
-    padding: 34px;
+
+    padding: 28px;
   }
 
   .columna-resultado {
@@ -269,23 +474,28 @@
 
 @media (max-width: 640px) {
   .pagina-imc {
-    padding: 18px;
+    padding: 16px;
   }
 
   .contenedor-imc {
-    padding: 24px;
-    border-radius: 24px;
+    padding: 22px;
+
+    border-radius: 22px;
   }
 
   .fila-superior {
     grid-template-columns: 1fr;
   }
 
+  .columna-resultado {
+    padding: 22px;
+  }
+
   .valor-imc {
-    font-size: 54px;
+    font-size: 50px;
   }
 
   .valor-imc span {
-    font-size: 24px;
+    font-size: 22px;
   }
 }

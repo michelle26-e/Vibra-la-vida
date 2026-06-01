@@ -1,184 +1,625 @@
 <script setup>
-// Importamos lo que necesitamos para que la página funcione
+// ============================================
+// IMPORTACIONES
+// ============================================
+
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { iniciarSesionUsuario } from '../services/authService'
+
+import {
+  iniciarSesionUsuario,
+  obtenerDatosUsuario,
+  cerrarSesionUsuario,
+} from '../services/authService'
+
+// Mascotas de Vibra la Vida
+import ajolotePaciente from '../assets/ajolotenormal.png'
+import ajoloteDoctor from '../assets/ajolotedoctor.png'
+
 
 const router = useRouter()
 
-// Guardamos el correo y contraseña que ingresa el usuario
+
+// ============================================
+// TIPO DE CUENTA
+// ============================================
+
+// Por defecto mostramos acceso de paciente
+const tipoCuenta = ref('paciente')
+
+
+// ============================================
+// FORMULARIO
+// ============================================
+
 const formulario = ref({
   correo: '',
   contrasena: '',
 })
 
+
+// ============================================
+// VARIABLES DE INTERFAZ
+// ============================================
+
 const errores = ref({})
+
 const mostrarContrasena = ref(false)
+
 const mensaje = ref('')
 
-// Revisamos que los datos ingresados sean válidos
+const tipoMensaje = ref('')
+
+const cargando = ref(false)
+
+
+// ============================================
+// CAMBIAR TIPO DE CUENTA
+// ============================================
+
+const seleccionarTipoCuenta = (tipo) => {
+
+  tipoCuenta.value = tipo
+
+  // Limpiamos mensajes anteriores
+  mensaje.value = ''
+  tipoMensaje.value = ''
+  errores.value = {}
+}
+
+
+// ============================================
+// VALIDAR FORMULARIO
+// ============================================
+
 const validarFormulario = () => {
+
   const nuevosErrores = {}
 
+
   if (!formulario.value.correo.trim()) {
-    nuevosErrores.correo = 'Ingresa tu correo electrónico.'
+
+    nuevosErrores.correo =
+      'Ingresa tu correo electrónico.'
+
   } else if (!formulario.value.correo.includes('@')) {
-    nuevosErrores.correo = 'Ingresa un correo válido.'
+
+    nuevosErrores.correo =
+      'Ingresa un correo válido.'
   }
+
 
   if (!formulario.value.contrasena.trim()) {
-    nuevosErrores.contrasena = 'Ingresa tu contraseña.'
+
+    nuevosErrores.contrasena =
+      'Ingresa tu contraseña.'
+
   } else if (formulario.value.contrasena.length < 6) {
-    nuevosErrores.contrasena = 'La contraseña debe tener al menos 6 caracteres.'
+
+    nuevosErrores.contrasena =
+      'La contraseña debe tener al menos 6 caracteres.'
   }
 
+
   errores.value = nuevosErrores
+
 
   return Object.keys(nuevosErrores).length === 0
 }
 
-// Función que intenta iniciar sesión con los datos ingresados
+
+// ============================================
+// INICIAR SESIÓN
+// ============================================
+
 const iniciarSesion = async () => {
+
   mensaje.value = ''
+  tipoMensaje.value = ''
+
 
   if (!validarFormulario()) {
     return
   }
 
+
   try {
-    await iniciarSesionUsuario({
-      correo: formulario.value.correo,
+
+    cargando.value = true
+
+
+    // ========================================
+    // 1. AUTENTICACIÓN EN FIREBASE
+    // ========================================
+
+    const usuario = await iniciarSesionUsuario({
+      correo: formulario.value.correo.trim(),
       contrasena: formulario.value.contrasena,
     })
 
-    mensaje.value = 'Inicio de sesión correcto.'
 
-    setTimeout(() => {
-      router.push('/')
-    }, 700)
+    // ========================================
+    // 2. OBTENER DATOS DE FIRESTORE
+    // ========================================
+
+    const datosUsuario =
+      await obtenerDatosUsuario(usuario.uid)
+
+
+    if (!datosUsuario) {
+
+      mensaje.value =
+        'No se encontraron los datos de esta cuenta.'
+
+      tipoMensaje.value = 'error'
+
+      await cerrarSesionUsuario()
+
+      return
+    }
+
+
+    // ========================================
+    // 3. REVISAMOS EL ROL
+    // ========================================
+
+    const rol = datosUsuario.rol
+
+
+    // ========================================
+    // ACCESO COMO PACIENTE
+    // ========================================
+
+    if (tipoCuenta.value === 'paciente') {
+
+      // La cuenta debe tener rol usuario
+      if (rol !== 'usuario') {
+
+        mensaje.value =
+          'Esta cuenta pertenece a un doctor. Selecciona "Soy doctor" para iniciar sesión.'
+
+        tipoMensaje.value = 'error'
+
+        await cerrarSesionUsuario()
+
+        return
+      }
+
+
+      mensaje.value =
+        'Inicio de sesión correcto.'
+
+      tipoMensaje.value =
+        'correcto'
+
+
+      // Mandamos al paciente al HomeView
+      setTimeout(() => {
+
+        router.push('/')
+
+      }, 600)
+
+
+      return
+    }
+
+
+    // ========================================
+    // ACCESO COMO DOCTOR
+    // ========================================
+
+    if (tipoCuenta.value === 'doctor') {
+
+      // La cuenta debe tener rol doctor
+      if (rol !== 'doctor') {
+
+        mensaje.value =
+          'Esta cuenta pertenece a un paciente. Selecciona "Soy paciente" para iniciar sesión.'
+
+        tipoMensaje.value = 'error'
+
+        await cerrarSesionUsuario()
+
+        return
+      }
+
+
+      mensaje.value =
+        'Inicio de sesión correcto.'
+
+      tipoMensaje.value =
+        'correcto'
+
+
+      // Mandamos al doctor a PanelDoctor
+      setTimeout(() => {
+
+        router.push('/doctor')
+
+      }, 600)
+
+
+      return
+    }
+
+
   } catch (error) {
-    console.error('Error al iniciar sesión:', error.code, error.message)
+
+    console.error(
+      'Error al iniciar sesión:',
+      error.code,
+      error.message
+    )
+
+
+    tipoMensaje.value = 'error'
+
 
     if (error.code === 'auth/invalid-credential') {
-      mensaje.value = 'Correo o contraseña incorrectos.'
+
+      mensaje.value =
+        'Correo o contraseña incorrectos.'
+
       return
     }
+
 
     if (error.code === 'auth/user-not-found') {
-      mensaje.value = 'No existe una cuenta con este correo.'
+
+      mensaje.value =
+        'No existe una cuenta con este correo.'
+
       return
     }
+
 
     if (error.code === 'auth/wrong-password') {
-      mensaje.value = 'Contraseña incorrecta.'
+
+      mensaje.value =
+        'Contraseña incorrecta.'
+
       return
     }
 
-    mensaje.value = 'No se pudo iniciar sesión. Intenta nuevamente.'
+
+    if (error.code === 'auth/too-many-requests') {
+
+      mensaje.value =
+        'Demasiados intentos. Intenta nuevamente más tarde.'
+
+      return
+    }
+
+
+    mensaje.value =
+      'No se pudo iniciar sesión. Intenta nuevamente.'
+
+
+  } finally {
+
+    cargando.value = false
   }
 }
 </script>
 
+
 <template>
+
   <main class="pagina-login">
+
+    <!-- =====================================
+         LADO IZQUIERDO
+         ===================================== -->
+
     <section class="lado-formulario">
-      <RouterLink to="/" class="boton-volver">
+
+      <RouterLink
+        to="/"
+        class="boton-volver"
+      >
         ← Volver
       </RouterLink>
 
+
       <div class="contenedor-login">
+
 
         <span class="etiqueta-bienvenida">
           Bienvenido de nuevo
         </span>
 
-        <h1>Iniciar Sesión</h1>
+
+        <h1>
+          Iniciar Sesión
+        </h1>
+
 
         <p class="descripcion-login">
-          Ingresa tus datos para continuar tu viaje de bienestar.
+
+          {{
+            tipoCuenta === 'doctor'
+              ? 'Ingresa a tu cuenta profesional para gestionar a tus pacientes.'
+              : 'Ingresa a tu cuenta para continuar con tu seguimiento de bienestar.'
+          }}
+
         </p>
 
-        <form class="formulario-login" @submit.prevent="iniciarSesion">
+
+        <!-- =================================
+             SELECTOR PACIENTE / DOCTOR
+             ================================= -->
+
+        <div class="selector-tipo-login">
+
+          <button
+            type="button"
+            :class="{
+              activo:
+                tipoCuenta === 'paciente'
+            }"
+            @click="
+              seleccionarTipoCuenta('paciente')
+            "
+          >
+            Soy paciente
+          </button>
+
+
+          <button
+            type="button"
+            :class="{
+              activo:
+                tipoCuenta === 'doctor'
+            }"
+            @click="
+              seleccionarTipoCuenta('doctor')
+            "
+          >
+            Soy doctor
+          </button>
+
+        </div>
+
+
+        <!-- =================================
+             FORMULARIO
+             ================================= -->
+
+        <form
+          class="formulario-login"
+          @submit.prevent="iniciarSesion"
+        >
+
+
+          <!-- CORREO -->
+
           <div class="grupo-campo">
-            <label for="correo">Correo Electrónico</label>
+
+            <label for="correo">
+              Correo Electrónico
+            </label>
+
 
             <div class="campo-login">
-              <span class="icono-campo">@</span>
+
+              <span class="icono-campo">
+                @
+              </span>
+
 
               <input
                 id="correo"
                 v-model="formulario.correo"
                 type="email"
                 placeholder="tu@email.com"
+                autocomplete="email"
               />
+
             </div>
 
-            <small v-if="errores.correo">{{ errores.correo }}</small>
+
+            <small v-if="errores.correo">
+              {{ errores.correo }}
+            </small>
+
           </div>
 
-          <div class="grupo-campo">
-            <div class="fila-label">
-              <label for="contrasena">Contraseña</label>
 
-              <button type="button" class="boton-olvido">
+          <!-- CONTRASEÑA -->
+
+          <div class="grupo-campo">
+
+            <div class="fila-label">
+
+              <label for="contrasena">
+                Contraseña
+              </label>
+
+
+              <button
+                type="button"
+                class="boton-olvido"
+              >
                 ¿Olvidaste tu contraseña?
               </button>
+
             </div>
 
+
             <div class="campo-login">
-              <span class="icono-campo">#</span>
+
+              <span class="icono-campo">
+                #
+              </span>
+
 
               <input
                 id="contrasena"
                 v-model="formulario.contrasena"
-                :type="mostrarContrasena ? 'text' : 'password'"
+                :type="
+                  mostrarContrasena
+                    ? 'text'
+                    : 'password'
+                "
                 placeholder="Contraseña"
+                autocomplete="current-password"
               />
+
 
               <button
                 type="button"
                 class="boton-ver"
-                @click="mostrarContrasena = !mostrarContrasena"
+                @click="
+                  mostrarContrasena =
+                    !mostrarContrasena
+                "
               >
-                {{ mostrarContrasena ? 'Ocultar' : 'Ver' }}
+
+                {{
+                  mostrarContrasena
+                    ? 'Ocultar'
+                    : 'Ver'
+                }}
+
               </button>
+
             </div>
 
-            <small v-if="errores.contrasena">{{ errores.contrasena }}</small>
+
+            <small
+              v-if="errores.contrasena"
+            >
+              {{ errores.contrasena }}
+            </small>
+
           </div>
 
-          <button type="submit" class="boton-ingresar">
-            Entrar a mi cuenta
-            <span>→</span>
+
+          <!-- BOTÓN PRINCIPAL -->
+
+          <button
+            type="submit"
+            class="boton-ingresar"
+            :disabled="cargando"
+          >
+
+            {{
+              cargando
+                ? 'Iniciando sesión...'
+                : tipoCuenta === 'doctor'
+                  ? 'Entrar como doctor'
+                  : 'Entrar como paciente'
+            }}
+
+
+            <span v-if="!cargando">
+              →
+            </span>
+
           </button>
 
-          <p v-if="mensaje" class="mensaje-correcto">
+
+          <!-- MENSAJES -->
+
+          <p
+            v-if="mensaje"
+            :class="[
+              'mensaje-login',
+
+              tipoMensaje === 'error'
+                ? 'mensaje-error'
+                : 'mensaje-correcto'
+            ]"
+          >
+
             {{ mensaje }}
+
           </p>
+
         </form>
 
+
+        <!-- =================================
+             CREAR CUENTA
+             ================================= -->
+
         <p class="texto-registro">
+
           ¿Aún no tienes una cuenta?
-          <RouterLink to="/registro">Regístrate ahora</RouterLink>
+
+          <RouterLink to="/registro">
+            Regístrate ahora
+          </RouterLink>
+
         </p>
+
       </div>
+
     </section>
+
+
+
+    <!-- =====================================
+         LADO DERECHO
+         ===================================== -->
 
     <section class="lado-imagen">
+
+      <div class="contenido-imagen-login">
+
+        <img
+          :src="
+            tipoCuenta === 'doctor'
+              ? ajoloteDoctor
+              : ajolotePaciente
+          "
+          :alt="
+            tipoCuenta === 'doctor'
+              ? 'Ajolote doctor de Vibra la Vida'
+              : 'Ajolote de Vibra la Vida'
+          "
+          class="ajolote-login"
+        />
+
       <div class="texto-imagen">
+
         <span></span>
 
+
         <h2>
-          Tu bienestar es una prioridad, no una opción.
+
+          {{
+            tipoCuenta === 'doctor'
+              ? 'El seguimiento de tus pacientes en un solo lugar.'
+              : 'Tu bienestar es una prioridad, no una opción.'
+          }}
+
         </h2>
 
+
         <p>
-          Inicia sesión y descubre nuevas herramientas de autocuidado,
-          encuestas y hábitos para potenciar tu vida.
+
+          {{
+            tipoCuenta === 'doctor'
+              ? 'Consulta pacientes, resultados y herramientas de seguimiento desde Vibra la Vida.'
+              : 'Continúa con tus herramientas, evaluaciones y recursos personalizados para cuidar tu bienestar.'
+          }}
+
         </p>
+
       </div>
+
+      </div>
+
     </section>
+
   </main>
+
 </template>
 
-<style scoped src="../assets/styles/IniciarSesion.css"></style>
+
+<style
+  scoped
+  src="../assets/styles/IniciarSesion.css"
+></style>

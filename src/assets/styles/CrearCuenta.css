@@ -1,276 +1,1019 @@
+/* =========================================
+   CREAR CUENTA - VIBRA LA VIDA
+   MISMAS PROPORCIONES QUE INICIAR SESIÓN
+   ========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
 .pagina-registro {
   min-height: 100vh;
+
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: #ffffff;
+
+  /* Misma proporción que IniciarSesion.css */
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(420px, 0.9fr);
+
+  background: #f7faf9;
 }
+
+
+/* =========================================
+   LADO DEL FORMULARIO
+   ========================================= */
 
 .lado-formulario {
   position: relative;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 36px;
+
+  min-height: 100vh;
+
+  /* Mismo espacio que iniciar sesión */
+  padding: 70px 50px;
+
   background: #ffffff;
 }
 
-.boton-volver {
+
+/* =========================================
+   BOTÓN VOLVER
+   ========================================= */
+
+.boton-regresar-home {
   position: absolute;
+
   top: 28px;
-  left: 38px;
-  color: #8aa0bc;
-  font-size: 15px;
-  font-weight: 800;
-  text-decoration: none;
-}
+  left: 34px;
 
-.contenedor-registro {
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
-}
-
-.logo-registro {
-  width: 95px;
-  height: auto;
-  margin-bottom: 24px;
-}
-
-.etiqueta-registro {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  color: #047857;
-  background: #cffafe;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.contenedor-registro h1 {
-  margin: 0 0 12px;
-  color: #111827;
-  font-size: clamp(28px, 3.5vw, 34px);
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.descripcion-registro {
-  margin: 0 0 28px;
   color: #64748b;
-  font-size: 15px;
-  line-height: 1.5;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.formulario-registro {
-  display: grid;
-  gap: 14px;
+.boton-regresar-home:hover {
+  color: #0f9ea8;
+  transform: translateX(-3px);
+}
+
+
+/* =========================================
+   CONTENEDOR DEL FORMULARIO
+   ========================================= */
+
+.contenido-formulario {
+  width: 100%;
+
+  /* Igual que .contenedor-login */
+  max-width: 460px;
+
   text-align: left;
 }
 
-.grupo-campo {
-  display: grid;
-  gap: 7px;
-}
 
-.grupo-campo label {
-  color: #263751;
-  font-size: 14px;
+/* =========================================
+   ETIQUETA SUPERIOR
+   ========================================= */
+
+.etiqueta-viaje {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 20px;
+
+  padding: 9px 16px;
+
+  border-radius: 999px;
+
+  color: #047857;
+  background: #dcfce7;
+
+  font-size: 13px;
   font-weight: 900;
 }
 
-.campo-registro {
-  display: flex;
-  align-items: center;
+
+/* =========================================
+   TÍTULO
+   ========================================= */
+
+.contenido-formulario h1 {
+  margin: 0;
+
+  color: #10182e;
+
+  font-size:
+    clamp(
+      32px,
+      3vw,
+      42px
+    );
+
+  line-height: 1.05;
+
+  letter-spacing: -0.04em;
+}
+
+
+/* =========================================
+   DESCRIPCIÓN
+   ========================================= */
+
+.descripcion-registro {
+  margin: 18px 0 24px;
+
+  color: #64748b;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   SELECTOR PACIENTE / DOCTOR
+   ========================================= */
+
+.selector-tipo {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 10px;
-  min-height: 50px;
-  padding: 0 16px;
-  border: 1px solid #dbe3ef;
-  border-radius: 13px;
+
+  margin-bottom: 28px;
+
+  padding: 5px;
+
+  border: 1px solid #dbe2ea;
+
+  border-radius: 16px;
+
   background: #f8fafc;
 }
 
-.campo-registro:focus-within {
-  border-color: #00b871;
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(0, 184, 113, 0.08);
-}
+.opcion-tipo {
+  min-height: 48px;
 
-.icono-campo {
-  color: #8aa0bc;
-  font-size: 17px;
-  font-weight: 900;
-}
+  padding: 0 16px;
 
-.campo-registro input {
-  width: 100%;
   border: 0;
-  outline: none;
-  color: #111827;
+
+  border-radius: 12px;
+
+  color: #64748b;
+
   background: transparent;
+
   font-size: 14px;
-  font-weight: 700;
-}
 
-.campo-registro input::placeholder {
-  color: #8a94a6;
-}
+  font-weight: 800;
 
-.boton-ver {
-  border: 0;
-  color: #009966;
-  background: transparent;
-  font-size: 12px;
-  font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.grupo-campo small {
-  color: #e11d48;
-  font-size: 12px;
+.opcion-tipo:hover {
+  color: #0f9ea8;
+
+  background: #ffffff;
+}
+
+.opcion-tipo.activa {
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0f9ea8,
+      #16a34a
+    );
+
+  box-shadow:
+    0 8px 18px
+    rgba(15, 158, 168, 0.18);
+}
+
+.opcion-tipo.activa:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   FORMULARIO
+   ========================================= */
+
+.formulario-registro {
+  display: grid;
+
+  gap: 14px;
+
+  text-align: left;
+}
+
+
+/* =========================================
+   CAMPOS
+   ========================================= */
+
+.grupo-campo {
+  display: grid;
+
+  gap: 8px;
+}
+
+.grupo-campo label {
+  color: #334155;
+
+  font-size: 14px;
+
   font-weight: 800;
 }
 
-.boton-crear {
+.campo-registro {
+  min-height: 48px;
+
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 52px;
-  margin-top: 6px;
-  border: 0;
-  border-radius: 13px;
-  color: #ffffff;
-  background: #10182e;
-  font-size: 15px;
-  font-weight: 950;
-  cursor: pointer;
-  box-shadow: 0 12px 22px rgba(16, 24, 46, 0.18);
+
+  border: 1px solid #dbe2ea;
+
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.boton-crear span {
-  font-size: 22px;
-  line-height: 1;
+.campo-registro:focus-within {
+  border-color: #14b8a6;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(20, 184, 166, 0.1);
 }
 
-.mensaje-correcto {
-  margin: 0;
-  padding: 12px;
-  border-radius: 12px;
-  color: #047857;
-  background: #dcfce7;
-  font-size: 14px;
-  font-weight: 800;
+.campo-registro.error {
+  border-color: #e11d48;
+}
+
+
+/* =========================================
+   ICONO CAMPO
+   ========================================= */
+
+.icono-campo {
+  min-width: 52px;
+
+  padding: 0 12px;
+
+  color: #0f9ea8;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
   text-align: center;
 }
 
-.texto-login {
-  margin: 24px 0 0;
-  color: #64748b;
-  font-size: 14px;
+
+/* =========================================
+   INPUT
+   ========================================= */
+
+.campo-registro input {
+  flex: 1;
+
+  min-width: 0;
+
+  min-height: 46px;
+
+  padding: 0 14px 0 0;
+
+  border: 0;
+
+  outline: 0;
+
+  color: #111827;
+
+  background: transparent;
+
+  font-size: 15px;
+
+  font-weight: 500;
+
+  font-family: inherit;
 }
 
-.texto-login a {
-  color: #009966;
-  font-weight: 950;
+.campo-registro input::placeholder {
+  color: #94a3b8;
+}
+
+
+/* =========================================
+   BOTÓN VER CONTRASEÑA
+   ========================================= */
+
+.boton-ver {
+  align-self: stretch;
+
+  padding: 0 16px;
+
+  border: 0;
+
+  color: #0f9ea8;
+
+  background: transparent;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.boton-ver:hover {
+  color: #047857;
+}
+
+
+/* =========================================
+   ERRORES
+   ========================================= */
+
+.mensaje-campo-error {
+  color: #e11d48;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.mensaje-error-general {
+  margin: 0;
+
+  padding: 13px 15px;
+
+  border-radius: 12px;
+
+  color: #be123c;
+
+  background: #fff1f2;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================
+   AUTOCOMPLETADO ESPECIALIDAD
+   ========================================= */
+
+.contenedor-autocomplete {
+  position: relative;
+}
+
+.lista-especialidades {
+  position: absolute;
+
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+
+  z-index: 30;
+
+  max-height: 210px;
+
+  padding: 6px;
+
+  border: 1px solid #dbe2ea;
+
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  overflow-y: auto;
+
+  box-shadow:
+    0 14px 30px
+    rgba(15, 23, 42, 0.12);
+}
+
+.opcion-especialidad {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  color: #334155;
+
+  background: transparent;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.opcion-especialidad:hover {
+  color: #0f9ea8;
+
+  background: #f0fdfa;
+}
+
+
+/* =========================================
+   BOTÓN CREAR CUENTA
+   ========================================= */
+
+.boton-crear {
+  min-height: 54px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-top: 5px;
+
+  border: 0;
+
+  border-radius: 15px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0f9ea8,
+      #16a34a
+    );
+
+  font-size: 15px;
+
+  font-weight: 900;
+
+  font-family: inherit;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 28px
+    rgba(15, 158, 168, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.boton-crear:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 18px 34px
+    rgba(15, 158, 168, 0.26);
+}
+
+.boton-crear:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   TEXTO INICIAR SESIÓN
+   ========================================= */
+
+.pie-registro {
+  margin: 26px 0 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  text-align: center;
+}
+
+.pie-registro a {
+  color: #0f9ea8;
+
+  font-weight: 900;
+
   text-decoration: none;
 }
 
+.pie-registro a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   LADO DERECHO
+   MISMO TAMAÑO QUE INICIAR SESIÓN
+   ========================================= */
+
 .lado-imagen {
   position: relative;
-  display: flex;
-  align-items: flex-end;
+
   min-height: 100vh;
-  padding: 70px;
-  background:
-    linear-gradient(rgba(0, 20, 20, 0.25), rgba(0, 10, 20, 0.72)),
-    url('/assets/avatar.png') center center / cover no-repeat;
-  background-color: #8aa0bc;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
   overflow: hidden;
+
+  padding: 48px 42px;
+
+  background:
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(163, 230, 53, 0.22),
+      transparent 28%
+    ),
+    linear-gradient(
+      145deg,
+      #0b6f78,
+      #0f9ea8 48%,
+      #16a34a
+    );
 }
 
-.capa-oscura {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 20, 30, 0.22);
+.lado-imagen.modo-doctor {
+  background:
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(163, 230, 53, 0.18),
+      transparent 28%
+    ),
+    linear-gradient(
+      145deg,
+      #0b6179,
+      #0f8698 48%,
+      #15836a
+    );
 }
+
+
+/* =========================================
+   CÍRCULOS DECORATIVOS
+   ========================================= */
+
+.circulo {
+  position: absolute;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.09);
+}
+
+.circulo-superior {
+  top: 8%;
+  right: -100px;
+
+  width: 330px;
+  height: 330px;
+}
+
+.circulo-inferior {
+  left: -90px;
+  bottom: 18%;
+
+  width: 260px;
+  height: 260px;
+}
+
+
+/* =========================================
+   CONTENIDO DERECHO
+   AJOLOTE ARRIBA + TEXTO ABAJO
+   ========================================= */
+
+.contenido-lateral {
+  position: relative;
+
+  z-index: 1;
+
+  width: 100%;
+
+  max-width: 560px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+/* =========================================
+   AJOLOTE
+   ========================================= */
+
+.imagen-ajolote {
+  width: 100%;
+
+  /* Tamaño equilibrado con iniciar sesión */
+  max-width: 300px;
+
+  height: auto;
+
+  margin-bottom: 24px;
+
+  object-fit: contain;
+
+  filter:
+    drop-shadow(
+      0 20px 28px
+      rgba(0, 35, 45, 0.2)
+    );
+
+  animation:
+    aparecer-ajolote
+    0.35s ease;
+}
+
+@keyframes aparecer-ajolote {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* =========================================
+   TEXTO DERECHO
+   ========================================= */
 
 .texto-imagen {
-  position: relative;
-  z-index: 1;
-  max-width: 460px;
+  width: 100%;
+
   color: #ffffff;
+
+  text-align: center;
 }
 
-.texto-imagen span {
+.linea-acento {
   display: block;
-  width: 70px;
+
+  width: 58px;
+
   height: 5px;
-  margin-bottom: 26px;
+
+  margin: 0 auto 25px;
+
   border-radius: 999px;
-  background: #06b6d4;
+
+  background: #bef264;
 }
 
 .texto-imagen h2 {
-  margin: 0 0 18px;
-  font-size: clamp(30px, 4vw, 42px);
-  line-height: 1.18;
+  max-width: 520px;
+
+  margin: 0 auto 20px;
+
+  color: #ffffff;
+
+  font-size:
+    clamp(
+      34px,
+      3.5vw,
+      50px
+    );
+
+  line-height: 1.08;
+
   letter-spacing: -0.04em;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .texto-imagen p {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.55;
-  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  max-width: 500px;
+
+  margin: 0 auto;
+
+  color: #e6fffb;
+
+  font-size: 16px;
+
+  line-height: 1.75;
 }
 
-@media (max-width: 980px) {
+
+/* =========================================
+   RESPONSIVE
+   IGUAL QUE INICIAR SESIÓN
+   ========================================= */
+
+@media (max-width: 1000px) {
+
   .pagina-registro {
     grid-template-columns: 1fr;
   }
 
   .lado-formulario {
-    padding: 90px 24px 42px;
-  }
-
-  .boton-volver {
-    top: 24px;
-    left: 24px;
+    min-height: auto;
   }
 
   .lado-imagen {
-    min-height: 360px;
-    padding: 42px;
+    min-height: 420px;
+  }
+
+  .imagen-ajolote {
+    max-width: 230px;
   }
 }
 
+
 @media (max-width: 640px) {
-  .descripcion-registro {
-    margin-bottom: 24px;
-    font-size: 14px;
+
+  .lado-formulario {
+    padding:
+      80px
+      20px
+      45px;
   }
 
-  .campo-registro {
-    min-height: 48px;
+  .boton-regresar-home {
+    left: 20px;
   }
 
-  .campo-registro input {
-    font-size: 14px;
+  .contenido-formulario h1 {
+    font-size: 34px;
   }
 
-  .boton-crear {
-    min-height: 50px;
-    font-size: 15px;
+  .selector-tipo {
+    grid-template-columns: 1fr;
+  }
+
+  .lado-imagen {
+    padding:
+      38px
+      25px;
+  }
+
+  .imagen-ajolote {
+    max-width: 190px;
   }
 
   .texto-imagen h2 {
-    font-size: 28px;
+    font-size: 32px;
   }
 
   .texto-imagen p {
-    font-size: 15px;
+    font-size: 14px;
+  }
+}
+
+
+/* =========================================
+   VERIFICACIÓN DE CÉDULA PROFESIONAL
+   ========================================= */
+
+.fila-verificacion-cedula {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.campo-cedula.verificado {
+  border-color: #22a35a;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(34, 163, 90, 0.08);
+}
+
+.boton-verificar-cedula {
+  min-width: 112px;
+
+  padding: 0 16px;
+
+  border: 1px solid #b7dfe3;
+  border-radius: 15px;
+
+  color: #0f7f8b;
+
+  background: #eef9fa;
+
+  font-size: 12px;
+  font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.boton-verificar-cedula:hover:not(:disabled) {
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0f9ea8,
+      #16a34a
+    );
+
+  transform: translateY(-1px);
+}
+
+.boton-verificar-cedula:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+.boton-verificar-cedula.verificada {
+  color: #ffffff;
+
+  border-color: #22a35a;
+
+  background: #22a35a;
+}
+
+.estado-verificacion-cedula {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #dbe8eb;
+  border-radius: 12px;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.indicador-estado {
+  flex: 0 0 24px;
+
+  width: 24px;
+  height: 24px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.estado-verificacion-cedula strong {
+  display: block;
+
+  margin-bottom: 2px;
+}
+
+.estado-verificacion-cedula p {
+  margin: 0;
+}
+
+.estado-verificacion-cedula.verificando {
+  color: #0f6e83;
+
+  border-color: #bfe2e7;
+
+  background: #f0fafb;
+}
+
+.estado-verificacion-cedula.verificando
+.indicador-estado {
+  color: #ffffff;
+
+  background: #0f9ea8;
+}
+
+.estado-verificacion-cedula.verificada {
+  color: #237a46;
+
+  border-color: #bfe5cd;
+
+  background: #effaf3;
+}
+
+.estado-verificacion-cedula.verificada
+.indicador-estado {
+  color: #ffffff;
+
+  background: #22a35a;
+}
+
+.estado-verificacion-cedula.no-encontrada {
+  color: #b8324c;
+
+  border-color: #f0cbd2;
+
+  background: #fff3f5;
+}
+
+.estado-verificacion-cedula.no-encontrada
+.indicador-estado {
+  color: #ffffff;
+
+  background: #d94761;
+}
+
+.estado-verificacion-cedula.pendiente-api {
+  color: #7a5c19;
+
+  border-color: #eadba7;
+
+  background: #fffbed;
+}
+
+.estado-verificacion-cedula.pendiente-api
+.indicador-estado {
+  color: #7a5c19;
+
+  background: #f8e8a6;
+}
+
+.ayuda-cedula {
+  color: #718391;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .fila-verificacion-cedula {
+    grid-template-columns: 1fr;
+  }
+
+  .boton-verificar-cedula {
+    min-height: 46px;
+    width: 100%;
   }
 }

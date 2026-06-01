@@ -1,195 +1,432 @@
+/* ==========================================================
+   RIESGO CARDIOVASCULAR - VIBRA LA VIDA
+   Paleta basada en el logo + distribución amplia
+   ========================================================== */
+
 .pagina-riesgo {
   min-height: 100vh;
-  padding: 28px;
-  background: #f7fafc;
+  padding: 24px 3vw 44px;
+  background: #f6fafb;
 }
+
+
+/* ==========================================================
+   BOTÓN REGRESAR
+   ========================================================== */
 
 .boton-regresar {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 46px;
-  padding: 13px 22px;
-  border: 1px solid #dbe3ef;
+
+  margin-bottom: 22px;
+
+  padding: 11px 18px;
+
+  border: 1px solid #dbe7ea;
   border-radius: 999px;
-  color: #253858;
+
+  color: #0f6e83;
   background: #ffffff;
+
+  font-size: 14px;
   font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+
+  box-shadow: 0 5px 14px rgba(7, 58, 78, 0.06);
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
+.boton-regresar:hover {
+  color: #ffffff;
+  background: #0f6e83;
+  transform: translateX(-2px);
+}
+
+
+/* ==========================================================
+   CONTENEDOR GENERAL
+   Casi todo el ancho disponible
+   ========================================================== */
+
 .contenedor-riesgo {
-  max-width: 760px;
+  width: min(100%, 1380px);
   margin: 0 auto;
-  border-radius: 28px;
+
+  border: 1px solid #e4edef;
+  border-radius: 26px;
+
   background: #ffffff;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+
+  box-shadow: 0 14px 34px rgba(7, 58, 78, 0.07);
+
   overflow: hidden;
 }
 
+
+/* ==========================================================
+   ENCABEZADO
+   ========================================================== */
+
 .encabezado-riesgo {
-  padding: 48px 30px 44px;
-  text-align: center;
+  position: relative;
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icono titulo"
+    "icono descripcion";
+
+  align-items: center;
+  column-gap: 24px;
+
+  padding: 30px 38px;
+
   color: #ffffff;
-  background: #f50046;
+
+  text-align: left;
+
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(155, 214, 46, 0.24),
+      transparent 25%
+    ),
+    linear-gradient(
+      120deg,
+      #0b4f7a 0%,
+      #0f6e83 45%,
+      #0aa7b8 100%
+    );
+}
+
+.icono-encabezado {
+  grid-area: icono;
+
+  display: grid;
+  place-items: center;
+
+  width: 72px;
+  height: 72px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  font-size: 38px;
+  font-weight: 900;
+}
+
+.encabezado-riesgo h1 {
+  grid-area: titulo;
+
+  margin: 0 0 8px;
+
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.05;
+
+  letter-spacing: -0.04em;
+}
+
+.encabezado-riesgo p {
+  grid-area: descripcion;
+
+  max-width: 760px;
+
+  margin: 0;
+
+  color: #eaf8fa;
+
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .icono-encabezado {
   display: grid;
   place-items: center;
-  width: 86px;
-  height: 86px;
-  margin: 0 auto 26px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 46px;
+
+  width: 72px;
+  height: 72px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  font-size: 38px;
   font-weight: 900;
 }
 
 .encabezado-riesgo h1 {
-  margin: 0 0 14px;
-  font-size: clamp(34px, 5vw, 46px);
-  line-height: 1;
+  margin: 0 0 8px;
+
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.05;
+
   letter-spacing: -0.04em;
 }
 
 .encabezado-riesgo p {
-  max-width: 600px;
-  margin: 0 auto;
-  font-size: 17px;
-  line-height: 1.5;
+  max-width: 760px;
+
+  margin: 0;
+
+  color: #eaf8fa;
+
+  font-size: 15px;
+  line-height: 1.6;
 }
 
+
+/* ==========================================================
+   CONTENIDO
+   ========================================================== */
+
 .contenido-riesgo {
-  padding: 46px;
+  padding: 30px 36px 38px;
 }
+
+
+/* ==========================================================
+   ADVERTENCIA EDUCATIVA
+   Se conserva amarillo porque tiene función informativa
+   ========================================================== */
 
 .tarjeta-advertencia {
   display: flex;
-  gap: 18px;
-  margin-bottom: 48px;
-  padding: 24px;
-  border: 1px solid #facc15;
-  border-radius: 18px;
-  background: #fff9e8;
-  box-shadow: 0 10px 24px rgba(234, 179, 8, 0.12);
+  align-items: flex-start;
+
+  gap: 16px;
+
+  margin-bottom: 28px;
+
+  padding: 18px 20px;
+
+  border: 1px solid #f0d278;
+  border-radius: 16px;
+
+  background: #fffaf0;
 }
 
 .icono-advertencia {
   display: grid;
   place-items: center;
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
+
+  flex: 0 0 36px;
+
+  width: 36px;
+  height: 36px;
+
   border-radius: 50%;
-  color: #d97706;
-  background: #fef3c7;
+
+  color: #a85b00;
+  background: #fff0bf;
+
   font-weight: 900;
 }
 
 .tarjeta-advertencia h2 {
-  margin: 0 0 8px;
-  color: #7c2d12;
-  font-size: 17px;
+  margin: 0 0 6px;
+
+  color: #704810;
+
+  font-size: 15px;
 }
 
 .tarjeta-advertencia p {
   margin: 0;
-  color: #9a3412;
-  font-size: 15px;
-  line-height: 1.8;
+
+  color: #785b31;
+
+  font-size: 13px;
+  line-height: 1.65;
 }
+
+
+/* ==========================================================
+   FORMULARIO
+   ========================================================== */
 
 .formulario-riesgo {
   display: grid;
-  gap: 34px;
+
+  gap: 24px;
 }
+
+
+/* ==========================================================
+   SEXO
+   ========================================================== */
 
 .opciones-sexo {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
 }
 
 .boton-sexo {
-  min-height: 74px;
-  border: 2px solid #dbe3ef;
-  border-radius: 18px;
-  color: #64748b;
-  background: #f8fafc;
-  font-size: 20px;
+  min-height: 58px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 15px;
+
+  color: #5e7180;
+  background: #f8fbfc;
+
+  font-size: 16px;
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-sexo:hover {
+  color: #0f6e83;
+  border-color: #9fd7dd;
+  background: #f0fafb;
 }
 
 .boton-sexo.activo {
-  color: #e60045;
-  border-color: #f50046;
-  background: #fff1f4;
+  color: #ffffff;
+  border-color: #0aa7b8;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0f6e83,
+      #0aa7b8
+    );
+
+  box-shadow: 0 8px 18px rgba(10, 167, 184, 0.14);
 }
+
+
+/* ==========================================================
+   CAMPOS PRINCIPALES
+   ========================================================== */
 
 .rejilla-campos {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
 }
 
 .grupo-campo {
   display: grid;
+
   gap: 8px;
 }
 
 .grupo-campo label {
-  color: #13233f;
-  font-size: 15px;
+  color: #173b57;
+
+  font-size: 13px;
   font-weight: 900;
 }
 
 .grupo-campo input {
   width: 100%;
-  min-height: 68px;
-  padding: 0 22px;
-  border: 1px solid #dbe3ef;
-  border-radius: 18px;
-  color: #13233f;
-  background: #f8fafc;
-  font-size: 19px;
+
+  min-height: 54px;
+
+  padding: 0 17px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 14px;
+
+  color: #173b57;
+  background: #f8fbfc;
+
+  font-size: 15px;
   font-weight: 700;
+  font-family: inherit;
+
   outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .grupo-campo input:focus {
-  border-color: #f50046;
+  border-color: #0aa7b8;
+
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(245, 0, 70, 0.08);
+
+  box-shadow:
+    0 0 0 4px rgba(10, 167, 184, 0.08);
 }
 
 .grupo-campo small {
-  color: #e11d48;
+  color: #d7264e;
+
   font-size: 12px;
   font-weight: 700;
 }
 
+
+/* ==========================================================
+   OPCIONES DE RIESGO
+   ========================================================== */
+
 .rejilla-opciones {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
 }
 
 .tarjeta-opcion {
   display: flex;
   align-items: center;
-  min-height: 78px;
-  gap: 18px;
-  padding: 20px 24px;
-  border: 1px solid #dbe3ef;
-  border-radius: 18px;
-  color: #13233f;
+
+  min-height: 64px;
+
+  gap: 14px;
+
+  padding: 16px 18px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 15px;
+
+  color: #2f5065;
   background: #ffffff;
-  font-size: 17px;
+
+  font-size: 14px;
   font-weight: 800;
+
   cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tarjeta-opcion:hover {
+  border-color: #abd9de;
+  background: #f8fcfc;
+  transform: translateY(-1px);
 }
 
 .tarjeta-opcion input {
@@ -197,42 +434,95 @@
 }
 
 .tarjeta-opcion span {
-  width: 32px;
-  height: 32px;
-  border: 2px solid #cbd5e1;
-  border-radius: 6px;
+  width: 27px;
+  height: 27px;
+
+  flex: 0 0 27px;
+
+  border: 2px solid #cbd9de;
+  border-radius: 7px;
+
   background: #ffffff;
 }
 
 .tarjeta-opcion input:checked + span {
-  border-color: #f50046;
+  border-color: #0aa7b8;
+
   background:
-    linear-gradient(#f50046, #f50046) center / 14px 14px no-repeat,
+    linear-gradient(
+      #0aa7b8,
+      #0aa7b8
+    )
+    center / 12px 12px
+    no-repeat,
     #ffffff;
 }
 
+
+/* ==========================================================
+   BOTÓN CALCULAR
+   ========================================================== */
+
 .boton-calcular {
-  min-height: 78px;
-  margin-top: 20px;
+  width: min(100%, 520px);
+
+  min-height: 58px;
+
+  justify-self: center;
+
+  margin-top: 4px;
+
+  padding: 0 26px;
+
   border: 0;
-  border-radius: 18px;
+  border-radius: 15px;
+
   color: #ffffff;
-  background: #f50046;
-  font-size: 22px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0f6e83,
+      #0aa7b8,
+      #2e9b32
+    );
+
+  font-size: 16px;
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
-  box-shadow: 0 14px 28px rgba(245, 0, 70, 0.28);
+
+  box-shadow: 0 12px 24px rgba(15, 110, 131, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
+.boton-calcular:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 16px 30px rgba(15, 110, 131, 0.23);
+}
+
+
+/* ==========================================================
+   RESULTADO
+   ========================================================== */
+
 .seccion-resultado {
-  padding: 20px 0 10px;
+  padding: 8px 0 4px;
+
   text-align: center;
 }
 
 .titulo-resultado {
   margin: 0 0 24px;
-  color: #475569;
-  font-size: 18px;
+
+  color: #52697c;
+
+  font-size: 16px;
   font-weight: 800;
 }
 
@@ -240,120 +530,242 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 34px;
+
+  margin-bottom: 28px;
 }
 
 .circulo-riesgo {
   display: grid;
   place-items: center;
-  width: 205px;
-  height: 205px;
+
+  width: 190px;
+  height: 190px;
+
   border: 6px solid;
   border-radius: 50%;
-  font-size: 58px;
+
+  font-size: 52px;
   font-weight: 950;
 }
 
 .etiqueta-riesgo {
   min-width: 170px;
+
   margin-left: -6px;
-  padding: 17px 28px;
+
+  padding: 15px 26px;
+
   border: 2px solid;
   border-radius: 999px;
+
   background: #ffffff;
-  font-size: 18px;
+
+  font-size: 16px;
   font-weight: 900;
 }
 
+
+/* ==========================================================
+   SEMAFORIZACIÓN
+   Se conserva funcionalmente
+   ========================================================== */
+
 .circulo-riesgo.bajo {
-  color: #05b77f;
-  border-color: #05b77f;
-  background: #e8fbf3;
+  color: #05a875;
+  border-color: #05a875;
+  background: #e9faf4;
 }
 
 .etiqueta-riesgo.bajo {
-  color: #05b77f;
-  border-color: #05b77f;
+  color: #05a875;
+  border-color: #05a875;
 }
 
 .circulo-riesgo.moderado {
-  color: #f59e0b;
-  border-color: #f59e0b;
-  background: #fff7ed;
+  color: #e59a08;
+  border-color: #e59a08;
+  background: #fff8e9;
 }
 
 .etiqueta-riesgo.moderado {
-  color: #f59e0b;
-  border-color: #f59e0b;
+  color: #e59a08;
+  border-color: #e59a08;
 }
 
 .circulo-riesgo.alto {
-  color: #e11d48;
-  border-color: #e11d48;
-  background: #fff1f4;
+  color: #d7264e;
+  border-color: #d7264e;
+  background: #fff2f5;
 }
 
 .etiqueta-riesgo.alto {
-  color: #e11d48;
-  border-color: #e11d48;
+  color: #d7264e;
+  border-color: #d7264e;
 }
+
+
+/* ==========================================================
+   RECOMENDACIÓN
+   ========================================================== */
 
 .tarjeta-recomendacion {
   display: flex;
-  gap: 20px;
-  max-width: 670px;
-  margin: 0 auto 34px;
-  padding: 26px;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  background: #f8fafc;
+
+  gap: 18px;
+
+  max-width: 900px;
+
+  margin: 0 auto 26px;
+
+  padding: 22px;
+
+  border: 1px solid #dfe9ec;
+  border-radius: 17px;
+
+  background: #f8fbfc;
+
   text-align: left;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
 }
 
 .icono-recomendacion {
   display: grid;
   place-items: center;
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
+
+  flex: 0 0 40px;
+
+  width: 40px;
+  height: 40px;
+
   border-radius: 50%;
-  color: #64748b;
-  background: #e8eef7;
-  font-size: 24px;
+
+  color: #0f6e83;
+  background: #e7f5f7;
+
+  font-size: 22px;
 }
 
 .tarjeta-recomendacion h3 {
-  margin: 0 0 8px;
-  color: #13233f;
-  font-size: 17px;
+  margin: 0 0 7px;
+
+  color: #173b57;
+
+  font-size: 16px;
 }
 
 .tarjeta-recomendacion p {
   margin: 0;
-  color: #475569;
-  font-size: 15px;
-  line-height: 1.8;
+
+  color: #52697c;
+
+  font-size: 14px;
+  line-height: 1.75;
 }
+
+
+/* ==========================================================
+   MENSAJES DE GUARDADO
+   ========================================================== */
+
+.mensaje-guardado {
+  max-width: 720px;
+
+  margin: 0 auto 16px;
+
+  padding: 12px 16px;
+
+  border: 1px solid #d9eaed;
+  border-radius: 12px;
+
+  color: #0f6e83;
+  background: #f1fafb;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+
+/* ==========================================================
+   REINICIAR
+   ========================================================== */
 
 .boton-reiniciar {
-  border: 0;
-  border-radius: 14px;
-  padding: 17px 30px;
-  color: #13233f;
-  background: #f1f5f9;
-  font-size: 16px;
+  padding: 13px 24px;
+
+  border: 1px solid #dbe7ea;
+  border-radius: 13px;
+
+  color: #0f6e83;
+  background: #ffffff;
+
+  font-size: 14px;
   font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-@media (max-width: 768px) {
+.boton-reiniciar:hover {
+  color: #ffffff;
+  background: #0f6e83;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1000px) {
   .pagina-riesgo {
     padding: 18px;
   }
 
+  .encabezado-riesgo {
+    grid-template-columns: 1fr;
+
+    text-align: center;
+  }
+
+  .icono-encabezado {
+    margin: 0 auto;
+  }
+
+  .encabezado-riesgo p {
+    margin: 0 auto;
+  }
+
   .contenido-riesgo {
-    padding: 28px 22px;
+    padding: 26px;
+  }
+
+  .rejilla-campos {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 720px) {
+  .pagina-riesgo {
+    padding: 14px;
+  }
+
+  .boton-regresar {
+    margin-bottom: 16px;
+  }
+
+  .contenedor-riesgo {
+    border-radius: 20px;
+  }
+
+  .encabezado-riesgo {
+    padding: 26px 20px;
+  }
+
+  .contenido-riesgo {
+    padding: 20px 16px 26px;
   }
 
   .tarjeta-advertencia {
@@ -361,14 +773,14 @@
   }
 
   .opciones-sexo,
-  .rejilla-campos,
   .rejilla-opciones {
     grid-template-columns: 1fr;
   }
 
   .contenedor-resultado {
     flex-direction: column;
-    gap: 18px;
+
+    gap: 16px;
   }
 
   .etiqueta-riesgo {
@@ -377,5 +789,27 @@
 
   .tarjeta-recomendacion {
     flex-direction: column;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .encabezado-riesgo h1 {
+    font-size: 29px;
+  }
+
+  .encabezado-riesgo p {
+    font-size: 14px;
+  }
+
+  .circulo-riesgo {
+    width: 165px;
+    height: 165px;
+
+    font-size: 44px;
+  }
+
+  .boton-calcular {
+    font-size: 15px;
   }
 }

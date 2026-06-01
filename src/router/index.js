@@ -11,10 +11,13 @@ import EscalaInsomnioAtenasView from '../views/EsInsomnioAtenas.vue'
 import IniciarSesionView from '../views/IniciarSesion.vue'
 import CrearCuentaView from '../views/CrearCuenta.vue'
 import MiCuentaView from '../views/MiCuenta.vue'
+import PanelDoctor from '../views/PanelDoctor.vue'
+import RegistroDoctor from '../views/RegistroDoctor.vue'
 
 // Crea las rutas del proyecto
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+
   routes: [
     {
       path: '/',
@@ -60,6 +63,16 @@ const router = createRouter({
       path: '/mi-cuenta',
       name: 'mi-cuenta',
       component: MiCuentaView,
+    },
+    {
+      path: '/registro-doctor',
+      name: 'registro-doctor',
+      component: RegistroDoctor,
+    },
+    {
+      path: '/doctor',
+      name: 'doctor',
+      component: PanelDoctor,
     },
   ],
 })

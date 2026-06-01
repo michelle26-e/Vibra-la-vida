@@ -1,4 +1,5 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import {
@@ -17,39 +18,77 @@ import ItemHistorial from '../components/ItemHistorial.vue'
 
 const router = useRouter()
 
+// Usuario autenticado de Firebase Authentication
 const usuarioActual = ref(null)
+
+// Datos adicionales guardados en Firestore
 const datosUsuario = ref(null)
+
+// Controla la pantalla de carga
 const cargando = ref(true)
+
+// Guardamos los resultados del usuario
 const resultados = ref([])
 
+// Controla si el formulario de edición está visible
 const editandoPerfil = ref(false)
 
+// Datos que se pueden editar
 const formularioPerfil = ref({
-  nombre: '',
+  nombreCompleto: '',
   correo: '',
 })
 
 let detenerObservador = null
 
+// --------------------------------------------------
+// DATOS DEL USUARIO
+// --------------------------------------------------
+
+// Obtiene el nombre completo.
+// Dejamos compatibilidad con usuarios antiguos que aún tengan "nombre".
+const nombreCompletoUsuario = computed(() => {
+  return (
+    datosUsuario.value?.nombreCompleto ||
+    datosUsuario.value?.nombre ||
+    ''
+  )
+})
+
+// Obtiene únicamente el primer nombre para el saludo
 const nombreUsuario = computed(() => {
-  const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
-  const primerNombre = nombreCompleto.trim().split(' ')[0]
+  const nombreCompleto = nombreCompletoUsuario.value.trim()
+
+  if (!nombreCompleto) {
+    return 'Usuario'
+  }
+
+  const primerNombre = nombreCompleto.split(/\s+/)[0]
 
   return primerNombre.charAt(0).toUpperCase() + primerNombre.slice(1)
 })
 
-const inicialUsuario = computed(() => {
-  return nombreUsuario.value.charAt(0).toUpperCase()
-})
+// Inicial para el avatar
 
+// Correo del usuario
 const correoUsuario = computed(() => {
-  return usuarioActual.value?.email || datosUsuario.value?.correo || 'Sin correo registrado'
+  return (
+    datosUsuario.value?.correo ||
+    usuarioActual.value?.email ||
+    'Sin correo registrado'
+  )
 })
 
+// --------------------------------------------------
+// RESUMEN DE RESULTADOS
+// --------------------------------------------------
+
+// Contamos cuántos cálculos de IMC tiene guardados
 const imcRegistrados = computed(() => {
   return resultados.value.filter((item) => item.tipo === 'imc').length
 })
 
+// Contamos cuántas encuestas ha completado
 const encuestasRealizadas = computed(() => {
   const tiposEncuesta = [
     'dass21',
@@ -58,16 +97,23 @@ const encuestasRealizadas = computed(() => {
     'riesgo_cardiovascular',
   ]
 
-  return resultados.value.filter((item) => tiposEncuesta.includes(item.tipo)).length
+  return resultados.value.filter((item) =>
+    tiposEncuesta.includes(item.tipo)
+  ).length
 })
 
+// Total de resultados guardados
 const registrosGuardados = computed(() => {
   return resultados.value.length
 })
 
+// Últimos 6 resultados
 const historialReciente = computed(() => {
   return [...resultados.value]
-    .sort((a, b) => obtenerTiempoFecha(b.fecha) - obtenerTiempoFecha(a.fecha))
+    .sort(
+      (a, b) =>
+        obtenerTiempoFecha(b.fecha) - obtenerTiempoFecha(a.fecha)
+    )
     .slice(0, 6)
 })
 
@@ -77,99 +123,36 @@ const obtenerTiempoFecha = (fecha) => {
   return 0
 }
 
-const formatearFecha = (fecha) => {
-  if (!fecha?.toDate) return 'Fecha reciente'
+// --------------------------------------------------
+// RESULTADOS
+// --------------------------------------------------
 
-  return fecha.toDate().toLocaleDateString('es-MX', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-const obtenerNombreResultado = (resultado) => {
-  if (resultado.nombreHerramienta) return resultado.nombreHerramienta
-
-  const nombres = {
-    imc: 'Calculadora de IMC',
-    calorias: 'Calculadora de Calorías',
-    dass21: 'Evaluación DASS-21',
-    insomnio: 'Escala de Insomnio de Atenas',
-    riesgo_cardiometabolico: 'Encuesta de Riesgo Cardiometabólico',
-    riesgo_cardiovascular: 'Encuesta de Riesgo Cardiovascular',
-  }
-
-  return nombres[resultado.tipo] || 'Resultado guardado'
-}
-
-const obtenerIconoResultado = (tipo) => {
-  const iconos = {
-    imc: 'IMC',
-    calorias: 'CAL',
-    dass21: 'D21',
-    insomnio: 'AIS',
-    riesgo_cardiometabolico: 'RC',
-    riesgo_cardiovascular: 'RC',
-  }
-
-  return iconos[tipo] || 'OK'
-}
-
-const obtenerClaseHistorial = (tipo) => {
-  const clases = {
-    imc: 'historial-naranja',
-    calorias: 'historial-verde',
-    dass21: 'historial-cian',
-    insomnio: 'historial-morado',
-    riesgo_cardiometabolico: 'historial-rosa',
-    riesgo_cardiovascular: 'historial-rosa',
-  }
-
-  return clases[tipo] || 'historial-azul'
-}
-
-const obtenerDetalleResultado = (resultado) => {
-  if (
-    resultado.tipo === 'riesgo_cardiometabolico' ||
-    resultado.tipo === 'riesgo_cardiovascular'
-  ) {
-    return `${resultado.nivelRiesgo || resultado.nivel || 'Resultado calculado'}${
-      resultado.porcentaje ? ` · ${resultado.porcentaje}%` : ''
-    }`
-  }
-
-  if (resultado.tipo === 'imc') {
-    return `${resultado.categoria || 'IMC registrado'}${
-      resultado.imc ? ` · IMC ${resultado.imc}` : ''
-    }`
-  }
-
-  if (resultado.tipo === 'calorias') {
-    return resultado.calorias
-      ? `${resultado.calorias} kcal estimadas al día`
-      : 'Estimación de calorías registrada'
-  }
-
-  if (resultado.tipo === 'dass21') {
-    return `Depresión: ${resultado.nivelDepresion || 'N/A'} · Ansiedad: ${
-      resultado.nivelAnsiedad || 'N/A'
-    } · Estrés: ${resultado.nivelEstres || 'N/A'}`
-  }
-
-  if (resultado.tipo === 'insomnio') {
-    return resultado.interpretacion || resultado.categoria || 'Resultado de sueño registrado'
-  }
-
-  return resultado.categoria || resultado.resultado || 'Registro guardado correctamente'
-}
-
+// Carga los resultados.
+// IMPORTANTE:
+// Mientras migramos cada evaluación a una colección separada,
+// este método puede seguir leyendo la colección antigua.
+// Si falla, Mi Cuenta ya no se quedará cargando para siempre.
 const cargarResultadosUsuario = async () => {
-  resultados.value = await obtenerResultadosUsuario()
+  try {
+    const respuesta = await obtenerResultadosUsuario()
+    resultados.value = Array.isArray(respuesta) ? respuesta : []
+  } catch (error) {
+    console.error('Error al cargar resultados:', error)
+    resultados.value = []
+  }
 }
+
+// --------------------------------------------------
+// EDICIÓN DEL PERFIL
+// --------------------------------------------------
 
 const activarEdicionPerfil = () => {
-  formularioPerfil.value.nombre = datosUsuario.value?.nombre || ''
-  formularioPerfil.value.correo = correoUsuario.value
+  formularioPerfil.value.nombreCompleto =
+    nombreCompletoUsuario.value
+
+  formularioPerfil.value.correo =
+    correoUsuario.value
+
   editandoPerfil.value = true
 }
 
@@ -177,40 +160,64 @@ const cancelarEdicionPerfil = () => {
   editandoPerfil.value = false
 }
 
+// Guarda los cambios del perfil
 const guardarPerfil = async () => {
   const usuario = auth.currentUser
 
   if (!usuario) return
 
+  const nombreCompleto =
+    formularioPerfil.value.nombreCompleto.trim()
+
+  const correo =
+    formularioPerfil.value.correo.trim()
+
+  if (!nombreCompleto || !correo) {
+    alert('Completa el nombre y el correo.')
+    return
+  }
+
   try {
+    // Actualizamos Firestore usando el nuevo campo nombreCompleto
     await updateDoc(doc(db, 'usuarios', usuario.uid), {
-      nombre: formularioPerfil.value.nombre,
-      correo: formularioPerfil.value.correo,
+      nombreCompleto,
+      correo,
     })
 
-    if (formularioPerfil.value.correo !== usuario.email) {
-      await updateEmail(usuario, formularioPerfil.value.correo)
+    // Si cambió el correo también se actualiza Firebase Authentication
+    if (correo !== usuario.email) {
+      await updateEmail(usuario, correo)
     }
 
+    // Actualizamos los datos locales para reflejar el cambio inmediatamente
     datosUsuario.value = {
       ...datosUsuario.value,
-      nombre: formularioPerfil.value.nombre,
-      correo: formularioPerfil.value.correo,
+      nombreCompleto,
+      correo,
     }
 
     editandoPerfil.value = false
+
     alert('Perfil actualizado correctamente.')
   } catch (error) {
-    console.error(error)
+    console.error('Error al actualizar perfil:', error)
 
     if (error.code === 'auth/requires-recent-login') {
-      alert('Por seguridad, vuelve a iniciar sesión para cambiar el correo.')
+      alert(
+        'Por seguridad, vuelve a iniciar sesión para cambiar el correo.'
+      )
       return
     }
 
-    alert('No se pudo actualizar el perfil. Inténtalo nuevamente.')
+    alert(
+      'No se pudo actualizar el perfil. Inténtalo nuevamente.'
+    )
   }
 }
+
+// --------------------------------------------------
+// ELIMINAR PERFIL
+// --------------------------------------------------
 
 const eliminarPerfil = async () => {
   const confirmar = confirm(
@@ -230,18 +237,29 @@ const eliminarPerfil = async () => {
   if (!contrasena) return
 
   try {
-    const credencial = EmailAuthProvider.credential(usuario.email, contrasena)
+    const credencial = EmailAuthProvider.credential(
+      usuario.email,
+      contrasena
+    )
 
-    await reauthenticateWithCredential(usuario, credencial)
+    await reauthenticateWithCredential(
+      usuario,
+      credencial
+    )
 
-    await deleteDoc(doc(db, 'usuarios', usuario.uid))
+    // Elimina primero los datos del perfil en Firestore
+    await deleteDoc(
+      doc(db, 'usuarios', usuario.uid)
+    )
 
+    // Después elimina la cuenta de Authentication
     await deleteUser(usuario)
 
     alert('Perfil eliminado correctamente.')
+
     router.push('/')
   } catch (error) {
-    console.error(error)
+    console.error('Error al eliminar perfil:', error)
 
     if (
       error.code === 'auth/wrong-password' ||
@@ -251,9 +269,15 @@ const eliminarPerfil = async () => {
       return
     }
 
-    alert('No se pudo eliminar el perfil. Inténtalo nuevamente.')
+    alert(
+      'No se pudo eliminar el perfil. Inténtalo nuevamente.'
+    )
   }
 }
+
+// --------------------------------------------------
+// NAVEGACIÓN
+// --------------------------------------------------
 
 const cerrarSesion = async () => {
   await cerrarSesionUsuario()
@@ -264,20 +288,53 @@ const irARuta = (ruta) => {
   router.push(ruta)
 }
 
-onMounted(() => {
-  detenerObservador = onAuthStateChanged(auth, async (usuario) => {
-    if (!usuario) {
-      router.push('/iniciar-sesion')
-      return
-    }
+// --------------------------------------------------
+// CARGA INICIAL
+// --------------------------------------------------
 
-    usuarioActual.value = usuario
-    datosUsuario.value = await obtenerDatosUsuario(usuario.uid)
-    await cargarResultadosUsuario()
-    cargando.value = false
-  })
+// Se ejecuta cuando se abre Mi Cuenta
+onMounted(() => {
+  detenerObservador = onAuthStateChanged(
+    auth,
+    async (usuario) => {
+      // Si no existe sesión, enviamos al login
+      if (!usuario) {
+        cargando.value = false
+        router.push('/iniciar-sesion')
+        return
+      }
+
+      usuarioActual.value = usuario
+
+      try {
+        // Buscamos directamente usuarios/{uid}
+        const datos = await obtenerDatosUsuario(
+          usuario.uid
+        )
+
+        datosUsuario.value = datos
+
+        // Los resultados se cargan aparte.
+        // Si fallan, la pantalla del perfil continúa funcionando.
+        await cargarResultadosUsuario()
+      } catch (error) {
+        console.error(
+          'Error al cargar la información de la cuenta:',
+          error
+        )
+
+        datosUsuario.value = null
+        resultados.value = []
+      } finally {
+        // MUY IMPORTANTE:
+        // siempre quitamos "Cargando..." aunque ocurra un error.
+        cargando.value = false
+      }
+    }
+  )
 })
 
+// Detenemos el observador cuando se abandona la página
 onUnmounted(() => {
   if (detenerObservador) {
     detenerObservador()
@@ -291,24 +348,39 @@ onUnmounted(() => {
       ← Volver al inicio
     </RouterLink>
 
-    <section v-if="cargando" class="tarjeta-cargando">
+    <section
+      v-if="cargando"
+      class="tarjeta-cargando"
+    >
       Cargando información de la cuenta...
     </section>
 
-    <section v-else class="contenedor-cuenta">
+    <section
+      v-else
+      class="contenedor-cuenta"
+    >
       <section class="encabezado-cuenta">
-        <div class="avatar-perfil">
-          {{ inicialUsuario }}
-        </div>
+        <div class="contenido-encabezado-cuenta">
+          <span class="etiqueta-cuenta">
+            Mi cuenta
+          </span>
 
-        <div>
-          <span class="etiqueta-cuenta">Mi cuenta</span>
-          <h1>Hola {{ nombreUsuario }}</h1>
+          <h1>
+            Hola {{ nombreUsuario }}
+          </h1>
+
           <p>
             Aquí puedes consultar tu información y acceder rápidamente a tus
             herramientas de autocuidado.
           </p>
         </div>
+
+        <button
+          class="boton-cerrar-sesion boton-cerrar-encabezado"
+          @click="cerrarSesion"
+        >
+          Cerrar sesión
+        </button>
       </section>
 
       <section class="rejilla-cuenta">
@@ -317,32 +389,68 @@ onUnmounted(() => {
 
           <div v-if="!editandoPerfil">
             <div class="dato-perfil">
-              <span>Nombre</span>
-              <strong>{{ datosUsuario?.nombre || 'No registrado' }}</strong>
+              <span>Nombre completo</span>
+
+              <strong>
+                {{
+                  nombreCompletoUsuario ||
+                  'No registrado'
+                }}
+              </strong>
             </div>
 
             <div class="dato-perfil">
               <span>Correo electrónico</span>
-              <strong>{{ correoUsuario }}</strong>
-            </div>
 
-            <button class="boton-secundario" @click="activarEdicionPerfil">
+              <strong>
+                {{ correoUsuario }}
+              </strong>
+            </div>
+            
+            <button
+              class="boton-secundario"
+              @click="activarEdicionPerfil"
+            >
               Editar perfil
             </button>
 
-            <button class="boton-eliminar-perfil" @click="eliminarPerfil">
+            <button
+              class="boton-eliminar-perfil"
+              @click="eliminarPerfil"
+            >
               Eliminar perfil
             </button>
           </div>
 
-          <form v-else class="formulario-perfil" @submit.prevent="guardarPerfil">
-            <label>Nombre</label>
-            <input v-model="formularioPerfil.nombre" type="text" required />
+          <form
+            v-else
+            class="formulario-perfil"
+            @submit.prevent="guardarPerfil"
+          >
+            <label>
+              Nombre completo
+            </label>
 
-            <label>Correo electrónico</label>
-            <input v-model="formularioPerfil.correo" type="email" required />
+            <input
+              v-model="formularioPerfil.nombreCompleto"
+              type="text"
+              required
+            />
 
-            <button class="boton-secundario" type="submit">
+            <label>
+              Correo electrónico
+            </label>
+
+            <input
+              v-model="formularioPerfil.correo"
+              type="email"
+              required
+            />
+
+            <button
+              class="boton-secundario"
+              type="submit"
+            >
               Guardar cambios
             </button>
 
@@ -361,48 +469,73 @@ onUnmounted(() => {
 
           <div class="rejilla-resumen">
             <div>
-              <strong>{{ imcRegistrados }}</strong>
-              <span>IMC registrados</span>
+              <strong>
+                {{ imcRegistrados }}
+              </strong>
+
+              <span>
+                IMC registrados
+              </span>
             </div>
 
             <div>
-              <strong>{{ encuestasRealizadas }}</strong>
-              <span>Encuestas realizadas</span>
+              <strong>
+                {{ encuestasRealizadas }}
+              </strong>
+
+              <span>
+                Encuestas realizadas
+              </span>
             </div>
 
             <div>
-              <strong>{{ registrosGuardados }}</strong>
-              <span>Registros guardados</span>
+              <strong>
+                {{ registrosGuardados }}
+              </strong>
+
+              <span>
+                Registros guardados
+              </span>
             </div>
           </div>
 
           <p>
-            Cuando guardes resultados de IMC, calorías o cuestionarios, aquí se
-            mostrará un resumen de tu progreso.
+            Cuando guardes resultados de IMC, calorías o cuestionarios,
+            aquí se mostrará un resumen de tu progreso.
           </p>
         </article>
       </section>
 
       <section class="seccion-herramientas">
-        <h2>Herramientas rápidas</h2>
+        <h2>
+          Herramientas rápidas
+        </h2>
 
         <div class="rejilla-herramientas">
-          <button @click="irARuta('/calculadora-imc')">
+          <button
+            @click="irARuta('/calculadora-imc')"
+          >
             <span>IMC</span>
             Calculadora de IMC
           </button>
 
-          <button @click="irARuta('/calculadora-calorias')">
+          <button
+            @click="irARuta('/calculadora-calorias')"
+          >
             <span>CAL</span>
             Calculadora de Calorías
           </button>
 
-          <button @click="irARuta('/evaluacion-dass21')">
+          <button
+            @click="irARuta('/evaluacion-dass21')"
+          >
             <span>D21</span>
             Evaluación DASS-21
           </button>
 
-          <button @click="irARuta('/escala-insomnio-atenas')">
+          <button
+            @click="irARuta('/escala-insomnio-atenas')"
+          >
             <span>AIS</span>
             Insomnio de Atenas
           </button>
@@ -410,28 +543,36 @@ onUnmounted(() => {
       </section>
 
       <section class="seccion-historial">
-        <h2>Historial reciente</h2>
+        <h2>
+          Historial reciente
+        </h2>
 
-        <div v-if="historialReciente.length" class="lista-historial">
+        <div
+          v-if="historialReciente.length"
+          class="lista-historial"
+        >
           <ItemHistorial
             v-for="item in historialReciente"
             :key="item.id"
             :resultado="item"
-          />    
+          />
         </div>
 
-        <div v-else class="tarjeta-vacia">
-          <strong>Aún no hay resultados guardados</strong>
+        <div
+          v-else
+          class="tarjeta-vacia"
+        >
+          <strong>
+            Aún no hay resultados guardados
+          </strong>
+
           <p>
-            Más adelante podrás ver aquí tus evaluaciones, cálculos y avances
-            registrados dentro de Vibra la Vida.
+            Más adelante podrás ver aquí tus evaluaciones,
+            cálculos y avances registrados dentro de
+            Vibra la Vida.
           </p>
         </div>
       </section>
-
-      <button class="boton-cerrar-sesion" @click="cerrarSesion">
-        Cerrar sesión
-      </button>
     </section>
   </main>
 </template>

@@ -1,0 +1,401 @@
+/* =========================================
+   REGISTRO DEL DOCTOR - VIBRA LA VIDA
+   ========================================= */
+
+.pagina-registro-doctor {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  background: #f7faf9;
+}
+
+/* =========================================
+   LADO DEL FORMULARIO
+   ========================================= */
+
+.lado-formulario-doctor {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 70px 50px;
+  background: #ffffff;
+}
+
+.boton-volver {
+  position: absolute;
+  top: 28px;
+  left: 34px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-volver:hover {
+  color: #0f9ea8;
+  transform: translateX(-3px);
+}
+
+.contenedor-registro-doctor {
+  width: 100%;
+  max-width: 540px;
+}
+
+.etiqueta-registro-doctor {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  color: #047857;
+  background: #dcfce7;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.contenedor-registro-doctor h1 {
+  margin: 0;
+  color: #10182e;
+  font-size: clamp(38px, 4vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.descripcion-registro-doctor {
+  margin: 22px 0 34px;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   FORMULARIO
+   ========================================= */
+
+.formulario-registro-doctor {
+  display: grid;
+  gap: 19px;
+}
+
+.grupo-campo-doctor {
+  display: grid;
+  gap: 8px;
+}
+
+.grupo-campo-doctor label {
+  color: #334155;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.grupo-campo-doctor small {
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.campo-registro-doctor {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #dbe2ea;
+  border-radius: 15px;
+  background: #ffffff;
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.campo-registro-doctor:focus-within {
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+}
+
+.icono-campo-doctor {
+  min-width: 52px;
+  padding: 0 12px;
+  color: #0f9ea8;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.campo-registro-doctor input,
+.campo-registro-doctor select {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 14px 0 0;
+  border: 0;
+  outline: 0;
+  color: #111827;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.campo-registro-doctor input::placeholder {
+  color: #94a3b8;
+}
+
+.boton-ver-doctor {
+  align-self: stretch;
+  padding: 0 16px;
+  border: 0;
+  color: #0f9ea8;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* =========================================
+   AUTOCOMPLETADO DE ESPECIALIDADES
+   ========================================= */
+
+.buscador-especialidad {
+  position: relative;
+}
+
+.lista-especialidades {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid #dbe2ea;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.14);
+}
+
+.lista-especialidades button {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  color: #334155;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.lista-especialidades button:hover {
+  color: #047857;
+  background: #ecfdf5;
+}
+
+/* =========================================
+   MENSAJES
+   ========================================= */
+
+.mensaje-error-doctor,
+.mensaje-correcto-doctor {
+  margin: 0;
+  padding: 13px 15px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mensaje-error-doctor {
+  color: #be123c;
+  background: #fff1f2;
+}
+
+.mensaje-correcto-doctor {
+  color: #15803d;
+  background: #f0fdf4;
+}
+
+/* =========================================
+   BOTÓN PRINCIPAL
+   ========================================= */
+
+.boton-crear-doctor {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 5px;
+  border: 0;
+  border-radius: 15px;
+  color: #ffffff;
+  background: linear-gradient(90deg, #0f9ea8, #16a34a);
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(15, 158, 168, 0.2);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.boton-crear-doctor:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(15, 158, 168, 0.26);
+}
+
+.boton-crear-doctor:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.texto-login-doctor {
+  margin: 26px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+}
+
+.texto-login-doctor a {
+  color: #0f9ea8;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.texto-login-doctor a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   LADO VISUAL
+   ========================================= */
+
+.lado-visual-doctor {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(163, 230, 53, 0.22),
+      transparent 28%
+    ),
+    linear-gradient(
+      145deg,
+      #0b6f78,
+      #0f9ea8 48%,
+      #16a34a
+    );
+}
+
+.lado-visual-doctor::before,
+.lado-visual-doctor::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.lado-visual-doctor::before {
+  top: 8%;
+  right: -100px;
+  width: 330px;
+  height: 330px;
+}
+
+.lado-visual-doctor::after {
+  left: -90px;
+  bottom: 18%;
+  width: 260px;
+  height: 260px;
+}
+
+.capa-visual-doctor {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to top,
+      rgba(8, 47, 73, 0.42),
+      rgba(8, 47, 73, 0.02)
+    );
+}
+
+.contenido-visual-doctor {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  padding: 70px 60px;
+  color: #ffffff;
+}
+
+.marca-doctor {
+  display: inline-flex;
+  margin-bottom: 24px;
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.contenido-visual-doctor h2 {
+  margin: 0 0 24px;
+  font-size: clamp(38px, 4vw, 60px);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.contenido-visual-doctor p {
+  max-width: 500px;
+  margin: 0;
+  color: #e6fffb;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 1000px) {
+  .pagina-registro-doctor {
+    grid-template-columns: 1fr;
+  }
+
+  .lado-visual-doctor {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .lado-formulario-doctor {
+    padding: 80px 20px 45px;
+  }
+
+  .boton-volver {
+    left: 20px;
+  }
+
+  .contenedor-registro-doctor h1 {
+    font-size: 38px;
+  }
+
+  .contenido-visual-doctor {
+    padding: 45px 25px;
+  }
+
+  .contenido-visual-doctor h2 {
+    font-size: 36px;
+  }
+}

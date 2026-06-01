@@ -1,393 +1,860 @@
+/* ==========================================================
+   MI CUENTA - VIBRA LA VIDA
+   Diseño limpio, compacto y consistente con la paleta del logo
+   ========================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
 .pagina-cuenta {
   min-height: 100vh;
-  padding: 32px;
-  background: #f7fafc;
-  color: #10182e;
+
+  padding: 24px 3vw 42px;
+
+  color: #173b57;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f7fbfc 0%,
+      #f4f8f7 100%
+    );
 }
+
+
+/* ==========================================================
+   BOTÓN VOLVER
+   ========================================================== */
 
 .boton-volver {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 34px;
-  color: #526b91;
-  font-size: 15px;
-  font-weight: 800;
+  gap: 7px;
+
+  margin-bottom: 20px;
+
+  padding: 9px 14px;
+
+  border: 1px solid #dce8eb;
+  border-radius: 999px;
+
+  color: #0f6e83;
+  background: #ffffff;
+
+  font-size: 13px;
+  font-weight: 850;
   text-decoration: none;
+
+  box-shadow:
+    0 5px 14px
+    rgba(7, 58, 78, 0.05);
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
+
+.boton-volver:hover {
+  color: #ffffff;
+  background: #0f6e83;
+  transform: translateX(-2px);
+}
+
+
+/* ==========================================================
+   CONTENEDOR GENERAL
+   ========================================================== */
 
 .tarjeta-cargando,
 .contenedor-cuenta {
-  max-width: 1120px;
+  width: min(100%, 1260px);
+
   margin: 0 auto;
 }
 
 .tarjeta-cargando {
-  padding: 28px;
-  border-radius: 22px;
+  padding: 24px;
+
+  border: 1px solid #e1ebed;
+  border-radius: 18px;
+
+  color: #0f6e83;
   background: #ffffff;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+
+  font-size: 14px;
   font-weight: 800;
+
+  box-shadow:
+    0 10px 24px
+    rgba(7, 58, 78, 0.05);
 }
+
+
+/* ==========================================================
+   ENCABEZADO
+   Ya no usamos avatar ni inicial.
+   El nombre es el protagonista.
+   ========================================================== */
 
 .encabezado-cuenta {
+  position: relative;
+
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 30px;
-  padding: 34px;
-  border-radius: 28px;
-  background: linear-gradient(135deg, #10182e, #063b4a);
+  justify-content: space-between;
+
+  min-height: 190px;
+
+  margin-bottom: 20px;
+  padding: 32px 36px;
+
+  border-radius: 24px;
+
   color: #ffffff;
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.16);
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 92% 15%,
+      rgba(184, 238, 74, 0.25),
+      transparent 24%
+    ),
+    linear-gradient(
+      120deg,
+      #0b4f7a 0%,
+      #0f6e83 50%,
+      #199351 100%
+    );
+
+  box-shadow:
+    0 14px 30px
+    rgba(7, 58, 78, 0.12);
 }
 
-.avatar-perfil {
-  display: grid;
-  place-items: center;
-  flex: 0 0 86px;
-  width: 86px;
-  height: 86px;
-  border-radius: 26px;
-  background: #dcfce7;
-  color: #047857;
-  font-size: 42px;
-  font-weight: 950;
+.encabezado-cuenta::after {
+  content: '';
+
+  position: absolute;
+  right: -55px;
+  bottom: -75px;
+
+  width: 230px;
+  height: 230px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.07);
+}
+
+.encabezado-cuenta > div {
+  position: relative;
+  z-index: 1;
+}
+
+.contenido-encabezado-cuenta {
+  flex: 1;
+  min-width: 0;
+}
+
+.boton-cerrar-encabezado {
+  position: relative;
+  z-index: 2;
+
+  flex: 0 0 auto;
+
+  margin-left: 24px;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(6px);
+}
+
+.boton-cerrar-encabezado:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .etiqueta-cuenta {
   display: inline-flex;
-  margin-bottom: 12px;
-  padding: 8px 14px;
+
+  margin-bottom: 13px;
+
+  padding: 7px 13px;
+
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  font-size: 12px;
+
+  color: #ffffff;
+
+  background:
+    rgba(255, 255, 255, 0.13);
+
+  font-size: 11px;
   font-weight: 900;
+
   text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .encabezado-cuenta h1 {
   margin: 0 0 10px;
-  font-size: clamp(34px, 5vw, 52px);
-  line-height: 1;
+
+  font-size:
+    clamp(
+      34px,
+      4vw,
+      48px
+    );
+
+  line-height: 1.05;
+
+  letter-spacing: -0.045em;
 }
 
 .encabezado-cuenta p {
   max-width: 680px;
+
   margin: 0;
-  color: #dbeafe;
-  font-size: 17px;
-  line-height: 1.6;
+
+  color:
+    rgba(255, 255, 255, 0.9);
+
+  font-size: 14px;
+  line-height: 1.7;
 }
+
+
+/* ==========================================================
+   FILA PRINCIPAL
+   ========================================================== */
 
 .rejilla-cuenta {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 24px;
-  margin-bottom: 26px;
+
+  grid-template-columns:
+    minmax(320px, 0.85fr)
+    minmax(0, 1.15fr);
+
+  gap: 18px;
+
+  margin-bottom: 18px;
 }
+
+
+/* ==========================================================
+   TARJETAS GENERALES
+   ========================================================== */
 
 .tarjeta-perfil,
 .tarjeta-resumen,
 .seccion-herramientas,
 .seccion-historial {
-  padding: 28px;
-  border: 1px solid #e2e8f0;
-  border-radius: 24px;
+  border: 1px solid #e0eaed;
+  border-radius: 20px;
+
   background: #ffffff;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+
+  box-shadow:
+    0 8px 20px
+    rgba(7, 58, 78, 0.04);
+}
+
+.tarjeta-perfil,
+.tarjeta-resumen {
+  padding: 24px;
+}
+
+.seccion-herramientas,
+.seccion-historial {
+  padding: 24px;
 }
 
 .tarjeta-perfil h2,
 .tarjeta-resumen h2,
 .seccion-herramientas h2,
 .seccion-historial h2 {
-  margin: 0 0 20px;
-  color: #10182e;
-  font-size: 24px;
+  margin: 0 0 18px;
+
+  color: #173b57;
+
+  font-size: 19px;
+  letter-spacing: -0.02em;
 }
+
+
+/* ==========================================================
+   DATOS DE PERFIL
+   ========================================================== */
 
 .dato-perfil {
   display: grid;
-  gap: 6px;
-  padding: 16px 0;
-  border-bottom: 1px solid #e2e8f0;
+
+  gap: 5px;
+
+  padding: 13px 0;
+
+  border-bottom: 1px solid #edf2f3;
+}
+
+.dato-perfil:first-of-type {
+  padding-top: 0;
 }
 
 .dato-perfil span {
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 800;
+  color: #7a8d99;
+
+  font-size: 11px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
 }
 
 .dato-perfil strong {
-  color: #10182e;
-  font-size: 16px;
+  color: #294b61;
+
+  font-size: 14px;
+  font-weight: 800;
+
   word-break: break-word;
 }
 
+
+/* ==========================================================
+   EDITAR PERFIL
+   ========================================================== */
+
 .boton-secundario {
   width: 100%;
-  min-height: 48px;
-  margin-top: 22px;
-  border: 0;
-  border-radius: 14px;
-  color: #047857;
-  background: #dcfce7;
+
+  min-height: 45px;
+
+  margin-top: 18px;
+
+  border: 1px solid #bfe1d0;
+  border-radius: 12px;
+
+  color: #247b46;
+
+  background: #edf8f1;
+
+  font-size: 13px;
   font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-secundario:hover {
+  background: #e2f5e9;
+  transform: translateY(-1px);
+}
+
+.boton-eliminar-perfil {
+  width: 100%;
+
+  min-height: 42px;
+
+  margin-top: 9px;
+
+  border: 0;
+  border-radius: 12px;
+
+  color: #b4233e;
+
+  background: #fff2f4;
+
+  font-size: 12px;
+  font-weight: 900;
+  font-family: inherit;
+
   cursor: pointer;
 }
 
+.boton-eliminar-perfil:hover {
+  background: #ffe5e9;
+}
+
+
+/* ==========================================================
+   FORMULARIO EDITAR
+   ========================================================== */
+
+.formulario-perfil {
+  display: grid;
+
+  gap: 9px;
+}
+
+.formulario-perfil label {
+  margin-top: 4px;
+
+  color: #607585;
+
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.formulario-perfil input {
+  width: 100%;
+
+  min-height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 12px;
+
+  color: #173b57;
+  background: #f9fcfc;
+
+  font-size: 13px;
+  font-family: inherit;
+
+  outline: none;
+}
+
+.formulario-perfil input:focus {
+  border-color: #0aa7b8;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(10, 167, 184, 0.08);
+}
+
+.boton-cancelar-perfil {
+  min-height: 42px;
+
+  border: 1px solid #dce7ea;
+  border-radius: 12px;
+
+  color: #607585;
+  background: #ffffff;
+
+  font-size: 12px;
+  font-weight: 850;
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+
+/* ==========================================================
+   RESUMEN
+   ========================================================== */
+
 .rejilla-resumen {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 22px;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 17px;
 }
 
 .rejilla-resumen div {
-  padding: 18px;
-  border-radius: 18px;
-  background: #f8fafc;
-  text-align: center;
+  min-height: 108px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding: 17px;
+
+  border: 1px solid #e5edef;
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fbfefd,
+      #f4faf7
+    );
+
+  text-align: left;
 }
 
 .rejilla-resumen strong {
   display: block;
-  color: #047857;
-  font-size: 34px;
+
+  margin-bottom: 7px;
+
+  color: #18864b;
+
+  font-size: 30px;
+  line-height: 1;
 }
 
 .rejilla-resumen span {
-  color: #64748b;
-  font-size: 12px;
+  color: #607585;
+
+  font-size: 11px;
   font-weight: 800;
+
+  line-height: 1.4;
 }
 
 .tarjeta-resumen p {
   margin: 0;
-  color: #526b91;
-  line-height: 1.7;
+
+  color: #607585;
+
+  font-size: 13px;
+  line-height: 1.65;
 }
 
+
+/* ==========================================================
+   HERRAMIENTAS
+   ========================================================== */
+
 .seccion-herramientas {
-  margin-bottom: 26px;
+  margin-bottom: 18px;
 }
 
 .rejilla-herramientas {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 12px;
 }
 
 .rejilla-herramientas button {
-  display: grid;
-  gap: 10px;
-  min-height: 120px;
-  padding: 18px;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  color: #10182e;
-  background: #f8fafc;
-  font-size: 15px;
-  font-weight: 900;
+  min-height: 88px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 14px;
+
+  border: 1px solid #e0eaed;
+  border-radius: 14px;
+
+  color: #294b61;
+  background: #fbfdfd;
+
+  font-size: 12px;
+  font-weight: 850;
+  font-family: inherit;
+
   text-align: left;
+
   cursor: pointer;
+
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .rejilla-herramientas button:hover {
-  transform: translateY(-3px);
-  border-color: #86efac;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+
+  border-color: #9bd2d8;
+
+  background: #f5fbfb;
+
+  box-shadow:
+    0 8px 18px
+    rgba(7, 58, 78, 0.06);
 }
 
 .rejilla-herramientas span {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
-  color: #047857;
-  background: #dcfce7;
-  font-size: 12px;
+
+  flex: 0 0 38px;
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 11px;
+
+  color: #0f6e83;
+
+  background: #e8f6f8;
+
+  font-size: 10px;
+  font-weight: 950;
 }
 
-.tarjeta-vacia {
-  padding: 24px;
-  border-radius: 18px;
-  background: #f8fafc;
-}
 
-.tarjeta-vacia strong {
-  display: block;
-  margin-bottom: 8px;
-  color: #10182e;
-  font-size: 18px;
-}
-
-.tarjeta-vacia p {
-  margin: 0;
-  color: #526b91;
-  line-height: 1.7;
-}
-
-.boton-cerrar-sesion {
-  min-height: 50px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: 14px;
-  color: #ffffff;
-  background: #e11d48;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.boton-prueba-guardar {
-  width: 100%;
-  margin-top: 20px;
-  border: 0;
-  border-radius: 14px;
-  padding: 14px 18px;
-  color: #ffffff;
-  background: #10182e;
-  font-weight: 900;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.boton-prueba-guardar:hover {
-  background: #1e293b;
-  transform: translateY(-2px);
-}
-
-.boton-prueba-guardar:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-@media (max-width: 900px) {
-  .rejilla-cuenta,
-  .rejilla-herramientas {
-    grid-template-columns: 1fr;
-  }
-
-  .encabezado-cuenta {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 640px) {
-  .pagina-cuenta {
-    padding: 20px;
-  }
-
-  .encabezado-cuenta,
-  .tarjeta-perfil,
-  .tarjeta-resumen,
-  .seccion-herramientas,
-  .seccion-historial {
-    padding: 22px;
-  }
-
-  .rejilla-resumen {
-    grid-template-columns: 1fr;
-  }
-}
+/* ==========================================================
+   HISTORIAL
+   ========================================================== */
 
 .lista-historial {
   display: grid;
-  gap: 14px;
+
+  gap: 10px;
 }
 
 .item-historial {
   display: flex;
-  gap: 16px;
-  padding: 18px;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  background: #f8fafc;
+
+  gap: 14px;
+
+  padding: 15px;
+
+  border: 1px solid #e2ebed;
+  border-radius: 14px;
+
+  background: #fbfdfd;
 }
 
 .icono-historial {
   display: grid;
   place-items: center;
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-  border-radius: 15px;
-  font-size: 12px;
+
+  flex: 0 0 42px;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  font-size: 10px;
   font-weight: 950;
 }
 
+/* Compatibilidad con los colores existentes */
 .historial-naranja {
-  color: #f97316;
-  background: #ffedd5;
+  color: #d97706;
+  background: #fff7e7;
 }
 
 .historial-verde {
-  color: #16a34a;
-  background: #dcfce7;
+  color: #18864b;
+  background: #eaf8ef;
 }
 
 .historial-cian {
-  color: #0891b2;
-  background: #cffafe;
+  color: #0f6e83;
+  background: #e7f6f8;
 }
 
 .historial-morado {
-  color: #7c3aed;
-  background: #ede9fe;
+  color: #0b5f8e;
+  background: #e9f2f8;
 }
 
 .historial-rosa {
-  color: #e11d48;
-  background: #ffe4e6;
+  color: #c83c58;
+  background: #fff0f3;
 }
 
 .historial-azul {
-  color: #2563eb;
-  background: #dbeafe;
+  color: #0b5f8e;
+  background: #e9f2f8;
 }
 
 .contenido-historial {
   display: grid;
-  gap: 5px;
+
+  gap: 4px;
 }
 
 .contenido-historial span {
-  color: #64748b;
-  font-size: 12px;
+  color: #718391;
+
+  font-size: 10px;
   font-weight: 900;
+
   text-transform: uppercase;
 }
 
 .contenido-historial strong {
-  color: #10182e;
-  font-size: 16px;
+  color: #294b61;
+
+  font-size: 13px;
 }
 
 .contenido-historial p {
   margin: 0;
-  color: #526b91;
-  line-height: 1.6;
+
+  color: #607585;
+
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .contenido-historial small {
   color: #94a3b8;
-  font-size: 12px;
-  font-weight: 800;
+
+  font-size: 10px;
+  font-weight: 750;
 }
 
+
+/* ==========================================================
+   ESTADO VACÍO
+   ========================================================== */
+
+.tarjeta-vacia {
+  padding: 20px;
+
+  border: 1px dashed #cfdde2;
+  border-radius: 14px;
+
+  background: #f9fcfc;
+}
+
+.tarjeta-vacia strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #294b61;
+
+  font-size: 14px;
+}
+
+.tarjeta-vacia p {
+  margin: 0;
+
+  color: #607585;
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+
+/* ==========================================================
+   CERRAR SESIÓN
+   ========================================================== */
+
+.boton-cerrar-sesion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 12px;
+
+  font-size: 12px;
+  font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-cerrar-sesion:hover {
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================================
+   BOTÓN DE PRUEBA (por compatibilidad)
+   ========================================================== */
+
+.boton-prueba-guardar {
+  width: 100%;
+
+  margin-top: 16px;
+
+  padding: 12px 16px;
+
+  border: 0;
+  border-radius: 12px;
+
+  color: #ffffff;
+  background: #173b57;
+
+  font-size: 12px;
+  font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 960px) {
+  .rejilla-cuenta {
+    grid-template-columns: 1fr;
+  }
+
+  .rejilla-herramientas {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+
 @media (max-width: 640px) {
+  .pagina-cuenta {
+    padding: 16px;
+  }
+
+  .encabezado-cuenta {
+    min-height: auto;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    padding: 26px 22px;
+  }
+
+  .boton-cerrar-encabezado {
+    width: 100%;
+
+    margin-top: 20px;
+    margin-left: 0;
+  }
+
+  .encabezado-cuenta h1 {
+    font-size: 34px;
+  }
+
+  .tarjeta-perfil,
+  .tarjeta-resumen,
+  .seccion-herramientas,
+  .seccion-historial {
+    padding: 20px;
+  }
+
+  .rejilla-resumen,
+  .rejilla-herramientas {
+    grid-template-columns: 1fr;
+  }
+
   .item-historial {
     flex-direction: column;
+  }
+
+  .boton-cerrar-sesion {
+    width: 100%;
+
+    margin-left: 0;
   }
 }
