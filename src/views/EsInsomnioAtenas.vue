@@ -1,8 +1,10 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { guardarResultadoBienestar } from '../services/resultadosService'
 
+// Guardamos las respuestas del usuario en un objeto
 const respuestas = ref({})
 const mostrarResultado = ref(false)
 const mensajeGuardado = ref('')
@@ -122,12 +124,14 @@ const evaluacionCompleta = computed(() => {
   return preguntasRespondidas.value === totalPreguntas.value
 })
 
+// Calculamos el puntaje total de todas las respuestas
 const puntajeTotal = computed(() => {
   return preguntas.reduce((total, pregunta) => {
     return total + Number(respuestas.value[pregunta.numero] ?? 0)
   }, 0)
 })
 
+// Determinamos el nivel de insomnio basado en el puntaje
 const resultado = computed(() => {
   const puntaje = puntajeTotal.value
 
@@ -173,6 +177,7 @@ const responderPregunta = (numeroPregunta, valor) => {
 }
 
 
+// Guardamos el resultado de la encuesta en la cuenta del usuario
 const guardarResultadoAtenas = async () => {
   mensajeGuardado.value = ''
 

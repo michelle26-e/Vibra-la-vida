@@ -1,10 +1,12 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { registrarUsuario } from '../services/authService'
 
 const router = useRouter()
 
+// Guardamos los datos del formulario para crear una cuenta
 const formulario = ref({
   nombre: '',
   correo: '',
@@ -19,6 +21,7 @@ const cargando = ref(false)
 const mostrarContrasena = ref(false)
 const mostrarConfirmar = ref(false)
 
+// Revisamos que todos los datos sean correctos antes de crear la cuenta
 const validarFormulario = () => {
   const nuevosErrores = {}
 
@@ -49,6 +52,7 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
+// Borramos los datos del formulario después de registrarse
 const limpiarFormulario = () => {
   formulario.value = {
     nombre: '',
@@ -58,6 +62,7 @@ const limpiarFormulario = () => {
   }
 }
 
+// Función que crea la cuenta con los datos ingresados
 const crearCuenta = async () => {
   mensaje.value = ''
   mensajeError.value = ''

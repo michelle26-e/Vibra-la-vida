@@ -185,7 +185,7 @@
   padding: 70px;
   background:
     linear-gradient(rgba(0, 20, 20, 0.25), rgba(0, 10, 20, 0.72)),
-    url('/img/fondo-registro.jpg') center center / cover no-repeat;
+    url('/assets/avatar.png') center center / cover no-repeat;
   background-color: #8aa0bc;
   overflow: hidden;
 }

@@ -1,15 +1,28 @@
+// Express se usa para crear el servidor y las rutas de la API.
+// Express podemos usar rutas como GET, POST, PUT y DELETE.
 import express from 'express'
+
+// CORS para que el frontend de Vue pueda consumir esta API.
+// Sin CORS, el navegador puede bloquear las peticiones entre puertos diferentes.
 import cors from 'cors'
+
+// dotenv lee variables de entorno desde un archivo .env.
 import dotenv from 'dotenv'
 
+// Activamos dotenv para poder usar process.env.PORT si existe.
 dotenv.config()
 
+// Creamos la aplicación de Express.
 const app = express()
+
 const PORT = process.env.PORT || 3001
 
+// Activamos CORS para permitir conexiones desde el frontend.
 app.use(cors())
+
 app.use(express.json())
 
+// FUNCIONES AUXILIARES PARA IMC Y CALORÍAS
 const convertirNumero = (valor) => {
   const numero = Number(valor)
   return Number.isFinite(numero) ? numero : null
@@ -51,6 +64,7 @@ const obtenerCategoriaIMC = (imc) => {
   }
 }
 
+// RUTA PARA VERIFICAR QUE LA API FUNCIONA
 app.get('/api/estado', (req, res) => {
   res.json({
     ok: true,
@@ -58,6 +72,7 @@ app.get('/api/estado', (req, res) => {
   })
 })
 
+// RUTA PARA CALCULAR IMC
 app.post('/api/imc', (req, res) => {
   const edad = convertirNumero(req.body.edad)
   const peso = convertirNumero(req.body.peso)
@@ -113,6 +128,7 @@ app.post('/api/imc', (req, res) => {
   })
 })
 
+// RUTA PARA CALCULAR CALORÍAS
 app.post('/api/calorias', (req, res) => {
   const sexo = req.body.sexo || 'hombre'
   const edad = convertirNumero(req.body.edad)
@@ -178,6 +194,137 @@ app.post('/api/calorias', (req, res) => {
   })
 })
 
+// CRUD DE RESULTADOS PARA PROBAR EN POSTMAN
+let resultados = []
+let siguienteId = 1
+
+const buscarResultadoPorId = (id) => {
+  const idNumero = Number(id)
+
+  return resultados.find((resultado) => resultado.id === idNumero)
+}
+
+// READ - OBTENER TODOS LOS RESULTADOS
+app.get('/api/resultados', (req, res) => {
+  res.json({
+    ok: true,
+    total: resultados.length,
+    resultados,
+  })
+})
+
+// READ - OBTENER UN RESULTADO POR ID
+app.get('/api/resultados/:id', (req, res) => {
+  const resultado = buscarResultadoPorId(req.params.id)
+
+  if (!resultado) {
+    return res.status(404).json({
+      ok: false,
+      mensaje: 'Resultado no encontrado.',
+    })
+  }
+
+  return res.json({
+    ok: true,
+    resultado,
+  })
+})
+
+// CREATE - CREAR UN NUEVO RESULTADO
+app.post('/api/resultados', (req, res) => {
+  const { tipo, titulo, valor, categoria, descripcion } = req.body
+
+  const errores = {}
+
+  if (!tipo || typeof tipo !== 'string') {
+    errores.tipo = 'El tipo de resultado es obligatorio.'
+  }
+
+  if (!titulo || typeof titulo !== 'string') {
+    errores.titulo = 'El título del resultado es obligatorio.'
+  }
+
+  if (Object.keys(errores).length > 0) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'Datos inválidos',
+      errores,
+    })
+  }
+
+  const nuevoResultado = {
+    id: siguienteId,
+    tipo,
+    titulo,
+    valor: valor ?? null,
+    categoria: categoria || 'Sin categoría',
+    descripcion: descripcion || 'Sin descripción',
+    fechaCreacion: new Date().toISOString(),
+    fechaActualizacion: new Date().toISOString(),
+  }
+
+  resultados.push(nuevoResultado)
+  siguienteId += 1
+
+  return res.status(201).json({
+    ok: true,
+    mensaje: 'Resultado creado correctamente.',
+    resultado: nuevoResultado,
+  })
+})
+
+// UPDATE - ACTUALIZAR UN RESULTADO
+app.put('/api/resultados/:id', (req, res) => {
+  const resultado = buscarResultadoPorId(req.params.id)
+
+  if (!resultado) {
+    return res.status(404).json({
+      ok: false,
+      mensaje: 'Resultado no encontrado.',
+    })
+  }
+
+  const { tipo, titulo, valor, categoria, descripcion } = req.body
+
+  resultado.tipo = tipo || resultado.tipo
+  resultado.titulo = titulo || resultado.titulo
+  resultado.valor = valor ?? resultado.valor
+  resultado.categoria = categoria || resultado.categoria
+  resultado.descripcion = descripcion || resultado.descripcion
+  resultado.fechaActualizacion = new Date().toISOString()
+
+  return res.json({
+    ok: true,
+    mensaje: 'Resultado actualizado correctamente.',
+    resultado,
+  })
+})
+
+// DELETE - ELIMINAR UN RESULTADO
+app.delete('/api/resultados/:id', (req, res) => {
+  const idNumero = Number(req.params.id)
+
+  const indiceResultado = resultados.findIndex(
+    (resultado) => resultado.id === idNumero,
+  )
+
+  if (indiceResultado === -1) {
+    return res.status(404).json({
+      ok: false,
+      mensaje: 'Resultado no encontrado.',
+    })
+  }
+
+  const resultadoEliminado = resultados.splice(indiceResultado, 1)
+
+  return res.json({
+    ok: true,
+    mensaje: 'Resultado eliminado correctamente.',
+    resultado: resultadoEliminado[0],
+  })
+})
+
+// RUTA PARA MANEJAR ERRORES 404
 app.use((req, res) => {
   res.status(404).json({
     ok: false,
@@ -185,6 +332,7 @@ app.use((req, res) => {
   })
 })
 
+// LEVANTAR EL SERVIDOR
 app.listen(PORT, () => {
   console.log(`API de calculadoras corriendo en http://localhost:${PORT}`)
 })

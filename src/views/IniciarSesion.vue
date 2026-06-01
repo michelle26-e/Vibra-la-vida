@@ -1,10 +1,12 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { iniciarSesionUsuario } from '../services/authService'
 
 const router = useRouter()
 
+// Guardamos el correo y contraseña que ingresa el usuario
 const formulario = ref({
   correo: '',
   contrasena: '',
@@ -14,6 +16,7 @@ const errores = ref({})
 const mostrarContrasena = ref(false)
 const mensaje = ref('')
 
+// Revisamos que los datos ingresados sean válidos
 const validarFormulario = () => {
   const nuevosErrores = {}
 
@@ -34,6 +37,7 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
+// Función que intenta iniciar sesión con los datos ingresados
 const iniciarSesion = async () => {
   mensaje.value = ''
 

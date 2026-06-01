@@ -1,9 +1,11 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { auth } from '../firebase/firebaseConfig'
 import { guardarResultadoBienestar } from '../services/resultadosService'
 
+// Guardamos la información que ingresa el usuario para calcular el riesgo cardiovascular
 const formulario = ref({
   sexo: 'hombre',
   edad: '',
@@ -18,6 +20,7 @@ const mostrarResultado = ref(false)
 const mensajeGuardado = ref('')
 const guardandoResultado = ref(false)
 
+// Calculamos el riesgo cardiovascular basado en los datos del usuario
 const resultado = computed(() => {
   const edad = Number(formulario.value.edad)
   const presion = Number(formulario.value.presionSistolica)
@@ -91,6 +94,7 @@ const resultado = computed(() => {
   }
 })
 
+// Revisamos que los datos ingresados sean válidos
 const validarFormulario = () => {
   const nuevosErrores = {}
 
@@ -121,6 +125,7 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
+// Guardamos el resultado en la cuenta del usuario
 const guardarResultadoCardiovascular = async () => {
   mensajeGuardado.value = ''
 
@@ -160,6 +165,7 @@ const guardarResultadoCardiovascular = async () => {
   }
 }
 
+// Función principal que calcula el riesgo cardiovascular
 const calcularRiesgo = async () => {
   if (!validarFormulario()) {
     return

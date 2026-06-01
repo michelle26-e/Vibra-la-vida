@@ -1,4 +1,7 @@
+// Importa las rutas de Vue
 import { createRouter, createWebHistory } from 'vue-router'
+
+// Importa las páginas
 import HomeView from '../views/HomeView.vue'
 import RiesgoCardiovascularView from '../views/EnCardio.vue'
 import CalculadoraIMCView from '../views/CalculadoraIMC.vue'
@@ -9,6 +12,7 @@ import IniciarSesionView from '../views/IniciarSesion.vue'
 import CrearCuentaView from '../views/CrearCuenta.vue'
 import MiCuentaView from '../views/MiCuenta.vue'
 
+// Crea las rutas del proyecto
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -60,4 +64,5 @@ const router = createRouter({
   ],
 })
 
+// Exporta las rutas
 export default router

@@ -1,10 +1,12 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { guardarResultadoBienestar } from '../services/resultadosService'
 
 const pantallaActual = ref('dimensiones')
 const dimensionSeleccionada = ref(null)
+// Guardamos las respuestas que da el usuario en cada pregunta
 const respuestas = ref({})
 const mostrarResultado = ref(false)
 const mensajeGuardado = ref('')
@@ -177,6 +179,7 @@ const evaluacionCompleta = computed(() => {
   return preguntasRespondidas.value === totalPreguntas.value
 })
 
+// Calculamos el puntaje total de la dimensión seleccionada
 const puntajeDirecto = computed(() => {
   if (!dimensionActiva.value) return 0
 
@@ -185,10 +188,12 @@ const puntajeDirecto = computed(() => {
   }, 0)
 })
 
+// Multiplicamos el puntaje por 2 para obtener el resultado final
 const puntajeFinal = computed(() => {
   return puntajeDirecto.value * 2
 })
 
+// Determinamos el nivel de severidad según el puntaje
 const resultado = computed(() => {
   if (!dimensionActiva.value) {
     return {
@@ -270,6 +275,7 @@ const responderPregunta = (numeroPregunta, valor) => {
 }
 
 
+// Guardamos el resultado de la evaluación en la cuenta del usuario
 const guardarResultadoDASS21 = async () => {
   mensajeGuardado.value = ''
 
@@ -305,6 +311,7 @@ const guardarResultadoDASS21 = async () => {
   }
 }
 
+// Función que completa la evaluación y muestra el resultado
 const completarEvaluacion = async () => {
   if (!evaluacionCompleta.value) return
 

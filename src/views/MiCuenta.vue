@@ -1,4 +1,5 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -8,13 +9,16 @@ import { obtenerResultadosUsuario } from '../services/resultadosService'
 
 const router = useRouter()
 
+// Guardamos los datos del usuario que ha iniciado sesión
 const usuarioActual = ref(null)
 const datosUsuario = ref(null)
 const cargando = ref(true)
+// Guardamos todos los resultados que el usuario ha calculado
 const resultados = ref([])
 
 let detenerObservador = null
 
+// Obtenemos el primer nombre del usuario para el saludo
 const nombreUsuario = computed(() => {
   const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
   const primerNombre = nombreCompleto.trim().split(' ')[0]
@@ -30,10 +34,12 @@ const correoUsuario = computed(() => {
   return usuarioActual.value?.email || datosUsuario.value?.correo || 'Sin correo registrado'
 })
 
+// Contamos cuántos cálculos de IMC tiene guardados
 const imcRegistrados = computed(() => {
   return resultados.value.filter((item) => item.tipo === 'imc').length
 })
 
+// Contamos cuántas encuestas ha completado
 const encuestasRealizadas = computed(() => {
   const tiposEncuesta = [
     'dass21',
@@ -45,10 +51,12 @@ const encuestasRealizadas = computed(() => {
   return resultados.value.filter((item) => tiposEncuesta.includes(item.tipo)).length
 })
 
+// Contamos el total de resultados guardados
 const registrosGuardados = computed(() => {
   return resultados.value.length
 })
 
+// Obtenemos los últimos 6 resultados en orden más reciente
 const historialReciente = computed(() => {
   return [...resultados.value]
     .sort((a, b) => {
@@ -172,6 +180,7 @@ const irARuta = (ruta) => {
   router.push(ruta)
 }
 
+// Se ejecuta cuando se carga la página para verificar si el usuario tiene sesión
 onMounted(() => {
   detenerObservador = onAuthStateChanged(auth, async (usuario) => {
     if (!usuario) {
@@ -186,6 +195,7 @@ onMounted(() => {
   })
 })
 
+// Se ejecuta cuando abandona la página para detener la verificación del usuario
 onUnmounted(() => {
   if (detenerObservador) {
     detenerObservador()

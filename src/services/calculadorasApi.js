@@ -1,27 +1,19 @@
-/*
-  Aquí se define la dirección de la API, que puede venir desde el archivo .env
-  o, si no existe, usa la dirección local: http://localhost:3001/api
-
-  También tiene una función que revisa la respuesta de la API.
-  Si la API responde bien, devuelve los datos.
-  Si ocurre un error, muestra un mensaje para poder manejarlo en la vista.
-
-  Este archivo se usa en las calculadoras de IMC y calorías.
-  Cuando el usuario presiona el botón de calcular, Vue manda los datos
-  a la API y recibe el resultado para mostrarlo en pantalla.
-*/
+// Dirección de la API de las calculadoras
 const API_URL =
   import.meta.env.VITE_CALCULADORAS_API_URL || 'http://localhost:3001/api'
 
+// Revisa la respuesta que manda la API
 const manejarRespuesta = async (respuesta) => {
   let datos = null
 
   try {
+    // Convierte la respuesta a JSON
     datos = await respuesta.json()
   } catch {
     throw new Error('La API no respondió con un formato válido.')
   }
 
+  // Si la respuesta trae error, lo muestra
   if (!respuesta.ok) {
     const error = new Error(
       datos?.mensaje || 'Ocurrió un error al consultar la API.',
@@ -31,9 +23,11 @@ const manejarRespuesta = async (respuesta) => {
     throw error
   }
 
+  // Regresa los datos correctos
   return datos
 }
 
+// Envía los datos para calcular el IMC
 export const calcularIMCApi = async (datosFormulario) => {
   const respuesta = await fetch(`${API_URL}/imc`, {
     method: 'POST',
@@ -46,6 +40,7 @@ export const calcularIMCApi = async (datosFormulario) => {
   return manejarRespuesta(respuesta)
 }
 
+// Envía los datos para calcular las calorías
 export const calcularCaloriasApi = async (datosFormulario) => {
   const respuesta = await fetch(`${API_URL}/calorias`, {
     method: 'POST',

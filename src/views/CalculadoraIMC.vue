@@ -1,25 +1,11 @@
-/*
-  Su función es mostrar un formulario donde el usuario ingresa su edad,
-  género, altura y peso. Con esos datos se calcula el Índice de Masa Corporal.
-
-  Antes de calcular, el formulario revisa que los datos ingresados sean válidos.
-  Cuando el usuario presiona el botón "Calcular IMC", Vue envía la información
-  a la API para realizar el cálculo.
-
-  La API se usa dentro de la función calcularIMC(), en esta parte:calcularIMCApi
-
-  La respuesta de la API se guarda en resultadoIMC y después se muestra
-  en la pantalla con el valor del IMC, la categoría, la descripción y el indicador.
-
-  También se intenta guardar el resultado en la sección de Mi cuenta.
-*/
-
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { calcularIMCApi } from '../services/calculadorasApi'
 import { guardarResultadoBienestar } from '../services/resultadosService'
 
+// Guardamos los datos que ingresa el usuario (edad, peso, altura, género)
 const formulario = ref({
   edad: 18,
   genero: 'hombre',
@@ -32,6 +18,7 @@ const calculado = ref(false)
 const calculando = ref(false)
 const mensajeGuardado = ref('')
 
+// Aquí guardamos el resultado del cálculo del Índice de Masa Corporal
 const resultadoIMC = ref({
   valor: '--',
   categoria: 'Sin calcular',
@@ -59,6 +46,7 @@ const seleccionarGenero = (genero) => {
   ocultarResultado()
 }
 
+// Revisamos que los datos ingresados sean correctos
 const validarFormulario = () => {
   const nuevosErrores = {}
 
@@ -89,6 +77,7 @@ const validarFormulario = () => {
   return Object.keys(nuevosErrores).length === 0
 }
 
+// Guardamos el resultado en la cuenta del usuario
 const guardarResultadoIMC = async () => {
   mensajeGuardado.value = ''
 
@@ -120,6 +109,7 @@ const guardarResultadoIMC = async () => {
   }
 }
 
+// Función que calcula el Índice de Masa Corporal
 const calcularIMC = async () => {
   if (!validarFormulario()) {
     calculado.value = false

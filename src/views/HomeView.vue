@@ -1,4 +1,5 @@
 <script setup>
+// Importamos lo que necesitamos para que la página funcione
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -20,6 +21,7 @@ import trc from '../assets/tr.png'
 
 const router = useRouter()
 
+// Guardamos quién es el usuario actual que ha iniciado sesión
 const usuarioActual = ref(null)
 const datosUsuario = ref(null)
 const seccionActiva = ref('inicio')
@@ -72,6 +74,7 @@ const informacionTemario = {
 
 }
 
+// Obtenemos el primer nombre del usuario para mostrar un saludo personal
 const nombreUsuario = computed(() => {
   const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
   const primerNombre = nombreCompleto.trim().split(' ')[0]
@@ -83,6 +86,7 @@ const irAMiCuenta = () => {
   router.push('/mi-cuenta')
 }
 
+// Se ejecuta cuando se carga la página para verificar si hay usuario iniciado
 onMounted(() => {
   detenerObservador = onAuthStateChanged(auth, async (usuario) => {
     usuarioActual.value = usuario
@@ -95,12 +99,14 @@ onMounted(() => {
   })
 })
 
+// Se ejecuta cuando abandona la página para detener la verificación del usuario
 onUnmounted(() => {
   if (detenerObservador) {
     detenerObservador()
   }
 })
 
+// Función que cierra la sesión del usuario
 const cerrarSesion = async () => {
   await cerrarSesionUsuario()
   usuarioActual.value = null
