@@ -1,11 +1,22 @@
 <script setup>
-// Importamos lo que necesitamos para que la página funcione
+// Importamos componentes reutilizables
+import ApartadoSlot from '../components/ApartadoSlot.vue'
+import TarjetaAccion from '../components/TarjetaAccion.vue'
+
+// Importamos lo que necesitamos de Vue
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+
+// Importamos el router para cambiar de página
 import { useRouter } from 'vue-router'
+
+// Importamos Firebase Auth
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase/firebaseConfig'
+
+// Importamos servicios de autenticación
 import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authService'
-//imágenes
+
+// Imágenes del proyecto
 import logoPrincipal from '../assets/logo-vibra.png'
 import logoVibra from '../assets/logotexto.png'
 import adu from '../assets/ad.png'
@@ -18,16 +29,22 @@ import dia from '../assets/d1.png'
 import diab from '../assets/d2.png'
 import trc from '../assets/tr.png'
 
-
+// Usamos el router para navegar entre páginas
 const router = useRouter()
 
 // Guardamos quién es el usuario actual que ha iniciado sesión
 const usuarioActual = ref(null)
+
+// Guardamos los datos del usuario obtenidos desde Firebase
 const datosUsuario = ref(null)
+
+// Guardamos cuál sección del menú está activa
 const seccionActiva = ref('inicio')
 
+// Variable para detener el observador de Firebase cuando se cierre la vista
 let detenerObservador = null
 
+// Información visual del temario
 const informacionTemario = {
   adolescencia: [
     {
@@ -63,7 +80,6 @@ const informacionTemario = {
     {
       imagen: ti,
     },
-    
   ],
 
   ritmoCardiaco: [
@@ -72,6 +88,7 @@ const informacionTemario = {
     },
   ],
 
+  sobrepeso: [],
 }
 
 // Obtenemos el primer nombre del usuario para mostrar un saludo personal
@@ -82,6 +99,7 @@ const nombreUsuario = computed(() => {
   return primerNombre.charAt(0).toUpperCase() + primerNombre.slice(1)
 })
 
+// Función para ir a la página de Mi Cuenta
 const irAMiCuenta = () => {
   router.push('/mi-cuenta')
 }
@@ -99,7 +117,7 @@ onMounted(() => {
   })
 })
 
-// Se ejecuta cuando abandona la página para detener la verificación del usuario
+// Se ejecuta cuando se abandona la página para detener la verificación del usuario
 onUnmounted(() => {
   if (detenerObservador) {
     detenerObservador()
@@ -109,11 +127,14 @@ onUnmounted(() => {
 // Función que cierra la sesión del usuario
 const cerrarSesion = async () => {
   await cerrarSesionUsuario()
+
   usuarioActual.value = null
   datosUsuario.value = null
+
   router.push('/')
 }
 
+// Elementos que aparecen en el menú lateral
 const elementosMenu = [
   {
     titulo: 'Inicio',
@@ -162,6 +183,7 @@ const elementosMenu = [
   },
 ]
 
+// Secciones informativas del temario
 const seccionesTemario = [
   {
     id: 'adolescencia',
@@ -205,8 +227,7 @@ const seccionesTemario = [
       {
         icono: 'RC',
         titulo: 'Riesgo Cardiovascular',
-        texto:
-          'Conoce tu nivel de riesgo cardiometabólico',
+        texto: 'Conoce tu nivel de riesgo cardiometabólico',
         boton: 'Comenzar simulación',
         color: 'rosa',
         ruta: '/riesgo-cardiovascular',
@@ -256,8 +277,7 @@ const seccionesTemario = [
       {
         icono: 'IMC',
         titulo: 'Calculadora de IMC',
-        texto:
-          'Conoce tu Índice de Masa Corporal de forma rápida. Esta herramienta educativa te ayuda a identificar si tu peso se encuentra en un rango bajo, normal, sobrepeso u obesidad.',
+        texto: 'Conoce tu Índice de Masa Corporal de forma rápida. Esta herramienta educativa te ayuda a identificar si tu peso se encuentra en un rango bajo, normal, sobrepeso u obesidad.',
         boton: 'Calcular ahora',
         color: 'naranja',
         ruta: '/calculadora-imc',
@@ -265,8 +285,7 @@ const seccionesTemario = [
       {
         icono: 'CAL',
         titulo: 'Calculadora de Calorías',
-        texto:
-          'Conoce una estimación de tu gasto calórico diario y aprende cómo la actividad física influye en tus necesidades de energía.',
+        texto: 'Conoce una estimación de tu gasto calórico diario y aprende cómo la actividad física influye en tus necesidades de energía.',
         boton: 'Calcular ahora',
         color: 'verde',
         ruta: '/calculadora-calorias',
@@ -289,8 +308,7 @@ const seccionesTemario = [
       {
         icono: 'D21',
         titulo: 'Evaluación con DASS-21',
-        texto:
-          'Responde un breve cuestionario para identificar señales relacionadas con depresión, ansiedad y estrés durante los últimos días. Esta evaluación es educativa y no sustituye un diagnóstico profesional.',
+        texto: 'Responde un breve cuestionario para identificar señales relacionadas con depresión, ansiedad y estrés durante los últimos días. Esta evaluación es educativa y no sustituye un diagnóstico profesional.',
         boton: 'Comenzar encuesta',
         color: 'cian',
         ruta: '/evaluacion-dass21',
@@ -298,8 +316,7 @@ const seccionesTemario = [
       {
         icono: 'AIS',
         titulo: 'Escala de Insomnio de Atenas',
-        texto:
-          'Evalúa la calidad de tu sueño mediante un cuestionario breve. Esta herramienta puede ayudarte a identificar posibles dificultades para dormir o descansar adecuadamente.',
+        texto: 'Evalúa la calidad de tu sueño mediante un cuestionario breve. Esta herramienta puede ayudarte a identificar posibles dificultades para dormir o descansar adecuadamente.',
         boton: 'Comenzar encuesta',
         color: 'morado',
         ruta: '/escala-insomnio-atenas',
@@ -308,6 +325,7 @@ const seccionesTemario = [
   },
 ]
 
+// Función para obtener los párrafos de cada sección
 const obtenerParrafos = (seccion) => {
   if (Array.isArray(seccion.parrafos)) {
     return seccion.parrafos
@@ -326,15 +344,18 @@ const obtenerParrafos = (seccion) => {
   return []
 }
 
+// Función para obtener la imagen
 const obtenerImagen = (item) => {
   return item?.imagen || item?.ruta || ''
 }
 
+// Función para bajar al temario
 const irAlTemario = () => {
   const seccion = document.getElementById('temario')
   seccion?.scrollIntoView({ behavior: 'smooth' })
 }
 
+// Función para ir a una sección específica del temario
 const irASeccion = (idSeccion) => {
   seccionActiva.value = idSeccion
 
@@ -348,10 +369,16 @@ const irASeccion = (idSeccion) => {
   }
 }
 
+// Función para abrir una tarjeta del temario
 const abrirTarjeta = (tarjeta) => {
   if (tarjeta.ruta) {
     router.push(tarjeta.ruta)
   }
+}
+
+// Función para abrir una ruta desde las tarjetas que están dentro del slot
+const abrirRuta = (ruta) => {
+  router.push(ruta)
 }
 </script>
 
@@ -401,6 +428,7 @@ const abrirTarjeta = (tarjeta) => {
         >
           <span class="icono-menu">{{ elemento.icono }}</span>
           <span>{{ elemento.titulo }}</span>
+
           <span
             v-if="seccionActiva === elemento.idSeccion"
             class="punto-activo"
@@ -421,6 +449,7 @@ const abrirTarjeta = (tarjeta) => {
 
         <div>
           <h3>Aviso Importante</h3>
+
           <p>
             La información contenida en esta página tiene fines exclusivamente
             educativos e informativos.
@@ -459,6 +488,63 @@ const abrirTarjeta = (tarjeta) => {
         </div>
       </section>
 
+      <!-- 
+        Aquí se usa el componente ApartadoSlot.
+        El contenido que está dentro de <ApartadoSlot> entra en el <slot></slot>
+        del componente hijo.
+      -->
+      <ApartadoSlot
+        titulo="Herramientas de bienestar"
+        descripcion="Selecciona una herramienta para conocer más sobre tu salud y bienestar."
+      >
+        <div class="rejilla-tarjetas">
+          <TarjetaAccion
+            icono="IMC"
+            titulo="Calculadora de IMC"
+            texto="Conoce tu Índice de Masa Corporal de forma rápida."
+            boton="Calcular ahora"
+            color="naranja"
+            @abrir="abrirRuta('/calculadora-imc')"
+          />
+
+          <TarjetaAccion
+            icono="CAL"
+            titulo="Calculadora de Calorías"
+            texto="Conoce una estimación de tu gasto calórico diario."
+            boton="Calcular ahora"
+            color="verde"
+            @abrir="abrirRuta('/calculadora-calorias')"
+          />
+
+          <TarjetaAccion
+            icono="RC"
+            titulo="Riesgo Cardiovascular"
+            texto="Conoce tu nivel de riesgo cardiometabólico."
+            boton="Comenzar simulación"
+            color="rosa"
+            @abrir="abrirRuta('/riesgo-cardiovascular')"
+          />
+
+          <TarjetaAccion
+            icono="D21"
+            titulo="Evaluación DASS-21"
+            texto="Identifica señales relacionadas con depresión, ansiedad y estrés."
+            boton="Comenzar encuesta"
+            color="cian"
+            @abrir="abrirRuta('/evaluacion-dass21')"
+          />
+
+          <TarjetaAccion
+            icono="AIS"
+            titulo="Escala de Insomnio de Atenas"
+            texto="Evalúa posibles dificultades relacionadas con el sueño."
+            boton="Comenzar encuesta"
+            color="morado"
+            @abrir="abrirRuta('/escala-insomnio-atenas')"
+          />
+        </div>
+      </ApartadoSlot>
+
       <section id="temario" class="contenedor-temario">
         <article
           v-for="seccion in seccionesTemario"
@@ -491,19 +577,19 @@ const abrirTarjeta = (tarjeta) => {
             >
               <div
                 v-for="imagen in seccion.imagenes"
-                :key="imagen.titulo"
+                :key="imagen.titulo || imagen.imagen"
                 class="contenido-imagen"
               >
                 <img
                   v-if="obtenerImagen(imagen)"
                   :src="obtenerImagen(imagen)"
-                  :alt="imagen.titulo"
+                  :alt="imagen.titulo || 'Imagen informativa'"
                   loading="lazy"
                   @error="$event.target.style.display = 'none'"
                 />
 
-                <h3>{{ imagen.titulo }}</h3>
-                <p>{{ imagen.texto }}</p>
+                <h3 v-if="imagen.titulo">{{ imagen.titulo }}</h3>
+                <p v-if="imagen.texto">{{ imagen.texto }}</p>
               </div>
             </div>
 
@@ -511,25 +597,16 @@ const abrirTarjeta = (tarjeta) => {
               v-if="seccion.tarjetas && seccion.tarjetas.length"
               class="rejilla-tarjetas"
             >
-              <div
+              <TarjetaAccion
                 v-for="tarjeta in seccion.tarjetas"
                 :key="tarjeta.titulo"
-                class="tarjeta-accion"
-                :class="`tarjeta-${tarjeta.color}`"
-                @click="abrirTarjeta(tarjeta)"
-              >
-                <div class="icono-tarjeta" :class="tarjeta.color">
-                  {{ tarjeta.icono }}
-                </div>
-
-                <h3>{{ tarjeta.titulo }}</h3>
-                <p>{{ tarjeta.texto }}</p>
-
-                <button :class="tarjeta.color">
-                  {{ tarjeta.boton }}
-                  <span>→</span>
-                </button>
-              </div>
+                :icono="tarjeta.icono"
+                :titulo="tarjeta.titulo"
+                :texto="tarjeta.texto"
+                :boton="tarjeta.boton"
+                :color="tarjeta.color"
+                @abrir="abrirTarjeta(tarjeta)"
+              />
             </div>
           </div>
         </article>

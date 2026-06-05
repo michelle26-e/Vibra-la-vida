@@ -1,24 +1,36 @@
 <script setup>
-// Importamos lo que necesitamos para que la página funcione
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/firebaseConfig'
+import {
+  onAuthStateChanged,
+  updateEmail,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'firebase/auth'
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore'
+
+import { auth, db } from '../firebase/firebaseConfig'
 import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authService'
 import { obtenerResultadosUsuario } from '../services/resultadosService'
+import ItemHistorial from '../components/ItemHistorial.vue'
 
 const router = useRouter()
 
-// Guardamos los datos del usuario que ha iniciado sesión
 const usuarioActual = ref(null)
 const datosUsuario = ref(null)
 const cargando = ref(true)
-// Guardamos todos los resultados que el usuario ha calculado
 const resultados = ref([])
+
+const editandoPerfil = ref(false)
+
+const formularioPerfil = ref({
+  nombre: '',
+  correo: '',
+})
 
 let detenerObservador = null
 
-// Obtenemos el primer nombre del usuario para el saludo
 const nombreUsuario = computed(() => {
   const nombreCompleto = datosUsuario.value?.nombre || 'Usuario'
   const primerNombre = nombreCompleto.trim().split(' ')[0]
@@ -34,12 +46,10 @@ const correoUsuario = computed(() => {
   return usuarioActual.value?.email || datosUsuario.value?.correo || 'Sin correo registrado'
 })
 
-// Contamos cuántos cálculos de IMC tiene guardados
 const imcRegistrados = computed(() => {
   return resultados.value.filter((item) => item.tipo === 'imc').length
 })
 
-// Contamos cuántas encuestas ha completado
 const encuestasRealizadas = computed(() => {
   const tiposEncuesta = [
     'dass21',
@@ -51,39 +61,24 @@ const encuestasRealizadas = computed(() => {
   return resultados.value.filter((item) => tiposEncuesta.includes(item.tipo)).length
 })
 
-// Contamos el total de resultados guardados
 const registrosGuardados = computed(() => {
   return resultados.value.length
 })
 
-// Obtenemos los últimos 6 resultados en orden más reciente
 const historialReciente = computed(() => {
   return [...resultados.value]
-    .sort((a, b) => {
-      const fechaA = obtenerTiempoFecha(a.fecha)
-      const fechaB = obtenerTiempoFecha(b.fecha)
-
-      return fechaB - fechaA
-    })
+    .sort((a, b) => obtenerTiempoFecha(b.fecha) - obtenerTiempoFecha(a.fecha))
     .slice(0, 6)
 })
 
 const obtenerTiempoFecha = (fecha) => {
-  if (fecha?.toDate) {
-    return fecha.toDate().getTime()
-  }
-
-  if (fecha instanceof Date) {
-    return fecha.getTime()
-  }
-
+  if (fecha?.toDate) return fecha.toDate().getTime()
+  if (fecha instanceof Date) return fecha.getTime()
   return 0
 }
 
 const formatearFecha = (fecha) => {
-  if (!fecha?.toDate) {
-    return 'Fecha reciente'
-  }
+  if (!fecha?.toDate) return 'Fecha reciente'
 
   return fecha.toDate().toLocaleDateString('es-MX', {
     day: '2-digit',
@@ -93,9 +88,7 @@ const formatearFecha = (fecha) => {
 }
 
 const obtenerNombreResultado = (resultado) => {
-  if (resultado.nombreHerramienta) {
-    return resultado.nombreHerramienta
-  }
+  if (resultado.nombreHerramienta) return resultado.nombreHerramienta
 
   const nombres = {
     imc: 'Calculadora de IMC',
@@ -136,7 +129,10 @@ const obtenerClaseHistorial = (tipo) => {
 }
 
 const obtenerDetalleResultado = (resultado) => {
-  if (resultado.tipo === 'riesgo_cardiometabolico' || resultado.tipo === 'riesgo_cardiovascular') {
+  if (
+    resultado.tipo === 'riesgo_cardiometabolico' ||
+    resultado.tipo === 'riesgo_cardiovascular'
+  ) {
     return `${resultado.nivelRiesgo || resultado.nivel || 'Resultado calculado'}${
       resultado.porcentaje ? ` · ${resultado.porcentaje}%` : ''
     }`
@@ -171,6 +167,94 @@ const cargarResultadosUsuario = async () => {
   resultados.value = await obtenerResultadosUsuario()
 }
 
+const activarEdicionPerfil = () => {
+  formularioPerfil.value.nombre = datosUsuario.value?.nombre || ''
+  formularioPerfil.value.correo = correoUsuario.value
+  editandoPerfil.value = true
+}
+
+const cancelarEdicionPerfil = () => {
+  editandoPerfil.value = false
+}
+
+const guardarPerfil = async () => {
+  const usuario = auth.currentUser
+
+  if (!usuario) return
+
+  try {
+    await updateDoc(doc(db, 'usuarios', usuario.uid), {
+      nombre: formularioPerfil.value.nombre,
+      correo: formularioPerfil.value.correo,
+    })
+
+    if (formularioPerfil.value.correo !== usuario.email) {
+      await updateEmail(usuario, formularioPerfil.value.correo)
+    }
+
+    datosUsuario.value = {
+      ...datosUsuario.value,
+      nombre: formularioPerfil.value.nombre,
+      correo: formularioPerfil.value.correo,
+    }
+
+    editandoPerfil.value = false
+    alert('Perfil actualizado correctamente.')
+  } catch (error) {
+    console.error(error)
+
+    if (error.code === 'auth/requires-recent-login') {
+      alert('Por seguridad, vuelve a iniciar sesión para cambiar el correo.')
+      return
+    }
+
+    alert('No se pudo actualizar el perfil. Inténtalo nuevamente.')
+  }
+}
+
+const eliminarPerfil = async () => {
+  const confirmar = confirm(
+    '¿Seguro que deseas eliminar tu perfil? Esta acción no se puede deshacer.'
+  )
+
+  if (!confirmar) return
+
+  const usuario = auth.currentUser
+
+  if (!usuario) return
+
+  const contrasena = prompt(
+    'Por seguridad, escribe tu contraseña para eliminar tu cuenta.'
+  )
+
+  if (!contrasena) return
+
+  try {
+    const credencial = EmailAuthProvider.credential(usuario.email, contrasena)
+
+    await reauthenticateWithCredential(usuario, credencial)
+
+    await deleteDoc(doc(db, 'usuarios', usuario.uid))
+
+    await deleteUser(usuario)
+
+    alert('Perfil eliminado correctamente.')
+    router.push('/')
+  } catch (error) {
+    console.error(error)
+
+    if (
+      error.code === 'auth/wrong-password' ||
+      error.code === 'auth/invalid-credential'
+    ) {
+      alert('La contraseña es incorrecta.')
+      return
+    }
+
+    alert('No se pudo eliminar el perfil. Inténtalo nuevamente.')
+  }
+}
+
 const cerrarSesion = async () => {
   await cerrarSesionUsuario()
   router.push('/iniciar-sesion')
@@ -180,7 +264,6 @@ const irARuta = (ruta) => {
   router.push(ruta)
 }
 
-// Se ejecuta cuando se carga la página para verificar si el usuario tiene sesión
 onMounted(() => {
   detenerObservador = onAuthStateChanged(auth, async (usuario) => {
     if (!usuario) {
@@ -195,7 +278,6 @@ onMounted(() => {
   })
 })
 
-// Se ejecuta cuando abandona la página para detener la verificación del usuario
 onUnmounted(() => {
   if (detenerObservador) {
     detenerObservador()
@@ -233,19 +315,45 @@ onUnmounted(() => {
         <article class="tarjeta-perfil">
           <h2>Datos de la cuenta</h2>
 
-          <div class="dato-perfil">
-            <span>Nombre</span>
-            <strong>{{ datosUsuario?.nombre || 'No registrado' }}</strong>
+          <div v-if="!editandoPerfil">
+            <div class="dato-perfil">
+              <span>Nombre</span>
+              <strong>{{ datosUsuario?.nombre || 'No registrado' }}</strong>
+            </div>
+
+            <div class="dato-perfil">
+              <span>Correo electrónico</span>
+              <strong>{{ correoUsuario }}</strong>
+            </div>
+
+            <button class="boton-secundario" @click="activarEdicionPerfil">
+              Editar perfil
+            </button>
+
+            <button class="boton-eliminar-perfil" @click="eliminarPerfil">
+              Eliminar perfil
+            </button>
           </div>
 
-          <div class="dato-perfil">
-            <span>Correo electrónico</span>
-            <strong>{{ correoUsuario }}</strong>
-          </div>
+          <form v-else class="formulario-perfil" @submit.prevent="guardarPerfil">
+            <label>Nombre</label>
+            <input v-model="formularioPerfil.nombre" type="text" required />
 
-          <button class="boton-secundario">
-            Editar perfil
-          </button>
+            <label>Correo electrónico</label>
+            <input v-model="formularioPerfil.correo" type="email" required />
+
+            <button class="boton-secundario" type="submit">
+              Guardar cambios
+            </button>
+
+            <button
+              class="boton-cancelar-perfil"
+              type="button"
+              @click="cancelarEdicionPerfil"
+            >
+              Cancelar
+            </button>
+          </form>
         </article>
 
         <article class="tarjeta-resumen">
@@ -305,24 +413,11 @@ onUnmounted(() => {
         <h2>Historial reciente</h2>
 
         <div v-if="historialReciente.length" class="lista-historial">
-          <article
+          <ItemHistorial
             v-for="item in historialReciente"
             :key="item.id"
-            class="item-historial"
-          >
-            <div
-              class="icono-historial"
-              :class="obtenerClaseHistorial(item.tipo)"
-            >
-              {{ obtenerIconoResultado(item.tipo) }}
-            </div>
-
-            <div class="contenido-historial">
-              <span>{{ formatearFecha(item.fecha) }}</span>
-              <strong>{{ obtenerNombreResultado(item) }}</strong>
-              <p>{{ obtenerDetalleResultado(item) }}</p>
-            </div>
-          </article>
+            :resultado="item"
+          />    
         </div>
 
         <div v-else class="tarjeta-vacia">

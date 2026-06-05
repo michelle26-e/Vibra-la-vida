@@ -1,0 +1,70 @@
+[
+  {
+    "id": "D7mXHzOadcD2AASwunkR",
+    "uid": "5u8IyIWICvfnVOcT4kNBH5WvOv92",
+    "tipo": "imc",
+    "nombreHerramienta": "Calculadora de IMC",
+    "edad": 21,
+    "genero": "mujer",
+    "alturaCm": 168,
+    "pesoKg": 81,
+    "imc": "28.7",
+    "categoria": "Sobrepeso",
+    "descripcion": "Un IMC entre 25 y 29.9 se considera sobrepeso en adultos.",
+    "fecha": {
+      "_seconds": 1779381093,
+      "_nanoseconds": 988000000
+    }
+  },
+  {
+    "id": "TUefbCXj6yfs9NzE666U",
+    "uid": "BSsheQenXDh3UK8PNIS5QlnL0mB3",
+    "tipo": "imc",
+    "nombreHerramienta": "Calculadora de IMC",
+    "edad": 70,
+    "genero": "mujer",
+    "alturaCm": 150,
+    "pesoKg": 63,
+    "imc": "28",
+    "categoria": "Sobrepeso",
+    "descripcion": "Un IMC entre 25 y 29.9 se considera sobrepeso en adultos.",
+    "fecha": {
+      "_seconds": 1780330160,
+      "_nanoseconds": 826000000
+    }
+  },
+  {
+    "id": "dfvEYKhqLiRgX0YyUPgU",
+    "uid": "EWdiLGYCS5dTFroLndiBLkq140Q2",
+    "tipo": "imc",
+    "nombreHerramienta": "Calculadora de IMC",
+    "edad": 21,
+    "genero": "mujer",
+    "alturaCm": 150,
+    "pesoKg": 61,
+    "imc": "27.1",
+    "categoria": "Sobrepeso",
+    "descripcion": "Un IMC entre 25 y 29.9 se considera sobrepeso en adultos.",
+    "fecha": {
+      "_seconds": 1779379872,
+      "_nanoseconds": 421000000
+    }
+  },
+  {
+    "id": "iXpiMFE7jOVEEY5TeJcV",
+    "uid": "EWdiLGYCS5dTFroLndiBLkq140Q2",
+    "tipo": "imc",
+    "nombreHerramienta": "Calculadora de IMC",
+    "edad": 21,
+    "genero": "mujer",
+    "alturaCm": 150,
+    "pesoKg": 62,
+    "imc": "27.6",
+    "categoria": "Sobrepeso",
+    "descripcion": "Un IMC entre 25 y 29.9 se considera sobrepeso en adultos.",
+    "fecha": {
+      "_seconds": 1780342547,
+      "_nanoseconds": 707000000
+    }
+  }
+]

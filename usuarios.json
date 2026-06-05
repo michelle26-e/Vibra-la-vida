@@ -1,0 +1,46 @@
+[
+  {
+    "id": "5u8IyIWICvfnVOcT4kNBH5WvOv92",
+    "uid": "5u8IyIWICvfnVOcT4kNBH5WvOv92",
+    "nombre": "María Fernanda Puc Rodriguez",
+    "correo": "maria@gmail.com",
+    "rol": "usuario",
+    "fechaRegistro": {
+      "_seconds": 1779381008,
+      "_nanoseconds": 858000000
+    }
+  },
+  {
+    "id": "BSsheQenXDh3UK8PNIS5QlnL0mB3",
+    "uid": "BSsheQenXDh3UK8PNIS5QlnL0mB3",
+    "nombre": "Maximiliana Isidra Montejo Pacheco",
+    "correo": "maximontejo@gmail.com",
+    "rol": "usuario",
+    "fechaRegistro": {
+      "_seconds": 1780330131,
+      "_nanoseconds": 581000000
+    }
+  },
+  {
+    "id": "EWdiLGYCS5dTFroLndiBLkq140Q2",
+    "uid": "EWdiLGYCS5dTFroLndiBLkq140Q2",
+    "nombre": "Michelle Joanna Solorio",
+    "correo": "michelle@gmail.com",
+    "rol": "usuario",
+    "fechaRegistro": {
+      "_seconds": 1779379793,
+      "_nanoseconds": 368000000
+    }
+  },
+  {
+    "id": "EZAyoIeFkSheu2s8PKn3ZF8rRdk1",
+    "uid": "EZAyoIeFkSheu2s8PKn3ZF8rRdk1",
+    "nombre": "Leda Maxim Aguilar Montejo",
+    "correo": "maximitta@gmail.com",
+    "rol": "usuario",
+    "fechaRegistro": {
+      "_seconds": 1780335429,
+      "_nanoseconds": 562000000
+    }
+  }
+]
