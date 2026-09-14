@@ -1,7 +1,7 @@
 <script setup>
 // ==========================================================
 // CREAR CUENTA - VIBRA LA VIDA
-// Registro para paciente y doctor en una sola pantalla.
+// Registro para paciente y profesional de la salud en una sola pantalla.
 // La imagen y el mensaje del panel derecho cambian según
 // el tipo de cuenta seleccionado.
 // ==========================================================
@@ -13,7 +13,7 @@ import { registrarUsuario } from '../services/authService'
 // IMPORTANTE:
 // Guarda las dos imágenes dentro de src/assets con estos nombres.
 import ajolotePaciente from '../assets/ajolotenormal.png'
-import ajoloteDoctor from '../assets/ajolotedoctor.png'
+import ajoloteProfesional from '../assets/ajolotedoctor.png'
 
 const router = useRouter()
 
@@ -21,7 +21,7 @@ const router = useRouter()
 // TIPO DE CUENTA
 // ----------------------------------------------------------
 // "paciente" se guarda en Firebase con rol "usuario".
-// "doctor" se guarda con rol "doctor".
+// "profesional" se guarda con rol "profesional_salud".
 const tipoCuenta = ref('paciente')
 
 // ----------------------------------------------------------
@@ -42,6 +42,132 @@ const cargando = ref(false)
 
 const mostrarContrasena = ref(false)
 const mostrarConfirmarContrasena = ref(false)
+
+// ----------------------------------------------------------
+// FORMATO AUTOMÁTICO DEL NOMBRE
+// ----------------------------------------------------------
+// Mantiene una presentación legible mientras el usuario escribe.
+// Las partículas comunes permanecen en minúsculas cuando no son
+// la primera palabra.
+const particulasNombre = [
+  'de',
+  'del',
+  'la',
+  'las',
+  'los',
+  'y',
+]
+
+const formatearPalabraNombre = (palabra, indice) => {
+  if (!palabra) return palabra
+
+  const palabraMinuscula =
+    palabra.toLocaleLowerCase('es-MX')
+
+  if (
+    indice > 0 &&
+    particulasNombre.includes(palabraMinuscula)
+  ) {
+    return palabraMinuscula
+  }
+
+  return (
+    palabraMinuscula.charAt(0)
+      .toLocaleUpperCase('es-MX') +
+    palabraMinuscula.slice(1)
+  )
+}
+
+const formatearNombrePropio = (texto = '') => {
+  let indicePalabra = 0
+
+  return texto
+    .split(/(\s+)/)
+    .map((parte) => {
+      if (/^\s+$/.test(parte)) {
+        return parte
+      }
+
+      const resultado =
+        formatearPalabraNombre(
+          parte,
+          indicePalabra
+        )
+
+      indicePalabra += 1
+
+      return resultado
+    })
+    .join('')
+}
+
+const limpiarNombreFinal = (texto = '') => {
+  return formatearNombrePropio(
+    texto
+      .trim()
+      .replace(/\s+/g, ' ')
+  )
+}
+
+const alCambiarNombre = (evento) => {
+  formulario.value.nombreCompleto =
+    formatearNombrePropio(
+      evento.target.value
+    )
+
+  // Si el nombre cambia después de verificar la cédula,
+  // obligamos a verificar nuevamente.
+  if (
+    tipoCuenta.value === 'profesional' &&
+    estadoCedula.value === 'verificada'
+  ) {
+    estadoCedula.value = 'sin-verificar'
+    mensajeCedula.value = ''
+    datosCedulaVerificada.value = null
+  }
+
+  if (errores.value.nombreCompleto) {
+    delete errores.value.nombreCompleto
+  }
+}
+
+
+// ----------------------------------------------------------
+// CONTRASEÑA SEGURA
+// ----------------------------------------------------------
+const requisitosContrasena = computed(() => {
+  const contrasena =
+    formulario.value.contrasena
+
+  return {
+    longitud:
+      contrasena.length >= 8,
+
+    mayuscula:
+      /[A-ZÁÉÍÓÚÜÑ]/.test(
+        contrasena
+      ),
+
+    minuscula:
+      /[a-záéíóúüñ]/.test(
+        contrasena
+      ),
+
+    numero:
+      /\d/.test(contrasena),
+
+    simbolo:
+      /[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]/.test(
+        contrasena
+      ),
+  }
+})
+
+const contrasenaSegura = computed(() => {
+  return Object.values(
+    requisitosContrasena.value
+  ).every(Boolean)
+})
 
 // ----------------------------------------------------------
 // VERIFICACIÓN DE CÉDULA PROFESIONAL
@@ -70,7 +196,7 @@ const cedulaVerificada = computed(() => {
 // ----------------------------------------------------------
 // ESPECIALIDADES
 // ----------------------------------------------------------
-// La lista se usa como autocompletado para cuentas de doctor.
+// La lista se usa como sugerencias opcionales para profesionales.
 const especialidades = [
   'Alergología e Inmunología',
   'Alergología Pediátrica',
@@ -168,20 +294,20 @@ const especialidadesFiltradas = computed(() => {
 // CONTENIDO DINÁMICO DEL PANEL DERECHO
 // ----------------------------------------------------------
 const imagenLateral = computed(() => {
-  return tipoCuenta.value === 'doctor'
-    ? ajoloteDoctor
+  return tipoCuenta.value === 'profesional'
+    ? ajoloteProfesional
     : ajolotePaciente
 })
 
 const tituloLateral = computed(() => {
-  return tipoCuenta.value === 'doctor'
+  return tipoCuenta.value === 'profesional'
     ? 'Acompaña y cuida a tus pacientes.'
     : 'Un paso más hacia tu equilibrio.'
 })
 
 const textoLateral = computed(() => {
-  return tipoCuenta.value === 'doctor'
-    ? 'Regístrate como doctor para dar seguimiento, revisar resultados y gestionar pacientes desde un solo lugar.'
+  return tipoCuenta.value === 'profesional'
+    ? 'Regístrate como profesional de la salud para dar seguimiento, revisar resultados y gestionar pacientes desde un solo lugar.'
     : 'Regístrate en Vibra la Vida y accede a herramientas, encuestas interactivas y recursos personalizados para ti.'
 })
 
@@ -249,8 +375,15 @@ const verificarCedula = async () => {
   const cedula =
     formulario.value.cedulaProfesional.trim()
 
-  // Validación local ÚNICAMENTE de formato.
-  // Esto NO significa que la cédula exista.
+  const nombreCompleto =
+    formulario.value.nombreCompleto.trim()
+
+  if (!nombreCompleto) {
+    errores.value.nombreCompleto =
+      'Ingresa primero tu nombre completo.'
+    return
+  }
+
   if (!cedula) {
     estadoCedula.value = 'sin-verificar'
     errores.value.cedulaProfesional =
@@ -258,65 +391,48 @@ const verificarCedula = async () => {
     return
   }
 
-  if (!/^\d{5,12}$/.test(cedula)) {
+  if (!/^\d{7,8}$/.test(cedula)) {
     estadoCedula.value = 'no-encontrada'
     errores.value.cedulaProfesional =
-      'La cédula debe contener únicamente números.'
+      'La cédula debe contener 7 u 8 dígitos.'
     return
   }
 
   delete errores.value.cedulaProfesional
+  delete errores.value.nombreCompleto
 
   estadoCedula.value = 'verificando'
 
   try {
-    // ======================================================
-    // AQUÍ SE CONECTARÁ LA API RESTFUL
-    // ======================================================
-    //
-    // Ejemplo para cuando tu compañero termine el endpoint:
-    //
-    // const respuesta = await fetch(
-    //   'http://localhost:3001/api/doctores/verificar-cedula',
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       cedula,
-    //       nombreCompleto:
-    //         formulario.value.nombreCompleto.trim(),
-    //     }),
-    //   }
-    // )
-    //
-    // const datos = await respuesta.json()
-    //
-    // if (!respuesta.ok || !datos.valida) {
-    //   estadoCedula.value = 'no-encontrada'
-    //   mensajeCedula.value =
-    //     datos.mensaje ||
-    //     'No fue posible verificar esta cédula profesional.'
-    //   return
-    // }
-    //
-    // estadoCedula.value = 'verificada'
-    // datosCedulaVerificada.value = datos
-    // mensajeCedula.value = 'Cédula profesional verificada.'
-    //
-    // ======================================================
-
-    // POR AHORA:
-    // La interfaz queda lista, pero no fingimos una
-    // verificación que todavía no existe.
-    await new Promise((resolve) =>
-      setTimeout(resolve, 650)
+    const respuesta = await fetch(
+      'http://localhost:3001/api/doctores/verificar-cedula',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cedula,
+          nombreCompleto,
+        }),
+      }
     )
 
-    estadoCedula.value = 'pendiente-api'
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok || !datos.valida) {
+      estadoCedula.value = 'no-encontrada'
+      mensajeCedula.value =
+        datos.mensaje ||
+        'No fue posible verificar esta cédula profesional.'
+      return
+    }
+
+    estadoCedula.value = 'verificada'
+    datosCedulaVerificada.value = datos.profesional
+
     mensajeCedula.value =
-      'La cédula tiene un formato válido. La verificación oficial se habilitará cuando se conecte la API RESTful.'
+      'Cédula profesional verificada correctamente.'
   } catch (error) {
     console.error(
       'Error al verificar la cédula:',
@@ -325,8 +441,52 @@ const verificarCedula = async () => {
 
     estadoCedula.value = 'no-encontrada'
     mensajeCedula.value =
-      'No se pudo verificar la cédula. Inténtalo nuevamente.'
+      'No se pudo conectar con el servicio de verificación.'
   }
+}
+
+// ----------------------------------------------------------
+// REVALIDAR INFORMACIÓN PROFESIONAL ANTES DEL REGISTRO
+// ----------------------------------------------------------
+// La API vuelve a comprobar:
+// - que la cédula sea válida,
+// - que el nombre coincida,
+// - y que la cédula no esté ocupada.
+//
+// Al usuario nunca se le informa si el motivo real es
+// una cédula ya utilizada.
+const revalidarProfesionalAntesDeCrear = async () => {
+  const respuesta = await fetch(
+    'http://localhost:3001/api/doctores/verificar-cedula',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        cedula:
+          formulario.value.cedulaProfesional.trim(),
+
+        nombreCompleto:
+          limpiarNombreFinal(
+            formulario.value.nombreCompleto
+          ),
+      }),
+    }
+  )
+
+  const datos = await respuesta.json()
+
+  if (!respuesta.ok || !datos.valida) {
+    throw new Error(
+      'REGISTRO_PROFESIONAL_NO_VALIDO'
+    )
+  }
+
+  datosCedulaVerificada.value =
+    datos.profesional
+
+  return true
 }
 
 
@@ -361,11 +521,9 @@ const validarFormulario = () => {
   if (!formulario.value.contrasena) {
     nuevosErrores.contrasena =
       'Ingresa una contraseña.'
-  } else if (
-    formulario.value.contrasena.length < 6
-  ) {
+  } else if (!contrasenaSegura.value) {
     nuevosErrores.contrasena =
-      'La contraseña debe tener al menos 6 caracteres.'
+      'La contraseña todavía no cumple todos los requisitos de seguridad.'
   }
 
   if (!formulario.value.confirmarContrasena) {
@@ -379,29 +537,19 @@ const validarFormulario = () => {
       'Las contraseñas no coinciden.'
   }
 
-  // Solo doctor requiere especialidad y cédula profesional.
-  if (tipoCuenta.value === 'doctor') {
-    if (!formulario.value.especialidad.trim()) {
-      nuevosErrores.especialidad =
-        'Selecciona una especialidad o subespecialidad.'
-    } else if (
-      !especialidades.includes(
-        formulario.value.especialidad
-      )
-    ) {
-      nuevosErrores.especialidad =
-        'Selecciona una especialidad de la lista.'
-    }
-
+  // El profesional de la salud requiere una cédula verificada.
+  // La especialidad o área de atención es opcional porque la profesión
+  // oficial se obtiene directamente del registro de la cédula.
+  if (tipoCuenta.value === 'profesional') {
     const cedula =
       formulario.value.cedulaProfesional.trim()
 
     if (!cedula) {
       nuevosErrores.cedulaProfesional =
         'Ingresa tu cédula profesional.'
-    } else if (!/^\d{5,12}$/.test(cedula)) {
+    } else if (!/^\d{7,8}$/.test(cedula)) {
       nuevosErrores.cedulaProfesional =
-        'La cédula debe contener únicamente números.'
+        'La cédula debe contener 7 u 8 dígitos.'
     } else if (!cedulaVerificada.value) {
       nuevosErrores.cedulaProfesional =
         'Debes verificar tu cédula profesional antes de crear la cuenta.'
@@ -426,53 +574,96 @@ const crearCuenta = async () => {
   cargando.value = true
 
   try {
+    // Dejamos el nombre y el correo con un formato consistente.
+    formulario.value.nombreCompleto =
+      limpiarNombreFinal(
+        formulario.value.nombreCompleto
+      )
+
+    formulario.value.correo =
+      formulario.value.correo
+        .trim()
+        .toLowerCase()
+
+    // Antes de crear una cuenta profesional volvemos a consultar
+    // la API para evitar reutilizar una cédula que se haya ocupado
+    // después de la primera verificación.
+    if (tipoCuenta.value === 'profesional') {
+      await revalidarProfesionalAntesDeCrear()
+    }
+
     await registrarUsuario({
       nombreCompleto:
-        formulario.value.nombreCompleto.trim(),
+        formulario.value.nombreCompleto,
 
       correo:
-        formulario.value.correo.trim(),
+        formulario.value.correo,
 
       contrasena:
         formulario.value.contrasena,
 
       rol:
-        tipoCuenta.value === 'doctor'
-          ? 'doctor'
+        tipoCuenta.value === 'profesional'
+          ? 'profesional_salud'
           : 'usuario',
 
       especialidad:
-        tipoCuenta.value === 'doctor'
-          ? formulario.value.especialidad
+        tipoCuenta.value === 'profesional'
+          ? formulario.value.especialidad.trim()
           : null,
 
-      // Cuando authService acepte estos campos,
-      // quedarán guardados con la cuenta del doctor.
       cedulaProfesional:
-        tipoCuenta.value === 'doctor'
+        tipoCuenta.value === 'profesional'
           ? formulario.value.cedulaProfesional
           : null,
 
       cedulaVerificada:
-        tipoCuenta.value === 'doctor'
+        tipoCuenta.value === 'profesional'
           ? cedulaVerificada.value
           : false,
+
+      profesionRegistrada:
+        tipoCuenta.value === 'profesional'
+          ? datosCedulaVerificada.value?.profesion || null
+          : null,
+
+      institucionRegistro:
+        tipoCuenta.value === 'profesional'
+          ? datosCedulaVerificada.value?.institucion || null
+          : null,
+
+      anioRegistro:
+        tipoCuenta.value === 'profesional'
+          ? datosCedulaVerificada.value?.anioRegistro || null
+          : null,
     })
 
-    // Después del registro regresamos al inicio.
-    // Si prefieres enviarlo directamente a iniciar sesión,
-    // cambia '/' por '/iniciar-sesion'.
-    router.push('/')
+    // Después del registro enviamos a cada tipo de cuenta
+    // a su pantalla correspondiente.
+    if (tipoCuenta.value === 'profesional') {
+      router.push('/doctor')
+    } else {
+      router.push('/')
+    }
   } catch (error) {
     console.error(
       'Error al crear la cuenta:',
       error
     )
 
+    if (
+      error.message ===
+      'REGISTRO_PROFESIONAL_NO_VALIDO'
+    ) {
+      mensajeError.value =
+        'No fue posible completar el registro con la información proporcionada. Revisa tus datos e inténtalo nuevamente.'
+      return
+    }
+
     switch (error.code) {
       case 'auth/email-already-in-use':
         mensajeError.value =
-          'Este correo ya tiene una cuenta registrada.'
+          'No fue posible completar el registro con la información proporcionada.'
         break
 
       case 'auth/invalid-email':
@@ -529,7 +720,7 @@ const crearCuenta = async () => {
         </p>
 
         <!-- ==================================================
-             SELECTOR PACIENTE / DOCTOR
+             SELECTOR PACIENTE / PROFESIONAL
              ================================================== -->
         <div class="selector-tipo">
 
@@ -550,13 +741,13 @@ const crearCuenta = async () => {
             type="button"
             class="opcion-tipo"
             :class="{
-              activa: tipoCuenta === 'doctor'
+              activa: tipoCuenta === 'profesional'
             }"
             @click="
-              seleccionarTipoCuenta('doctor')
+              seleccionarTipoCuenta('profesional')
             "
           >
-            Soy doctor
+            Soy profesional de la salud
           </button>
 
         </div>
@@ -589,7 +780,8 @@ const crearCuenta = async () => {
                 v-model="formulario.nombreCompleto"
                 type="text"
                 autocomplete="name"
-                placeholder="Tu nombre"
+                placeholder="Tu nombre completo"
+                @input="alCambiarNombre"
               />
             </div>
 
@@ -621,6 +813,12 @@ const crearCuenta = async () => {
                 type="email"
                 autocomplete="email"
                 placeholder="tu@email.com"
+                @blur="
+                  formulario.correo =
+                    formulario.correo
+                      .trim()
+                      .toLowerCase()
+                "
               />
             </div>
 
@@ -634,11 +832,11 @@ const crearCuenta = async () => {
 
           <!-- ESPECIALIDAD SOLO PARA DOCTOR -->
           <div
-            v-if="tipoCuenta === 'doctor'"
+            v-if="tipoCuenta === 'profesional'"
             class="grupo-campo"
           >
             <label for="especialidad">
-              Especialidad o subespecialidad
+              Especialidad o área de atención (opcional)
             </label>
 
             <div class="contenedor-autocomplete">
@@ -703,9 +901,9 @@ const crearCuenta = async () => {
             </small>
           </div>
 
-          <!-- CÉDULA PROFESIONAL SOLO PARA DOCTOR -->
+          <!-- CÉDULA PROFESIONAL SOLO PARA PROFESIONAL -->
           <div
-            v-if="tipoCuenta === 'doctor'"
+            v-if="tipoCuenta === 'profesional'"
             class="grupo-campo"
           >
             <label for="cedulaProfesional">
@@ -829,12 +1027,22 @@ const crearCuenta = async () => {
                       datosCedulaVerificada.profesion
                     }}
                   </p>
+
+                  <p
+                    v-if="
+                      datosCedulaVerificada.institucion
+                    "
+                  >
+                    {{
+                      datosCedulaVerificada.institucion
+                    }}
+                  </p>
                 </template>
               </div>
             </div>
 
             <small class="ayuda-cedula">
-              La cuenta de doctor solo podrá crearse
+              La cuenta profesional solo podrá crearse
               cuando la cédula sea validada por la API.
             </small>
           </div>
@@ -887,6 +1095,56 @@ const crearCuenta = async () => {
             >
               {{ errores.contrasena }}
             </small>
+
+            <div
+              v-if="formulario.contrasena"
+              class="requisitos-contrasena"
+            >
+              <span
+                :class="{
+                  cumplido:
+                    requisitosContrasena.longitud
+                }"
+              >
+                ✓ 8 caracteres mínimo
+              </span>
+
+              <span
+                :class="{
+                  cumplido:
+                    requisitosContrasena.mayuscula
+                }"
+              >
+                ✓ Una mayúscula
+              </span>
+
+              <span
+                :class="{
+                  cumplido:
+                    requisitosContrasena.minuscula
+                }"
+              >
+                ✓ Una minúscula
+              </span>
+
+              <span
+                :class="{
+                  cumplido:
+                    requisitosContrasena.numero
+                }"
+              >
+                ✓ Un número
+              </span>
+
+              <span
+                :class="{
+                  cumplido:
+                    requisitosContrasena.simbolo
+                }"
+              >
+                ✓ Un símbolo
+              </span>
+            </div>
           </div>
 
           <!-- CONFIRMAR CONTRASEÑA -->
@@ -961,7 +1219,7 @@ const crearCuenta = async () => {
             :disabled="
               cargando ||
               (
-                tipoCuenta === 'doctor' &&
+                tipoCuenta === 'profesional' &&
                 !cedulaVerificada
               )
             "
@@ -970,8 +1228,8 @@ const crearCuenta = async () => {
               {{
                 cargando
                   ? 'Creando cuenta...'
-                  : tipoCuenta === 'doctor'
-                    ? 'Crear cuenta de doctor'
+                  : tipoCuenta === 'profesional'
+                    ? 'Crear cuenta profesional'
                     : 'Crear mi cuenta'
               }}
             </span>
@@ -1003,7 +1261,7 @@ const crearCuenta = async () => {
       class="lado-imagen"
       :class="{
         'modo-doctor':
-          tipoCuenta === 'doctor'
+          tipoCuenta === 'profesional'
       }"
     >
 
@@ -1017,7 +1275,7 @@ const crearCuenta = async () => {
         <img
           :src="imagenLateral"
           :alt="
-            tipoCuenta === 'doctor'
+            tipoCuenta === 'profesional'
               ? 'Ajolote doctor Vibra la Vida'
               : 'Ajolote Vibra la Vida'
           "

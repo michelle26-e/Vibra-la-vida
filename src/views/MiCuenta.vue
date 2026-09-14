@@ -15,7 +15,7 @@ import { auth, db } from '../firebase/firebaseConfig'
 import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authService'
 import { obtenerResultadosUsuario } from '../services/resultadosService'
 import ItemHistorial from '../components/ItemHistorial.vue'
-
+import BotonVolver from '../components/BotonVolver.vue'
 const router = useRouter()
 
 // Usuario autenticado de Firebase Authentication
@@ -344,10 +344,8 @@ onUnmounted(() => {
 
 <template>
   <main class="pagina-cuenta">
-    <RouterLink to="/" class="boton-volver">
-      ← Volver al inicio
-    </RouterLink>
-
+    <BotonVolver />
+    
     <section
       v-if="cargando"
       class="tarjeta-cargando"

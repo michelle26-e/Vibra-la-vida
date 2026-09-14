@@ -18,7 +18,7 @@
   left: 24px;
   bottom: 24px;
 
-  width: 290px;
+  width: 300px;
 
   padding: 22px 16px;
 
@@ -198,12 +198,12 @@
   display: flex;
   align-items: center;
 
-  gap: 12px;
+  gap: 13px;
 
   width: 100%;
-  min-height: 51px;
+  min-height: 60px;
 
-  padding: 9px 13px;
+  padding: 8px 12px;
 
   border: 0;
   border-radius: 14px;
@@ -214,7 +214,7 @@
   text-align: left;
   text-decoration: none;
 
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   font-family: inherit;
 
@@ -235,42 +235,80 @@
 
 .enlace-menu.activo {
   color: #0f6e83;
-  background: #e7f5f7;
+
+  background:
+    linear-gradient(
+      90deg,
+      #e5f6f7,
+      #f2fbf8
+    );
+
+  box-shadow:
+    inset 3px 0 0 #0aa7b8;
 }
 
 .icono-menu {
   display: grid;
   place-items: center;
 
-  flex: 0 0 32px;
+  flex: 0 0 44px;
 
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
 
-  border-radius: 50%;
+  padding: 4px;
 
-  color: #0f6e83;
-  background: #eaf7f8;
+  border-radius: 13px;
 
-  font-size: 10px;
-  font-weight: 900;
+  background: transparent;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.icono-menu img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  filter: drop-shadow(
+    0 4px 7px
+    rgba(7, 58, 78, 0.08)
+  );
+}
+
+.enlace-menu:hover .icono-menu {
+  transform: scale(1.05);
 }
 
 .enlace-menu.activo .icono-menu {
-  color: #ffffff;
-  background: #0aa7b8;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.texto-menu {
+  min-width: 0;
+
+  line-height: 1.25;
 }
 
 .punto-activo {
   position: absolute;
-  right: 14px;
+  right: 12px;
 
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 
   border-radius: 50%;
 
   background: #78c832;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(120, 200, 50, 0.12);
 }
 
 
@@ -334,7 +372,7 @@
    ========================================================== */
 
 .contenido-principal {
-  margin-left: 330px;
+  margin-left: 344px;
 
   padding: 58px 4vw 78px;
 }
@@ -536,22 +574,63 @@
   display: flex;
   align-items: center;
 
-  gap: 15px;
+  gap: 18px;
 
   margin-bottom: 18px;
+
+  padding: 8px 4px;
 }
 
-.titulo-seccion span {
+.contenedor-icono-seccion {
   display: grid;
   place-items: center;
 
-  width: 50px;
-  height: 50px;
+  flex: 0 0 72px;
 
-  border-radius: 14px;
+  width: 72px;
+  height: 72px;
 
-  font-size: 12px;
+  padding: 7px;
+
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 24px
+    rgba(7, 58, 78, 0.08);
+}
+
+.icono-seccion {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  filter: drop-shadow(
+    0 5px 8px
+    rgba(7, 58, 78, 0.08)
+  );
+}
+
+.texto-titulo-seccion {
+  min-width: 0;
+}
+
+.etiqueta-tema {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #0f7f89;
+
+  font-size: 10px;
   font-weight: 900;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .titulo-seccion h2 {
@@ -559,18 +638,30 @@
 
   color: #173b57;
 
-  font-size: 27px;
+  font-size: 29px;
+  line-height: 1.15;
+
+  letter-spacing: -0.025em;
 }
 
 .tarjeta-tema {
-  padding: 32px;
+  position: relative;
 
-  border: 1px solid #e6edef;
-  border-radius: 22px;
+  padding: 34px;
 
-  background: #ffffff;
+  border: 1px solid #e4edef;
+  border-radius: 24px;
 
-  box-shadow: 0 10px 26px rgba(7, 58, 78, 0.045);
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fcfefe
+    );
+
+  box-shadow:
+    0 12px 30px
+    rgba(7, 58, 78, 0.05);
 }
 
 .descripcion-tema {
@@ -657,38 +748,46 @@
 
 
 /* ==========================================================
-   COLORES DE LOS ICONOS DE SECCIÓN
-   Limitados a colores del logo
+   FONDOS SUAVES DE LOS ICONOS DE SECCIÓN
    ========================================================== */
 
-.titulo-seccion span.verde {
-  color: #2e8b2f;
-  background: #eaf6e3;
+.contenedor-icono-seccion.verde {
+  background:
+    linear-gradient(
+      145deg,
+      #f4fbea,
+      #ffffff
+    );
 }
 
-.titulo-seccion span.azul {
-  color: #0b5f8e;
-  background: #e8f2f8;
+.contenedor-icono-seccion.azul {
+  background:
+    linear-gradient(
+      145deg,
+      #edf7fb,
+      #ffffff
+    );
 }
 
-.titulo-seccion span.cian {
-  color: #0b8795;
-  background: #e5f6f7;
+.contenedor-icono-seccion.cian {
+  background:
+    linear-gradient(
+      145deg,
+      #ecfbfa,
+      #ffffff
+    );
 }
 
-/* Compatibilidad por si queda alguna clase antigua.
-   Todas se llevan a la paleta del logo. */
-
-.titulo-seccion span.rosa,
-.titulo-seccion span.rojo {
-  color: #2e8b2f;
-  background: #eaf6e3;
-}
-
-.titulo-seccion span.naranja,
-.titulo-seccion span.morado {
-  color: #0b5f8e;
-  background: #e8f2f8;
+.contenedor-icono-seccion.rosa,
+.contenedor-icono-seccion.rojo,
+.contenedor-icono-seccion.naranja,
+.contenedor-icono-seccion.morado {
+  background:
+    linear-gradient(
+      145deg,
+      #eef8f7,
+      #ffffff
+    );
 }
 
 
@@ -855,6 +954,22 @@
 }
 
 
+
+.icono-app-seccion {
+  width: 78px;
+  height: 78px;
+
+  margin-bottom: 18px;
+
+  object-fit: contain;
+
+  filter: drop-shadow(
+    0 10px 18px
+    rgba(0, 0, 0, 0.16)
+  );
+}
+
+
 /* ==========================================================
    SCROLL
    ========================================================== */
@@ -947,5 +1062,645 @@
 
   .titulo-seccion h2 {
     font-size: 23px;
+  }
+}
+
+
+@media (max-width: 640px) {
+  .icono-menu {
+    flex-basis: 40px;
+
+    width: 40px;
+    height: 40px;
+  }
+
+  .contenedor-icono-seccion {
+    flex-basis: 58px;
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 16px;
+  }
+
+  .titulo-seccion {
+    align-items: flex-start;
+
+    gap: 13px;
+  }
+
+  .titulo-seccion h2 {
+    font-size: 22px;
+  }
+}
+
+
+/* ==========================================================
+   ACCESO DINÁMICO: MI EQUIPO DE SALUD
+   ========================================================== */
+
+.enlace-menu.enlace-equipo {
+  margin-top: 5px;
+
+  color: #0f6e83;
+
+  background:
+    linear-gradient(
+      90deg,
+      #eefafa,
+      #f6fcf5
+    );
+
+  border: 1px solid #d8eeeb;
+}
+
+.enlace-menu.enlace-equipo:hover {
+  color: #0b5c6d;
+
+  background:
+    linear-gradient(
+      90deg,
+      #e3f7f7,
+      #eef9e9
+    );
+}
+
+
+/* ==========================================================
+   CARRUSEL DE IMÁGENES POR SECCIÓN
+   ========================================================== */
+
+.carrusel-imagenes {
+  width: 100%;
+
+  margin-top: 28px;
+}
+
+.carrusel-ventana {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  min-height: 360px;
+
+  overflow: hidden;
+
+  border: 1px solid #e3edef;
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f8fcfc,
+      #f4faf7
+    );
+}
+
+.diapositiva-carrusel {
+  width: 100%;
+
+  padding: 20px 70px 18px;
+
+  text-align: center;
+}
+
+.diapositiva-carrusel img {
+  display: block;
+
+  width: 100%;
+  max-width: 760px;
+
+  height: 340px;
+
+  margin: 0 auto;
+
+  object-fit: contain;
+
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.pie-carrusel {
+  max-width: 760px;
+
+  margin: 16px auto 0;
+
+  text-align: left;
+}
+
+.pie-carrusel h3 {
+  margin: 0 0 6px;
+
+  color: #173b57;
+
+  font-size: 15px;
+}
+
+.pie-carrusel p {
+  margin: 0;
+
+  color: #697d8b;
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.boton-carrusel {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+
+  display: grid;
+  place-items: center;
+
+  width: 46px;
+  height: 46px;
+
+  border: 1px solid #d5e7e9;
+  border-radius: 50%;
+
+  color: #0f6e83;
+  background: rgba(255, 255, 255, 0.94);
+
+  font-size: 30px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transform: translateY(-50%);
+
+  box-shadow:
+    0 8px 18px
+    rgba(7, 58, 78, 0.08);
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-carrusel:hover {
+  color: #ffffff;
+  background: #0aa7b8;
+
+  transform:
+    translateY(-50%)
+    scale(1.04);
+}
+
+.boton-carrusel.anterior {
+  left: 16px;
+}
+
+.boton-carrusel.siguiente {
+  right: 16px;
+}
+
+.indicadores-carrusel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.indicador-carrusel {
+  width: 9px;
+  height: 9px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: #c9d8dc;
+
+  cursor: pointer;
+
+  transition:
+    width 0.2s ease,
+    background 0.2s ease;
+}
+
+.indicador-carrusel.activo {
+  width: 26px;
+
+  background: #0aa7b8;
+}
+
+/* La rejilla anterior queda desactivada porque
+   las imágenes ahora se muestran en carrusel. */
+
+.rejilla-imagenes {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  .carrusel-ventana {
+    min-height: 300px;
+  }
+
+  .diapositiva-carrusel {
+    padding:
+      16px
+      54px
+      16px;
+  }
+
+  .diapositiva-carrusel img {
+    height: 280px;
+  }
+
+  .boton-carrusel {
+    width: 40px;
+    height: 40px;
+
+    font-size: 25px;
+  }
+
+  .boton-carrusel.anterior {
+    left: 9px;
+  }
+
+  .boton-carrusel.siguiente {
+    right: 9px;
+  }
+}
+
+@media (max-width: 520px) {
+
+  .carrusel-ventana {
+    min-height: 250px;
+  }
+
+  .diapositiva-carrusel {
+    padding:
+      12px
+      42px
+      14px;
+  }
+
+  .diapositiva-carrusel img {
+    height: 220px;
+
+    border-radius: 14px;
+  }
+
+  .pie-carrusel {
+    margin-top: 12px;
+  }
+
+  .boton-carrusel {
+    width: 36px;
+    height: 36px;
+
+    font-size: 23px;
+  }
+}
+
+
+/* ==========================================================
+   AJUSTE FINAL DEL CARRUSEL
+   - automático
+   - sin flechas
+   - sin borde blanco
+   - imagen completa
+   ========================================================== */
+
+.boton-carrusel {
+  display: none !important;
+}
+
+.carrusel-imagenes {
+  width: 100%;
+  margin-top: 28px;
+}
+
+.carrusel-ventana {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  max-width: 950px;
+
+  margin: 0 auto;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  border: 0;
+  border-radius: 24px;
+
+  background: #eef6f3;
+}
+
+.diapositiva-carrusel {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: transparent;
+}
+
+.diapositiva-carrusel img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center;
+
+  margin: 0;
+
+  border: 0;
+  border-radius: 24px;
+
+  background: transparent;
+
+  box-shadow: none;
+}
+
+/* Ocultamos cualquier pie de imagen del carrusel */
+.pie-carrusel {
+  display: none;
+}
+
+/* Indicadores inferiores */
+.indicadores-carrusel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.indicador-carrusel {
+  width: 9px;
+  height: 9px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: #c8d7db;
+
+  cursor: pointer;
+
+  transition:
+    width 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.indicador-carrusel:hover {
+  background: #8fc8cf;
+}
+
+.indicador-carrusel.activo {
+  width: 28px;
+
+  background: #0aa7b8;
+
+  transform: scaleY(1.05);
+}
+
+@media (max-width: 768px) {
+  .carrusel-ventana {
+    max-width: 100%;
+
+    aspect-ratio: 4 / 3;
+
+    border-radius: 20px;
+  }
+
+  .diapositiva-carrusel img {
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .carrusel-imagenes {
+    margin-top: 20px;
+  }
+
+  .carrusel-ventana {
+    aspect-ratio: 1 / 1;
+
+    border-radius: 16px;
+  }
+
+  .diapositiva-carrusel img {
+    border-radius: 16px;
+  }
+
+  .indicadores-carrusel {
+    margin-top: 11px;
+
+    gap: 7px;
+  }
+
+  .indicador-carrusel {
+    width: 8px;
+    height: 8px;
+  }
+
+  .indicador-carrusel.activo {
+    width: 23px;
+  }
+}
+
+
+/* ==========================================================
+   AJUSTE ESPECIAL - TRASTORNOS DEL RITMO CARDÍACO
+   Reduce el espacio vacío y hace la imagen más compacta.
+   Solo aplica a la sección con clase .carrusel-ritmo
+   ========================================================== */
+
+.carrusel-ritmo {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.carrusel-ritmo .carrusel-ventana {
+  width: 100%;
+  max-width: 1120px;
+
+  margin: 0 auto;
+
+  /* Evita que herede una altura grande del carrusel general */
+  min-height: 0;
+  height: auto;
+  aspect-ratio: auto;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 18px;
+
+  background: transparent;
+
+  overflow: hidden;
+}
+
+.carrusel-ritmo .diapositiva-carrusel {
+  width: 100%;
+  height: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: transparent;
+}
+
+.carrusel-ritmo .diapositiva-carrusel img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  max-width: 1120px;
+  max-height: none;
+
+  margin: 0;
+
+  object-fit: contain;
+  object-position: center;
+
+  border: 0;
+  border-radius: 18px;
+
+  background: transparent;
+
+  box-shadow: none;
+}
+
+/* Esta sección solo tiene una imagen,
+   por eso no necesitamos indicadores ni flechas. */
+
+.carrusel-ritmo .boton-carrusel,
+.carrusel-ritmo .indicadores-carrusel {
+  display: none !important;
+}
+
+
+/* ==========================================================
+   RESPONSIVE - RITMO CARDÍACO
+   ========================================================== */
+
+@media (max-width: 768px) {
+
+  .carrusel-ritmo {
+    margin-top: 16px;
+  }
+
+  .carrusel-ritmo .carrusel-ventana {
+    max-width: 100%;
+
+    border-radius: 14px;
+  }
+
+  .carrusel-ritmo .diapositiva-carrusel img {
+    width: 100%;
+
+    border-radius: 14px;
+  }
+
+}
+
+
+/* ==========================================================
+   VISTA REAL DE LA APP EN LA SECCIÓN "NUESTRA APP"
+   ========================================================== */
+
+.vista-celular {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 12px;
+}
+
+.imagen-app-preview {
+  display: block;
+
+  width: auto;
+  max-width: 300px;
+  max-height: 560px;
+  height: auto;
+
+  object-fit: contain;
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.20);
+
+  background: transparent;
+}
+
+/* Ocultamos cualquier estilo visual del mockup anterior,
+   por si todavía existe en el CSS base. */
+.pantalla-celular,
+.encabezado-celular,
+.tarjeta-celular {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .vista-celular {
+    padding-top: 24px;
+  }
+
+  .imagen-app-preview {
+    max-width: 260px;
+    max-height: 520px;
+  }
+}
+
+@media (max-width: 520px) {
+  .vista-celular {
+    padding: 18px 0 0;
+  }
+
+  .imagen-app-preview {
+    max-width: 230px;
+    max-height: 470px;
+
+    border-radius: 22px;
   }
 }

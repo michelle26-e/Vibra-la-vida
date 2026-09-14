@@ -982,3 +982,399 @@
     flex-direction: column;
   }
 }
+
+
+/* ==========================================================
+   FORMACIÓN ACADÉMICA ADICIONAL
+   ========================================================== */
+
+.tarjeta-formacion {
+  padding: 26px;
+
+  border: 1px solid #e1eaed;
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 20px
+    rgba(7, 58, 78, 0.04);
+}
+
+.cabecera-formacion {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 22px;
+
+  margin-bottom: 20px;
+}
+
+.cabecera-formacion h2 {
+  margin: 0;
+
+  color: #173b57;
+
+  font-size: 22px;
+
+  letter-spacing: -0.02em;
+}
+
+.cabecera-formacion p {
+  max-width: 650px;
+
+  margin: 7px 0 0;
+
+  color: #718391;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+.boton-agregar-formacion {
+  flex: 0 0 auto;
+
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  border: 1px solid #b9dee2;
+  border-radius: 12px;
+
+  color: #0f7583;
+
+  background: #eef9fa;
+
+  font-size: 12px;
+  font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.lista-formacion {
+  display: grid;
+
+  gap: 11px;
+}
+
+.item-formacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 17px;
+
+  border: 1px solid #e4edef;
+  border-radius: 15px;
+
+  background: #f9fcfc;
+}
+
+.contenido-formacion {
+  min-width: 0;
+}
+
+.fila-tipo-formacion {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-bottom: 7px;
+}
+
+.tipo-formacion {
+  color: #0f7583;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.estado-formacion {
+  display: inline-flex;
+
+  padding: 5px 8px;
+
+  border-radius: 999px;
+
+  color: #735c20;
+
+  background: #fff8df;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.estado-formacion.verificada {
+  color: #237a46;
+
+  background: #e8f8ee;
+}
+
+.item-formacion h3 {
+  margin: 0 0 5px;
+
+  color: #294b61;
+
+  font-size: 15px;
+}
+
+.item-formacion p {
+  margin: 0;
+
+  color: #607585;
+
+  font-size: 12px;
+}
+
+.meta-formacion {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-top: 7px;
+}
+
+.meta-formacion span {
+  color: #8a9aa5;
+
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.boton-eliminar-formacion {
+  flex: 0 0 auto;
+
+  min-height: 36px;
+
+  padding: 0 12px;
+
+  border: 0;
+  border-radius: 10px;
+
+  color: #b8324c;
+
+  background: #fff1f3;
+
+  font-size: 10px;
+  font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.sin-formacion {
+  padding: 18px;
+
+  border: 1px dashed #cadde1;
+  border-radius: 14px;
+
+  background: #f9fcfc;
+}
+
+.sin-formacion p {
+  margin: 0;
+
+  color: #718391;
+
+  font-size: 12px;
+}
+
+.formulario-formacion {
+  display: grid;
+
+  gap: 18px;
+
+  padding-top: 4px;
+}
+
+.rejilla-formacion {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.grupo-campo-doctor select {
+  width: 100%;
+
+  min-height: 48px;
+
+  padding: 0 14px;
+
+  border: 1px solid #d9e5e8;
+  border-radius: 12px;
+
+  color: #173b57;
+
+  background: #f9fcfc;
+
+  font-size: 13px;
+  font-family: inherit;
+
+  outline: none;
+}
+
+.grupo-campo-doctor select:focus {
+  border-color: #0aa7b8;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(10, 167, 184, 0.08);
+}
+
+.bloque-cedula-formacion {
+  display: grid;
+
+  gap: 14px;
+
+  padding: 17px;
+
+  border: 1px solid #e2ebed;
+  border-radius: 14px;
+
+  background: #f9fcfc;
+}
+
+.encabezado-cedula-formacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.encabezado-cedula-formacion strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #294b61;
+
+  font-size: 13px;
+}
+
+.encabezado-cedula-formacion span {
+  color: #718391;
+
+  font-size: 11px;
+}
+
+.fila-cedula-formacion {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items: end;
+
+  gap: 10px;
+}
+
+.boton-verificar-formacion {
+  min-height: 48px;
+
+  padding: 0 16px;
+
+  border: 1px solid #b9dee2;
+  border-radius: 12px;
+
+  color: #0f7583;
+
+  background: #eef9fa;
+
+  font-size: 11px;
+  font-weight: 900;
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.boton-verificar-formacion:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+.mensaje-verificacion-formacion {
+  padding: 10px 12px;
+
+  border-radius: 10px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  line-height: 1.5;
+}
+
+.mensaje-verificacion-formacion.verificando {
+  color: #0f6e83;
+
+  background: #eaf8fa;
+}
+
+.mensaje-verificacion-formacion.verificada {
+  color: #237a46;
+
+  background: #eaf8ef;
+}
+
+.mensaje-verificacion-formacion.no-encontrada {
+  color: #b8324c;
+
+  background: #fff1f3;
+}
+
+.acciones-formacion {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+@media (max-width: 760px) {
+
+  .cabecera-formacion,
+  .encabezado-cedula-formacion,
+  .item-formacion {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rejilla-formacion,
+  .fila-cedula-formacion {
+    grid-template-columns: 1fr;
+  }
+
+  .boton-agregar-formacion,
+  .boton-eliminar-formacion,
+  .boton-verificar-formacion {
+    width: 100%;
+  }
+
+  .acciones-formacion {
+    flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .tarjeta-formacion {
+    padding: 20px;
+  }
+}

@@ -10,7 +10,20 @@ import { useRouter } from 'vue-router'
 
 // Importamos Firebase Auth
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/firebaseConfig'
+
+// Firestore se usa para comprobar si el paciente
+// tiene profesionales vinculados.
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore'
+
+import {
+  auth,
+  db,
+} from '../firebase/firebaseConfig'
 
 // Importamos servicios de autenticación
 import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authService'
@@ -18,8 +31,15 @@ import { cerrarSesionUsuario, obtenerDatosUsuario } from '../services/authServic
 // Imágenes del proyecto
 import logoPrincipal from '../assets/logo-vibra.png'
 import logoVibra from '../assets/logotexto.png'
-import adu from '../assets/ad.png'
-import hdvs from '../assets/hdvs.png'
+import ado1 from '../assets/ado1.png'
+import ado2 from '../assets/ado2.png'
+import ado3 from '../assets/ado3.png'
+import hdvs1 from '../assets/hdvs1.png'
+import hdvs2 from '../assets/hdvs2.png'
+import hdvs3 from '../assets/hdvs3.png'
+import hdvs4 from '../assets/hdvs4.png'
+import hdvs5 from '../assets/hdvs5.png'
+import hdvs6 from '../assets/hdvs6.png'
 import rc from '../assets/rc1.png'
 import rca from '../assets/rc2.png'
 import ti from '../assets/t1.png'
@@ -27,6 +47,18 @@ import tip from '../assets/t2.png'
 import dia from '../assets/d1.png'
 import diab from '../assets/d2.png'
 import trc from '../assets/tr.png'
+
+// Iconos originales de Vibra la Vida
+import iconCasa from '../assets/iconcasa.png'
+import iconJovenes from '../assets/iconjovenes.png'
+import iconSalud from '../assets/iconsalud.png'
+import iconRiesgo from '../assets/iconriesgo.png'
+import iconDiabetes from '../assets/icondiabetess.png'
+import iconCardiaco from '../assets/iconcardiaco.png'
+import iconSobrepeso from '../assets/iconsobre.png'
+import iconEncuesta from '../assets/iconencuesta.png'
+import iconApp from '../assets/iconapp.png'
+import appPreview from '../assets/pantalla.jpeg'
 
 // Usamos el router para navegar entre páginas
 const router = useRouter()
@@ -40,6 +72,17 @@ const datosUsuario = ref(null)
 // Guardamos cuál sección del menú está activa
 const seccionActiva = ref('inicio')
 
+// Guarda la imagen activa de cada carrusel.
+// Cada sección mantiene su propio índice.
+const indiceCarrusel = ref({})
+
+// Intervalo para cambio automático de imágenes
+let intervaloCarrusel = null
+
+// Solo mostramos "Mi equipo de salud" cuando el paciente
+// tiene por lo menos un seguimiento activo en Firestore.
+const tieneEquipoSalud = ref(false)
+
 // Variable para detener el observador de Firebase cuando se cierre la vista
 let detenerObservador = null
 
@@ -47,13 +90,34 @@ let detenerObservador = null
 const informacionTemario = {
   adolescencia: [
     {
-      imagen: adu,
+      imagen: ado1
+    },
+    {
+      imagen: ado2
+    },
+    {
+      imagen: ado3
     },
   ],
 
   habitos: [
+   {
+      imagen: hdvs1
+    },
     {
-      imagen: hdvs,
+      imagen: hdvs2
+    },
+    {
+      imagen: hdvs3
+    },
+    {
+      imagen: hdvs4
+    },
+    {
+      imagen: hdvs5
+    },
+    {
+      imagen: hdvs6
     },
   ],
 
@@ -111,21 +175,79 @@ const irAMiCuenta = () => {
   router.push('/mi-cuenta')
 }
 
+// Comprueba si el paciente tiene al menos un profesional
+// vinculado en la colección seguimiento_profesional.
+const comprobarEquipoSalud = async (uidPaciente) => {
+  try {
+    const consulta = query(
+      collection(
+        db,
+        'seguimiento_profesional'
+      ),
+      where(
+        'pacienteUid',
+        '==',
+        uidPaciente
+      )
+    )
+
+    const respuesta =
+      await getDocs(consulta)
+
+    tieneEquipoSalud.value =
+      respuesta.docs.some(
+        (documento) =>
+          documento.data().estado === 'activo'
+      )
+  } catch (error) {
+    console.error(
+      'Error al comprobar el equipo de salud:',
+      error
+    )
+
+    // Si ocurre un error, no mostramos el acceso
+    // para evitar presentar información incompleta.
+    tieneEquipoSalud.value = false
+  }
+}
+
+
 // Se ejecuta cuando se carga la página para verificar si hay usuario iniciado
 onMounted(() => {
+  // Inicia el cambio automático de imágenes del carrusel
+  iniciarCarruselAutomatico()
+
   detenerObservador = onAuthStateChanged(auth, async (usuario) => {
     usuarioActual.value = usuario
 
     if (usuario) {
-      datosUsuario.value = await obtenerDatosUsuario(usuario.uid)
+      datosUsuario.value =
+        await obtenerDatosUsuario(
+          usuario.uid
+        )
+
+      // Solo tiene sentido consultar vínculos
+      // para cuentas de pacientes.
+      if (
+        datosUsuario.value?.rol === 'usuario'
+      ) {
+        await comprobarEquipoSalud(
+          usuario.uid
+        )
+      } else {
+        tieneEquipoSalud.value = false
+      }
     } else {
       datosUsuario.value = null
+      tieneEquipoSalud.value = false
     }
   })
 })
 
 // Se ejecuta cuando se abandona la página para detener la verificación del usuario
 onUnmounted(() => {
+  detenerCarruselAutomatico()
+
   if (detenerObservador) {
     detenerObservador()
   }
@@ -137,6 +259,7 @@ const cerrarSesion = async () => {
 
   usuarioActual.value = null
   datosUsuario.value = null
+  tieneEquipoSalud.value = false
 
   router.push('/')
 }
@@ -145,56 +268,93 @@ const cerrarSesion = async () => {
 const elementosMenu = [
   {
     titulo: 'Inicio',
-    icono: 'IN',
+    icono: iconCasa,
     idSeccion: 'inicio',
   },
   {
     titulo: 'Adolescencia y Adultez Temprana',
-    icono: 'AD',
+    icono: iconJovenes,
     idSeccion: 'adolescencia',
   },
   {
     titulo: 'Hábitos de Vida Saludable',
-    icono: 'HV',
+    icono: iconSalud,
     idSeccion: 'habitos',
   },
   {
     titulo: 'Riesgo Cardiometabólico',
-    icono: 'RC',
+    icono: iconRiesgo,
     idSeccion: 'riesgo-cardiometabolico',
   },
   {
     titulo: 'Diabetes Mellitus',
-    icono: 'DM',
+    icono: iconDiabetes,
     idSeccion: 'diabetes',
   },
   {
     titulo: 'Trastornos del Ritmo Cardíaco',
-    icono: 'TR',
+    icono: iconCardiaco,
     idSeccion: 'ritmo-cardiaco',
   },
   {
     titulo: 'Sobrepeso y Obesidad',
-    icono: 'SO',
+    icono: iconSobrepeso,
     idSeccion: 'sobrepeso',
   },
   {
     titulo: 'Salud Mental y Autocuidado',
-    icono: 'SM',
+    icono: iconEncuesta,
     idSeccion: 'salud-mental',
   },
   {
     titulo: 'Nuestra App',
-    icono: 'AP',
+    icono: logoPrincipal,
     idSeccion: 'nuestra-app',
   },
 ]
+
+// El acceso a "Mi equipo de salud" se agrega de manera
+// dinámica únicamente cuando existe un vínculo activo.
+const elementosMenuVisibles = computed(() => {
+  const menu = [...elementosMenu]
+
+  if (
+    usuarioActual.value &&
+    datosUsuario.value?.rol === 'usuario' &&
+    tieneEquipoSalud.value
+  ) {
+    const indiceNuestraApp =
+      menu.findIndex(
+        (elemento) =>
+          elemento.idSeccion ===
+          'nuestra-app'
+      )
+
+    const opcionEquipo = {
+      titulo: 'Mi equipo de salud',
+      icono: iconApp,
+      ruta: '/mi-equipo-salud',
+    }
+
+    if (indiceNuestraApp >= 0) {
+      menu.splice(
+        indiceNuestraApp,
+        0,
+        opcionEquipo
+      )
+    } else {
+      menu.push(opcionEquipo)
+    }
+  }
+
+  return menu
+})
 
 // Secciones informativas del temario
 const seccionesTemario = [
   {
     id: 'adolescencia',
-    icono: 'AD',
+    icono: iconJovenes,
     titulo: 'Adolescencia y Adultez Temprana',
     color: 'azul',
     parrafos: [
@@ -208,7 +368,7 @@ const seccionesTemario = [
   },
   {
     id: 'habitos',
-    icono: 'HV',
+    icono: iconSalud,
     titulo: 'Hábitos de Vida Saludable',
     color: 'verde',
     parrafos: [
@@ -221,7 +381,7 @@ const seccionesTemario = [
   },
   {
     id: 'riesgo-cardiometabolico',
-    icono: 'RC',
+    icono: iconRiesgo,
     titulo: 'Riesgo Cardiometabólico',
     color: 'azul',
     parrafos: [
@@ -232,7 +392,7 @@ const seccionesTemario = [
     imagenes: informacionTemario.riesgoCardiometabolico,
     tarjetas: [
       {
-        icono: 'RC',
+        icono: iconRiesgo,
         titulo: 'Riesgo Cardiovascular',
         texto: 'Conoce tu nivel de riesgo cardiometabólico',
         boton: 'Comenzar simulación',
@@ -243,7 +403,7 @@ const seccionesTemario = [
   },
   {
     id: 'diabetes',
-    icono: 'DM',
+    icono: iconDiabetes,
     titulo: 'Diabetes Mellitus',
     color: 'azul',
     parrafos: [
@@ -256,7 +416,7 @@ const seccionesTemario = [
   },
   {
     id: 'ritmo-cardiaco',
-    icono: 'TR',
+    icono: iconCardiaco,
     titulo: 'Trastornos del Ritmo Cardíaco',
     color: 'verde',
     parrafos: [
@@ -272,7 +432,7 @@ const seccionesTemario = [
   },
   {
     id: 'sobrepeso',
-    icono: 'SO',
+    icono: iconSobrepeso,
     titulo: 'Sobrepeso y Obesidad',
     color: 'cian',
     parrafos: [
@@ -301,7 +461,7 @@ const seccionesTemario = [
   },
   {
     id: 'salud-mental',
-    icono: 'SM',
+    icono: iconEncuesta,
     titulo: 'Salud Mental y Autocuidado',
     color: 'cian',
     parrafos: [
@@ -366,7 +526,10 @@ const irAlTemario = () => {
 const irASeccion = (idSeccion) => {
   seccionActiva.value = idSeccion
 
-  const seccion = document.getElementById(idSeccion)
+  const seccion =
+    document.getElementById(
+      idSeccion
+    )
 
   if (seccion) {
     seccion.scrollIntoView({
@@ -374,6 +537,132 @@ const irASeccion = (idSeccion) => {
       block: 'start',
     })
   }
+}
+
+// ==========================================================
+// CARRUSEL DE IMÁGENES
+// ==========================================================
+
+// Obtiene el índice actual de una sección.
+// Si todavía no existe, comienza en 0.
+const obtenerIndiceCarrusel = (seccionId) => {
+  return indiceCarrusel.value[seccionId] || 0
+}
+
+// Devuelve la imagen actualmente visible.
+const obtenerImagenCarrusel = (seccion) => {
+  if (
+    !seccion.imagenes ||
+    seccion.imagenes.length === 0
+  ) {
+    return null
+  }
+
+  const indice =
+    obtenerIndiceCarrusel(seccion.id)
+
+  return seccion.imagenes[indice]
+}
+
+// Avanza una imagen.
+// Al llegar a la última, vuelve a la primera.
+const siguienteImagen = (seccion) => {
+  if (
+    !seccion.imagenes ||
+    seccion.imagenes.length <= 1
+  ) {
+    return
+  }
+
+  const actual =
+    obtenerIndiceCarrusel(seccion.id)
+
+  indiceCarrusel.value = {
+    ...indiceCarrusel.value,
+    [seccion.id]:
+      (actual + 1) %
+      seccion.imagenes.length,
+  }
+}
+
+// Retrocede una imagen.
+// Si está en la primera, pasa a la última.
+const imagenAnterior = (seccion) => {
+  if (
+    !seccion.imagenes ||
+    seccion.imagenes.length <= 1
+  ) {
+    return
+  }
+
+  const actual =
+    obtenerIndiceCarrusel(seccion.id)
+
+  const total =
+    seccion.imagenes.length
+
+  indiceCarrusel.value = {
+    ...indiceCarrusel.value,
+    [seccion.id]:
+      (actual - 1 + total) %
+      total,
+  }
+}
+
+// Permite ir directamente a una imagen
+// desde los indicadores inferiores.
+const irAImagenCarrusel = (
+  seccionId,
+  indice
+) => {
+  indiceCarrusel.value = {
+    ...indiceCarrusel.value,
+    [seccionId]: indice,
+  }
+}
+
+
+// Inicia el cambio automático del carrusel.
+// Cada 4 segundos avanza todas las secciones
+// que tengan más de una imagen.
+const iniciarCarruselAutomatico = () => {
+  detenerCarruselAutomatico()
+
+  intervaloCarrusel = setInterval(() => {
+    seccionesTemario.forEach((seccion) => {
+      if (
+        seccion.imagenes &&
+        seccion.imagenes.length > 1
+      ) {
+        siguienteImagen(seccion)
+      }
+    })
+  }, 4000)
+}
+
+// Detiene el intervalo para evitar procesos duplicados.
+const detenerCarruselAutomatico = () => {
+  if (intervaloCarrusel) {
+    clearInterval(intervaloCarrusel)
+    intervaloCarrusel = null
+  }
+}
+
+
+// Algunas opciones del menú navegan a otra vista,
+// mientras que las demás siguen desplazándose
+// dentro del Home.
+const seleccionarElementoMenu = (
+  elemento
+) => {
+  if (elemento.ruta) {
+    router.push(elemento.ruta)
+    return
+  }
+
+  irASeccion(
+    elemento.idSeccion
+  )
 }
 
 // Función para abrir una tarjeta del temario
@@ -422,18 +711,35 @@ const abrirTarjeta = (tarjeta) => {
 
       <nav class="menu-lateral">
         <button
-          v-for="elemento in elementosMenu"
+          v-for="elemento in elementosMenuVisibles"
           :key="elemento.titulo"
           type="button"
           class="enlace-menu"
-          :class="{ activo: seccionActiva === elemento.idSeccion }"
-          @click="irASeccion(elemento.idSeccion)"
+          :class="{
+            activo:
+              !elemento.ruta &&
+              seccionActiva === elemento.idSeccion,
+            'enlace-equipo':
+              elemento.ruta === '/mi-equipo-salud',
+          }"
+          @click="seleccionarElementoMenu(elemento)"
         >
-          <span class="icono-menu">{{ elemento.icono }}</span>
-          <span>{{ elemento.titulo }}</span>
+          <span class="icono-menu">
+            <img
+              :src="elemento.icono"
+              :alt="elemento.titulo"
+            />
+          </span>
+
+          <span class="texto-menu">
+            {{ elemento.titulo }}
+          </span>
 
           <span
-            v-if="seccionActiva === elemento.idSeccion"
+            v-if="
+              !elemento.ruta &&
+              seccionActiva === elemento.idSeccion
+            "
             class="punto-activo"
           ></span>
         </button>
@@ -499,8 +805,26 @@ const abrirTarjeta = (tarjeta) => {
           class="bloque-tema"
         >
           <div class="titulo-seccion">
-            <span :class="seccion.color">{{ seccion.icono }}</span>
-            <h2>{{ seccion.titulo }}</h2>
+            <div
+              class="contenedor-icono-seccion"
+              :class="seccion.color"
+            >
+              <img
+                :src="seccion.icono"
+                :alt="seccion.titulo"
+                class="icono-seccion"
+              />
+            </div>
+
+            <div class="texto-titulo-seccion">
+              <span class="etiqueta-tema">
+                Tema informativo
+              </span>
+
+              <h2>
+                {{ seccion.titulo }}
+              </h2>
+            </div>
           </div>
 
           <div class="tarjeta-tema">
@@ -519,24 +843,88 @@ const abrirTarjeta = (tarjeta) => {
 
             <div
               v-if="seccion.imagenes && seccion.imagenes.length"
-              class="rejilla-imagenes"
+              class="carrusel-imagenes"
+              :class="{
+                'carrusel-ritmo':
+                  seccion.id === 'ritmo-cardiaco'
+              }"
             >
-              <div
-                v-for="imagen in seccion.imagenes"
-                :key="imagen.titulo || imagen.imagen"
-                class="contenido-imagen"
-              >
-                <img
-                  v-if="obtenerImagen(imagen)"
-                  :src="obtenerImagen(imagen)"
-                  :alt="imagen.titulo || 'Imagen informativa'"
-                  loading="lazy"
-                  @error="$event.target.style.display = 'none'"
-                />
+              <div class="carrusel-ventana">
 
-                <h3 v-if="imagen.titulo">{{ imagen.titulo }}</h3>
-                <p v-if="imagen.texto">{{ imagen.texto }}</p>
+                <button
+                  v-if="seccion.imagenes.length > 1"
+                  type="button"
+                  class="boton-carrusel anterior"
+                  :aria-label="`Imagen anterior de ${seccion.titulo}`"
+                  @click="imagenAnterior(seccion)"
+                >
+                  ‹
+                </button>
+
+
+                <div
+                  v-if="obtenerImagenCarrusel(seccion)"
+                  class="diapositiva-carrusel"
+                >
+                  <img
+                    v-if="
+                      obtenerImagen(
+                        obtenerImagenCarrusel(seccion)
+                      )
+                    "
+                    :src="
+                      obtenerImagen(
+                        obtenerImagenCarrusel(seccion)
+                      )
+                    "
+                    :alt="
+                      obtenerImagenCarrusel(seccion).titulo ||
+                      `Imagen de ${seccion.titulo}`
+                    "
+                    loading="lazy"
+                    @error="$event.target.style.display = 'none'"
+                  />
+                </div>
+
+
+                <button
+                  v-if="seccion.imagenes.length > 1"
+                  type="button"
+                  class="boton-carrusel siguiente"
+                  :aria-label="`Siguiente imagen de ${seccion.titulo}`"
+                  @click="siguienteImagen(seccion)"
+                >
+                  ›
+                </button>
+
               </div>
+
+
+              <div
+                v-if="seccion.imagenes.length > 1"
+                class="indicadores-carrusel"
+                :aria-label="`Imágenes de ${seccion.titulo}`"
+              >
+                <button
+                  v-for="(_, indice) in seccion.imagenes"
+                  :key="indice"
+                  type="button"
+                  class="indicador-carrusel"
+                  :class="{
+                    activo:
+                      obtenerIndiceCarrusel(seccion.id) ===
+                      indice
+                  }"
+                  :aria-label="`Ver imagen ${indice + 1}`"
+                  @click="
+                    irAImagenCarrusel(
+                      seccion.id,
+                      indice
+                    )
+                  "
+                ></button>
+              </div>
+
             </div>
 
             <div
@@ -558,6 +946,11 @@ const abrirTarjeta = (tarjeta) => {
 
         <section id="nuestra-app" class="seccion-app">
           <div class="contenido-app">
+            <img
+              :src="iconApp"
+              alt="Nuestra App"
+              class="icono-app-seccion"
+            />
             <span class="etiqueta-app">Disponible ahora</span>
 
             <h2>
@@ -577,16 +970,11 @@ const abrirTarjeta = (tarjeta) => {
           </div>
 
           <div class="vista-celular">
-            <div class="pantalla-celular">
-              <div class="encabezado-celular">
-                <span>Hola</span>
-                <strong>Tu progreso de hoy</strong>
-                <h3>75%</h3>
-              </div>
-
-              <div class="tarjeta-celular">Autocuidado</div>
-              <div class="tarjeta-celular">Hábitos</div>
-            </div>
+            <img
+              :src="appPreview"
+              alt="Vista previa de la aplicación Vibra la Vida"
+              class="imagen-app-preview"
+            />
           </div>
         </section>
       </section>

@@ -1017,3 +1017,46 @@
     width: 100%;
   }
 }
+
+
+/* =========================================
+   REQUISITOS DE CONTRASEÑA
+   ========================================= */
+
+.requisitos-contrasena {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 7px 10px;
+
+  margin-top: 2px;
+
+  padding: 11px 12px;
+
+  border: 1px solid #e3eaee;
+  border-radius: 12px;
+
+  background: #f8fbfb;
+}
+
+.requisitos-contrasena span {
+  color: #94a3b8;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  transition:
+    color 0.2s ease;
+}
+
+.requisitos-contrasena span.cumplido {
+  color: #16834a;
+}
+
+@media (max-width: 640px) {
+  .requisitos-contrasena {
+    grid-template-columns: 1fr;
+  }
+}

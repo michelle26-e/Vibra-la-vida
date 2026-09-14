@@ -1,10 +1,10 @@
 <script setup>
 // ==========================================================
-// PANEL DEL DOCTOR - VIBRA LA VIDA
+// PANEL PROFESIONAL - VIBRA LA VIDA
 // ==========================================================
 // En esta etapa:
 // 1. El panel NO muestra pacientes de ejemplo.
-// 2. "Mi cuenta" se trabaja dentro del panel del doctor.
+// 2. "Mi cuenta" se trabaja dentro del panel profesional.
 // 3. Los datos profesionales se leen y guardan en Firestore.
 // ==========================================================
 
@@ -36,7 +36,7 @@ const mensajeErrorCuenta = ref('')
 let detenerObservador = null
 
 // ----------------------------------------------------------
-// USUARIO DOCTOR
+// USUARIO PROFESIONAL
 // ----------------------------------------------------------
 
 const doctorActual = ref(null)
@@ -45,8 +45,10 @@ const datosDoctor = ref({
   uid: '',
   nombreCompleto: '',
   correo: '',
+  profesionRegistrada: '',
   especialidad: '',
   cedulaProfesional: '',
+  formacionAdicional: [],
   tieneConsultorio: false,
   consultorio: {
     ubicacion: '',
@@ -61,6 +63,7 @@ const formularioDoctor = ref({
   nombreCompleto: '',
   especialidad: '',
   cedulaProfesional: '',
+  formacionAdicional: [],
   tieneConsultorio: false,
   ubicacion: '',
   horarioAtencion: '',
@@ -68,6 +71,36 @@ const formularioDoctor = ref({
 })
 
 const erroresCuenta = ref({})
+
+const mostrarFormularioFormacion = ref(false)
+const guardandoFormacion = ref(false)
+
+const formularioFormacion = ref({
+  tipo: 'Maestría',
+  nombre: '',
+  institucion: '',
+  anio: '',
+  tieneCedula: false,
+  cedulaProfesional: '',
+})
+
+const erroresFormacion = ref({})
+
+const estadoCedulaFormacion = ref('sin-verificar')
+// sin-verificar | verificando | verificada | no-encontrada
+
+const mensajeCedulaFormacion = ref('')
+const datosCedulaFormacion = ref(null)
+
+const tiposFormacion = [
+  'Especialidad',
+  'Subespecialidad',
+  'Maestría',
+  'Doctorado',
+  'Diplomado',
+  'Certificación',
+  'Otro',
+]
 
 // ----------------------------------------------------------
 // PACIENTES
@@ -105,7 +138,14 @@ const nombreProfesional = computed(() => {
 })
 
 const especialidadProfesional = computed(() => {
-  return datosDoctor.value.especialidad || 'Especialidad no registrada'
+  return datosDoctor.value.especialidad || 'No especificada'
+})
+
+const profesionRegistrada = computed(() => {
+  return (
+    datosDoctor.value.profesionRegistrada ||
+    'Profesión no registrada'
+  )
 })
 
 const cedulaProfesional = computed(() => {
@@ -165,8 +205,13 @@ const cargarCuentaDoctor = async (usuario) => {
 
     const datos = documento.data()
 
-    // Protección básica: el panel debe usarse con una cuenta doctor.
-    if (datos.rol !== 'doctor') {
+    // El panel acepta cuentas profesionales nuevas
+    // y también cuentas antiguas con rol "doctor".
+    const esProfesional =
+      datos.rol === 'profesional_salud' ||
+      datos.rol === 'doctor'
+
+    if (!esProfesional) {
       await cerrarSesionUsuario()
       router.push('/iniciar-sesion')
       return
@@ -176,8 +221,13 @@ const cargarCuentaDoctor = async (usuario) => {
       uid: usuario.uid,
       nombreCompleto: datos.nombreCompleto || '',
       correo: datos.correo || usuario.email || '',
+      profesionRegistrada:
+        datos.profesionRegistrada || '',
       especialidad: datos.especialidad || '',
       cedulaProfesional: datos.cedulaProfesional || '',
+      formacionAdicional: Array.isArray(datos.formacionAdicional)
+        ? datos.formacionAdicional
+        : [],
       tieneConsultorio: Boolean(datos.tieneConsultorio),
       consultorio: {
         ubicacion: datos.consultorio?.ubicacion || '',
@@ -187,7 +237,7 @@ const cargarCuentaDoctor = async (usuario) => {
       },
     }
   } catch (error) {
-    console.error('Error al cargar la cuenta del doctor:', error)
+    console.error('Error al cargar la cuenta profesional:', error)
 
     mensajeErrorCuenta.value =
       'No se pudo cargar la información de la cuenta.'
@@ -363,7 +413,7 @@ const guardarCuentaDoctor = async () => {
       'Información profesional actualizada correctamente.'
   } catch (error) {
     console.error(
-      'Error al guardar la cuenta del doctor:',
+      'Error al guardar la cuenta profesional:',
       error
     )
 
@@ -373,6 +423,328 @@ const guardarCuentaDoctor = async () => {
     guardandoCuenta.value = false
   }
 }
+
+// ----------------------------------------------------------
+// FORMACIÓN ACADÉMICA ADICIONAL
+// ----------------------------------------------------------
+
+const abrirFormularioFormacion = () => {
+  formularioFormacion.value = {
+    tipo: 'Maestría',
+    nombre: '',
+    institucion: '',
+    anio: '',
+    tieneCedula: false,
+    cedulaProfesional: '',
+  }
+
+  erroresFormacion.value = {}
+  estadoCedulaFormacion.value = 'sin-verificar'
+  mensajeCedulaFormacion.value = ''
+  datosCedulaFormacion.value = null
+
+  mostrarFormularioFormacion.value = true
+}
+
+
+const cancelarFormacion = () => {
+  mostrarFormularioFormacion.value = false
+  erroresFormacion.value = {}
+  estadoCedulaFormacion.value = 'sin-verificar'
+  mensajeCedulaFormacion.value = ''
+  datosCedulaFormacion.value = null
+}
+
+
+const alCambiarCedulaFormacion = () => {
+  formularioFormacion.value.cedulaProfesional =
+    formularioFormacion.value.cedulaProfesional
+      .replace(/\D/g, '')
+
+  estadoCedulaFormacion.value = 'sin-verificar'
+  mensajeCedulaFormacion.value = ''
+  datosCedulaFormacion.value = null
+
+  if (erroresFormacion.value.cedulaProfesional) {
+    delete erroresFormacion.value.cedulaProfesional
+  }
+}
+
+
+const quitarCedulaFormacion = () => {
+  formularioFormacion.value.tieneCedula = false
+  formularioFormacion.value.cedulaProfesional = ''
+
+  estadoCedulaFormacion.value = 'sin-verificar'
+  mensajeCedulaFormacion.value = ''
+  datosCedulaFormacion.value = null
+
+  if (erroresFormacion.value.cedulaProfesional) {
+    delete erroresFormacion.value.cedulaProfesional
+  }
+}
+
+
+const verificarCedulaFormacion = async () => {
+  const cedula =
+    formularioFormacion.value.cedulaProfesional.trim()
+
+  const nombreCompleto =
+    datosDoctor.value.nombreCompleto.trim()
+
+  mensajeCedulaFormacion.value = ''
+  datosCedulaFormacion.value = null
+
+  if (!/^\d{7,8}$/.test(cedula)) {
+    estadoCedulaFormacion.value = 'no-encontrada'
+
+    erroresFormacion.value.cedulaProfesional =
+      'La cédula debe contener 7 u 8 dígitos.'
+
+    return
+  }
+
+  delete erroresFormacion.value.cedulaProfesional
+
+  estadoCedulaFormacion.value = 'verificando'
+
+  try {
+    const respuesta = await fetch(
+      'http://localhost:3001/api/doctores/verificar-cedula',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cedula,
+          nombreCompleto,
+        }),
+      }
+    )
+
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok || !datos.valida) {
+      estadoCedulaFormacion.value = 'no-encontrada'
+
+      mensajeCedulaFormacion.value =
+        datos.mensaje ||
+        'No fue posible verificar esta cédula.'
+
+      return
+    }
+
+    estadoCedulaFormacion.value = 'verificada'
+    datosCedulaFormacion.value = datos.profesional
+
+    mensajeCedulaFormacion.value =
+      'Cédula de esta formación verificada correctamente.'
+  } catch (error) {
+    console.error(
+      'Error al verificar cédula de formación:',
+      error
+    )
+
+    estadoCedulaFormacion.value = 'no-encontrada'
+    mensajeCedulaFormacion.value =
+      'No se pudo conectar con el servicio de verificación.'
+  }
+}
+
+
+const validarFormacion = () => {
+  const errores = {}
+
+  if (!formularioFormacion.value.tipo) {
+    errores.tipo =
+      'Selecciona el tipo de formación.'
+  }
+
+  if (!formularioFormacion.value.nombre.trim()) {
+    errores.nombre =
+      'Ingresa el nombre del estudio o formación.'
+  }
+
+  if (!formularioFormacion.value.institucion.trim()) {
+    errores.institucion =
+      'Ingresa la institución.'
+  }
+
+  const anio =
+    formularioFormacion.value.anio.trim()
+
+  if (
+    anio &&
+    !/^\d{4}$/.test(anio)
+  ) {
+    errores.anio =
+      'Ingresa un año válido de 4 dígitos.'
+  }
+
+  if (formularioFormacion.value.tieneCedula) {
+    const cedula =
+      formularioFormacion.value.cedulaProfesional.trim()
+
+    if (!cedula) {
+      errores.cedulaProfesional =
+        'Ingresa la cédula de esta formación.'
+    } else if (!/^\d{7,8}$/.test(cedula)) {
+      errores.cedulaProfesional =
+        'La cédula debe contener 7 u 8 dígitos.'
+    } else if (
+      estadoCedulaFormacion.value !== 'verificada'
+    ) {
+      errores.cedulaProfesional =
+        'Verifica esta cédula antes de guardar.'
+    }
+  }
+
+  erroresFormacion.value = errores
+
+  return Object.keys(errores).length === 0
+}
+
+
+const guardarFormacion = async () => {
+  if (!validarFormacion()) {
+    return
+  }
+
+  const usuario = auth.currentUser
+
+  if (!usuario) {
+    mensajeErrorCuenta.value =
+      'Tu sesión terminó. Inicia sesión nuevamente.'
+    return
+  }
+
+  guardandoFormacion.value = true
+
+  try {
+    const nuevaFormacion = {
+      id: `${Date.now()}`,
+
+      tipo:
+        formularioFormacion.value.tipo,
+
+      nombre:
+        formularioFormacion.value.nombre.trim(),
+
+      institucion:
+        formularioFormacion.value.institucion.trim(),
+
+      anio:
+        formularioFormacion.value.anio.trim() || null,
+
+      tieneCedula:
+        formularioFormacion.value.tieneCedula,
+
+      cedulaProfesional:
+        formularioFormacion.value.tieneCedula
+          ? formularioFormacion.value.cedulaProfesional.trim()
+          : null,
+
+      verificada:
+        formularioFormacion.value.tieneCedula
+          ? estadoCedulaFormacion.value === 'verificada'
+          : false,
+
+      profesionRegistrada:
+        formularioFormacion.value.tieneCedula
+          ? datosCedulaFormacion.value?.profesion || null
+          : null,
+
+      institucionRegistro:
+        formularioFormacion.value.tieneCedula
+          ? datosCedulaFormacion.value?.institucion || null
+          : null,
+    }
+
+    const nuevaLista = [
+      ...datosDoctor.value.formacionAdicional,
+      nuevaFormacion,
+    ]
+
+    await setDoc(
+      doc(db, 'usuarios', usuario.uid),
+      {
+        formacionAdicional: nuevaLista,
+      },
+      {
+        merge: true,
+      }
+    )
+
+    datosDoctor.value.formacionAdicional =
+      nuevaLista
+
+    mensajeCuenta.value =
+      'Formación académica agregada correctamente.'
+
+    cancelarFormacion()
+  } catch (error) {
+    console.error(
+      'Error al guardar formación adicional:',
+      error
+    )
+
+    mensajeErrorCuenta.value =
+      'No se pudo guardar la formación académica.'
+  } finally {
+    guardandoFormacion.value = false
+  }
+}
+
+
+const eliminarFormacion = async (id) => {
+  const usuario = auth.currentUser
+
+  if (!usuario) {
+    return
+  }
+
+  const confirmar = window.confirm(
+    '¿Deseas eliminar esta formación académica?'
+  )
+
+  if (!confirmar) {
+    return
+  }
+
+  try {
+    const nuevaLista =
+      datosDoctor.value.formacionAdicional.filter(
+        (formacion) =>
+          formacion.id !== id
+      )
+
+    await setDoc(
+      doc(db, 'usuarios', usuario.uid),
+      {
+        formacionAdicional: nuevaLista,
+      },
+      {
+        merge: true,
+      }
+    )
+
+    datosDoctor.value.formacionAdicional =
+      nuevaLista
+
+    mensajeCuenta.value =
+      'Formación eliminada correctamente.'
+  } catch (error) {
+    console.error(
+      'Error al eliminar formación:',
+      error
+    )
+
+    mensajeErrorCuenta.value =
+      'No se pudo eliminar la formación.'
+  }
+}
+
 
 // ----------------------------------------------------------
 // CERRAR SESIÓN
@@ -537,7 +909,7 @@ onUnmounted(() => {
             </span>
 
             <h1>
-              Bienvenido, {{ primerNombreDoctor }}
+              Te damos la bienvenida, {{ primerNombreDoctor }}
             </h1>
 
             <p>
@@ -847,7 +1219,18 @@ onUnmounted(() => {
 
                 <div class="dato-doctor">
                   <span>
-                    Especialidad
+                    Profesión registrada
+                  </span>
+
+                  <strong>
+                    {{ profesionRegistrada }}
+                  </strong>
+                </div>
+
+
+                <div class="dato-doctor">
+                  <span>
+                    Especialidad / área de atención
                   </span>
 
                   <strong>
@@ -867,6 +1250,407 @@ onUnmounted(() => {
                 </div>
 
               </div>
+
+            </article>
+
+
+            <article class="tarjeta-formacion">
+
+              <div class="cabecera-formacion">
+
+                <div>
+                  <span class="mini-etiqueta-doctor">
+                    Formación académica adicional
+                  </span>
+
+                  <h2>
+                    Estudios y certificaciones
+                  </h2>
+
+                  <p>
+                    Agrega maestrías, especialidades,
+                    doctorados, diplomados o certificaciones.
+                  </p>
+                </div>
+
+
+                <button
+                  v-if="!mostrarFormularioFormacion"
+                  type="button"
+                  class="boton-agregar-formacion"
+                  @click="abrirFormularioFormacion"
+                >
+                  + Agregar formación
+                </button>
+
+              </div>
+
+
+              <div
+                v-if="
+                  datosDoctor.formacionAdicional.length > 0
+                "
+                class="lista-formacion"
+              >
+
+                <article
+                  v-for="
+                    formacion in datosDoctor.formacionAdicional
+                  "
+                  :key="formacion.id"
+                  class="item-formacion"
+                >
+
+                  <div class="contenido-formacion">
+
+                    <div class="fila-tipo-formacion">
+
+                      <span class="tipo-formacion">
+                        {{ formacion.tipo }}
+                      </span>
+
+                      <span
+                        class="estado-formacion"
+                        :class="{
+                          verificada:
+                            formacion.verificada
+                        }"
+                      >
+                        {{
+                          formacion.verificada
+                            ? 'Verificada'
+                            : 'Información proporcionada'
+                        }}
+                      </span>
+
+                    </div>
+
+
+                    <h3>
+                      {{ formacion.nombre }}
+                    </h3>
+
+
+                    <p>
+                      {{ formacion.institucion }}
+                    </p>
+
+
+                    <div class="meta-formacion">
+
+                      <span v-if="formacion.anio">
+                        {{ formacion.anio }}
+                      </span>
+
+                      <span
+                        v-if="
+                          formacion.cedulaProfesional
+                        "
+                      >
+                        Cédula:
+                        {{ formacion.cedulaProfesional }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <button
+                    type="button"
+                    class="boton-eliminar-formacion"
+                    @click="
+                      eliminarFormacion(formacion.id)
+                    "
+                  >
+                    Eliminar
+                  </button>
+
+                </article>
+
+              </div>
+
+
+              <div
+                v-else-if="
+                  !mostrarFormularioFormacion
+                "
+                class="sin-formacion"
+              >
+                <p>
+                  Aún no has agregado formación académica
+                  adicional.
+                </p>
+              </div>
+
+
+              <form
+                v-if="mostrarFormularioFormacion"
+                class="formulario-formacion"
+                @submit.prevent="guardarFormacion"
+              >
+
+                <div class="rejilla-formacion">
+
+                  <div class="grupo-campo-doctor">
+
+                    <label for="tipoFormacion">
+                      Tipo de formación
+                    </label>
+
+                    <select
+                      id="tipoFormacion"
+                      v-model="
+                        formularioFormacion.tipo
+                      "
+                    >
+                      <option
+                        v-for="tipo in tiposFormacion"
+                        :key="tipo"
+                        :value="tipo"
+                      >
+                        {{ tipo }}
+                      </option>
+                    </select>
+
+                  </div>
+
+
+                  <div class="grupo-campo-doctor">
+
+                    <label for="nombreFormacion">
+                      Nombre
+                    </label>
+
+                    <input
+                      id="nombreFormacion"
+                      v-model="
+                        formularioFormacion.nombre
+                      "
+                      type="text"
+                      placeholder="Ej. Nutrición Clínica"
+                    />
+
+                    <small
+                      v-if="
+                        erroresFormacion.nombre
+                      "
+                    >
+                      {{ erroresFormacion.nombre }}
+                    </small>
+
+                  </div>
+
+
+                  <div class="grupo-campo-doctor">
+
+                    <label for="institucionFormacion">
+                      Institución
+                    </label>
+
+                    <input
+                      id="institucionFormacion"
+                      v-model="
+                        formularioFormacion.institucion
+                      "
+                      type="text"
+                      placeholder="Universidad o institución"
+                    />
+
+                    <small
+                      v-if="
+                        erroresFormacion.institucion
+                      "
+                    >
+                      {{ erroresFormacion.institucion }}
+                    </small>
+
+                  </div>
+
+
+                  <div class="grupo-campo-doctor">
+
+                    <label for="anioFormacion">
+                      Año
+                    </label>
+
+                    <input
+                      id="anioFormacion"
+                      v-model="
+                        formularioFormacion.anio
+                      "
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="4"
+                      placeholder="Ej. 2024"
+                    />
+
+                    <small
+                      v-if="
+                        erroresFormacion.anio
+                      "
+                    >
+                      {{ erroresFormacion.anio }}
+                    </small>
+
+                  </div>
+
+                </div>
+
+
+                <div class="bloque-cedula-formacion">
+
+                  <div class="encabezado-cedula-formacion">
+
+                    <div>
+                      <strong>
+                        ¿Esta formación tiene cédula profesional?
+                      </strong>
+
+                      <span>
+                        Si cuenta con una cédula propia,
+                        también podemos verificarla.
+                      </span>
+                    </div>
+
+
+                    <div class="opciones-consultorio">
+
+                      <button
+                        type="button"
+                        :class="{
+                          activo:
+                            formularioFormacion.tieneCedula
+                        }"
+                        @click="
+                          formularioFormacion.tieneCedula = true
+                        "
+                      >
+                        Sí
+                      </button>
+
+                      <button
+                        type="button"
+                        :class="{
+                          activo:
+                            !formularioFormacion.tieneCedula
+                        }"
+                        @click="quitarCedulaFormacion"
+                      >
+                        No
+                      </button>
+
+                    </div>
+
+                  </div>
+
+
+                  <div
+                    v-if="
+                      formularioFormacion.tieneCedula
+                    "
+                    class="fila-cedula-formacion"
+                  >
+
+                    <div class="grupo-campo-doctor">
+
+                      <label for="cedulaFormacion">
+                        Cédula profesional
+                      </label>
+
+                      <input
+                        id="cedulaFormacion"
+                        v-model="
+                          formularioFormacion.cedulaProfesional
+                        "
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="8"
+                        placeholder="7 u 8 dígitos"
+                        @input="alCambiarCedulaFormacion"
+                      />
+
+                      <small
+                        v-if="
+                          erroresFormacion.cedulaProfesional
+                        "
+                      >
+                        {{
+                          erroresFormacion.cedulaProfesional
+                        }}
+                      </small>
+
+                    </div>
+
+
+                    <button
+                      type="button"
+                      class="boton-verificar-formacion"
+                      :disabled="
+                        estadoCedulaFormacion === 'verificando' ||
+                        !formularioFormacion.cedulaProfesional
+                      "
+                      @click="verificarCedulaFormacion"
+                    >
+                      {{
+                        estadoCedulaFormacion === 'verificando'
+                          ? 'Verificando...'
+                          : estadoCedulaFormacion === 'verificada'
+                            ? 'Verificada'
+                            : 'Verificar cédula'
+                      }}
+                    </button>
+
+                  </div>
+
+
+                  <div
+                    v-if="
+                      estadoCedulaFormacion !== 'sin-verificar'
+                    "
+                    class="mensaje-verificacion-formacion"
+                    :class="estadoCedulaFormacion"
+                  >
+                    {{
+                      mensajeCedulaFormacion ||
+                      (
+                        estadoCedulaFormacion === 'verificando'
+                          ? 'Consultando cédula...'
+                          : ''
+                      )
+                    }}
+                  </div>
+
+                </div>
+
+
+                <div class="acciones-formacion">
+
+                  <button
+                    type="button"
+                    class="boton-cancelar-doctor"
+                    :disabled="guardandoFormacion"
+                    @click="cancelarFormacion"
+                  >
+                    Cancelar
+                  </button>
+
+
+                  <button
+                    type="submit"
+                    class="boton-guardar-doctor"
+                    :disabled="guardandoFormacion"
+                  >
+                    {{
+                      guardandoFormacion
+                        ? 'Guardando...'
+                        : 'Guardar formación'
+                    }}
+                  </button>
+
+                </div>
+
+              </form>
 
             </article>
 
@@ -1048,7 +1832,7 @@ onUnmounted(() => {
                 <div class="grupo-campo-doctor">
 
                   <label for="especialidadDoctor">
-                    Especialidad o subespecialidad
+                    Especialidad o área de atención
                   </label>
 
                   <input
@@ -1057,7 +1841,7 @@ onUnmounted(() => {
                       formularioDoctor.especialidad
                     "
                     type="text"
-                    placeholder="Ej. Cardiología"
+                    placeholder="Ej. Cardiología, Nutrición clínica, Psicología..."
                   />
 
                   <small

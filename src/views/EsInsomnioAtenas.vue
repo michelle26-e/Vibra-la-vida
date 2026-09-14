@@ -3,6 +3,7 @@
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { guardarResultadoBienestar } from '../services/resultadosService'
+import BotonVolver from '../components/BotonVolver.vue'
 
 // Guardamos las respuestas del usuario en un objeto
 const respuestas = ref({})
@@ -190,7 +191,7 @@ const guardarResultadoAtenas = async () => {
 
     if (error.message?.includes('iniciar sesión')) {
       mensajeGuardado.value =
-        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+        '¿Quieres guardar este resultado? Inicia sesión en tu cuenta para conservarlo.'
       return
     }
 

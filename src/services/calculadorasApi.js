@@ -1,54 +1,81 @@
-// Dirección de la API de las calculadoras
-const API_URL =
-  import.meta.env.VITE_CALCULADORAS_API_URL || 'http://localhost:3001/api'
+// ==========================================================
+// SERVICIO DE CALCULADORAS - VIBRA LA VIDA
+// ==========================================================
 
-// Revisa la respuesta que manda la API
-const manejarRespuesta = async (respuesta) => {
-  let datos = null
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:3001'
+
+const realizarPeticion = async (ruta, datos) => {
+  const respuesta = await fetch(
+    `${API_URL}${ruta}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(datos),
+    }
+  )
+
+  let contenido = null
 
   try {
-    // Convierte la respuesta a JSON
-    datos = await respuesta.json()
+    contenido = await respuesta.json()
   } catch {
-    throw new Error('La API no respondió con un formato válido.')
+    contenido = null
   }
 
-  // Si la respuesta trae error, lo muestra
   if (!respuesta.ok) {
     const error = new Error(
-      datos?.mensaje || 'Ocurrió un error al consultar la API.',
+      contenido?.mensaje ||
+      'No se pudo completar la operación.'
     )
 
-    error.errores = datos?.errores || {}
+    error.errores =
+      contenido?.errores || null
+
+    error.status =
+      respuesta.status
+
     throw error
   }
 
-  // Regresa los datos correctos
-  return datos
+  return contenido
 }
 
-// Envía los datos para calcular el IMC
-export const calcularIMCApi = async (datosFormulario) => {
-  const respuesta = await fetch(`${API_URL}/imc`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(datosFormulario),
-  })
-
-  return manejarRespuesta(respuesta)
+export const calcularIMCApi = async ({
+  edad,
+  peso,
+  altura,
+  genero,
+}) => {
+  return realizarPeticion(
+    '/api/calculadoras/imc',
+    {
+      edad,
+      peso,
+      altura,
+      genero,
+    }
+  )
 }
 
-// Envía los datos para calcular las calorías
-export const calcularCaloriasApi = async (datosFormulario) => {
-  const respuesta = await fetch(`${API_URL}/calorias`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(datosFormulario),
-  })
-
-  return manejarRespuesta(respuesta)
+export const calcularCaloriasApi = async ({
+  sexo,
+  edad,
+  peso,
+  altura,
+  actividad,
+}) => {
+  return realizarPeticion(
+    '/api/calculadoras/calorias',
+    {
+      sexo,
+      edad,
+      peso,
+      altura,
+      actividad,
+    }
+  )
 }

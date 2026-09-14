@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { calcularCaloriasApi } from '../services/calculadorasApi'
 import { guardarResultadoBienestar } from '../services/resultadosService'
+import BotonVolver from '../components/BotonVolver.vue'
 
 // Guardamos los datos que el usuario ingresa en el formulario
 const formulario = ref({
@@ -124,7 +125,7 @@ const guardarResultadoCalorias = async () => {
 
     if (error.message?.includes('iniciar sesión')) {
       mensajeGuardado.value =
-        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+        '¿Quieres guardar este resultado? Inicia sesión en tu cuenta para conservarlo.'
       return
     }
 
@@ -179,9 +180,7 @@ const calcularCalorias = async () => {
 
 <template>
   <main class="pagina-calorias">
-    <RouterLink to="/" class="boton-regresar">
-      ← Volver al Inicio
-    </RouterLink>
+    <BotonVolver />
 
     <section class="contenedor-calorias">
       <header class="encabezado-calorias">

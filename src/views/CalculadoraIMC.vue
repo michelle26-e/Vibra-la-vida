@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { calcularIMCApi } from '../services/calculadorasApi'
 import { guardarResultadoBienestar } from '../services/resultadosService'
+import BotonVolver from '../components/BotonVolver.vue'
 
 // Guardamos los datos que ingresa el usuario (edad, peso, altura, género)
 const formulario = ref({
@@ -100,7 +101,7 @@ const guardarResultadoIMC = async () => {
 
     if (error.message?.includes('iniciar sesión')) {
       mensajeGuardado.value =
-        'Resultado calculado. Inicia sesión para guardar este resultado en Mi cuenta.'
+        '¿Quieres guardar este resultado? Inicia sesión en tu cuenta para conservarlo.'
       return
     }
 
@@ -157,9 +158,7 @@ const calcularIMC = async () => {
 
 <template>
   <main class="pagina-imc">
-    <RouterLink to="/" class="boton-regresar">
-      ← Volver al Inicio
-    </RouterLink>
+    <BotonVolver />
 
     <section class="contenedor-imc">
       <div class="columna-formulario">

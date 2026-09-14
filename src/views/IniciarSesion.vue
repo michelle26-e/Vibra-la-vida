@@ -14,7 +14,7 @@ import {
 
 // Mascotas de Vibra la Vida
 import ajolotePaciente from '../assets/ajolotenormal.png'
-import ajoloteDoctor from '../assets/ajolotedoctor.png'
+import ajoloteProfesional from '../assets/ajolotedoctor.png'
 
 
 const router = useRouter()
@@ -176,7 +176,7 @@ const iniciarSesion = async () => {
       if (rol !== 'usuario') {
 
         mensaje.value =
-          'Esta cuenta pertenece a un doctor. Selecciona "Soy doctor" para iniciar sesión.'
+          'Esta cuenta pertenece a un profesional de la salud. Selecciona "Soy profesional de la salud" para iniciar sesión.'
 
         tipoMensaje.value = 'error'
 
@@ -206,13 +206,18 @@ const iniciarSesion = async () => {
 
 
     // ========================================
-    // ACCESO COMO DOCTOR
+    // ACCESO COMO PROFESIONAL DE LA SALUD
     // ========================================
 
-    if (tipoCuenta.value === 'doctor') {
+    if (tipoCuenta.value === 'profesional') {
 
-      // La cuenta debe tener rol doctor
-      if (rol !== 'doctor') {
+      // Aceptamos el rol nuevo y temporalmente el rol antiguo
+      // para que las cuentas creadas antes del cambio sigan funcionando.
+      const esProfesional =
+        rol === 'profesional_salud' ||
+        rol === 'doctor'
+
+      if (!esProfesional) {
 
         mensaje.value =
           'Esta cuenta pertenece a un paciente. Selecciona "Soy paciente" para iniciar sesión.'
@@ -338,8 +343,8 @@ const iniciarSesion = async () => {
         <p class="descripcion-login">
 
           {{
-            tipoCuenta === 'doctor'
-              ? 'Ingresa a tu cuenta profesional para gestionar a tus pacientes.'
+            tipoCuenta === 'profesional'
+              ? 'Ingresa a tu cuenta profesional para continuar con tu seguimiento y atención.'
               : 'Ingresa a tu cuenta para continuar con tu seguimiento de bienestar.'
           }}
 
@@ -347,7 +352,7 @@ const iniciarSesion = async () => {
 
 
         <!-- =================================
-             SELECTOR PACIENTE / DOCTOR
+             SELECTOR PACIENTE / PROFESIONAL
              ================================= -->
 
         <div class="selector-tipo-login">
@@ -370,13 +375,13 @@ const iniciarSesion = async () => {
             type="button"
             :class="{
               activo:
-                tipoCuenta === 'doctor'
+                tipoCuenta === 'profesional'
             }"
             @click="
-              seleccionarTipoCuenta('doctor')
+              seleccionarTipoCuenta('profesional')
             "
           >
-            Soy doctor
+            Soy profesional de la salud
           </button>
 
         </div>
@@ -507,8 +512,8 @@ const iniciarSesion = async () => {
             {{
               cargando
                 ? 'Iniciando sesión...'
-                : tipoCuenta === 'doctor'
-                  ? 'Entrar como doctor'
+                : tipoCuenta === 'profesional'
+                  ? 'Entrar como profesional'
                   : 'Entrar como paciente'
             }}
 
@@ -570,12 +575,12 @@ const iniciarSesion = async () => {
 
         <img
           :src="
-            tipoCuenta === 'doctor'
-              ? ajoloteDoctor
+            tipoCuenta === 'profesional'
+              ? ajoloteProfesional
               : ajolotePaciente
           "
           :alt="
-            tipoCuenta === 'doctor'
+            tipoCuenta === 'profesional'
               ? 'Ajolote doctor de Vibra la Vida'
               : 'Ajolote de Vibra la Vida'
           "
@@ -590,7 +595,7 @@ const iniciarSesion = async () => {
         <h2>
 
           {{
-            tipoCuenta === 'doctor'
+            tipoCuenta === 'profesional'
               ? 'El seguimiento de tus pacientes en un solo lugar.'
               : 'Tu bienestar es una prioridad, no una opción.'
           }}
@@ -601,7 +606,7 @@ const iniciarSesion = async () => {
         <p>
 
           {{
-            tipoCuenta === 'doctor'
+            tipoCuenta === 'profesional'
               ? 'Consulta pacientes, resultados y herramientas de seguimiento desde Vibra la Vida.'
               : 'Continúa con tus herramientas, evaluaciones y recursos personalizados para cuidar tu bienestar.'
           }}

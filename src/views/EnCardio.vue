@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { auth } from '../firebase/firebaseConfig'
 import { guardarResultadoBienestar } from '../services/resultadosService'
+import BotonVolver from '../components/BotonVolver.vue'
 
 // Guardamos la información que ingresa el usuario para calcular el riesgo cardiovascular
 const formulario = ref({
@@ -191,9 +192,7 @@ const calcularNuevamente = () => {
 
 <template>
   <main class="pagina-riesgo">
-    <RouterLink to="/" class="boton-regresar">
-      ← Volver al Inicio
-    </RouterLink>
+    <BotonVolver />
 
     <section class="contenedor-riesgo">
       <header class="encabezado-riesgo">
