@@ -1,0 +1,1053 @@
+// ==========================================================
+// CONTROLADOR DE CITAS - VIBRA LA VIDA
+// ==========================================================
+
+const {
+  db,
+  FieldValue,
+} = require('../config/firebase')
+
+
+// ----------------------------------------------------------
+// OBTENER USUARIO AUTENTICADO DESDE FIRESTORE
+// ----------------------------------------------------------
+
+const obtenerUsuarioActual = async (uid) => {
+  const ref = db.collection('usuarios').doc(uid)
+  const snap = await ref.get()
+
+  if (!snap.exists) {
+    return null
+  }
+
+  return {
+    id: snap.id,
+    ...snap.data(),
+  }
+}
+
+
+// ----------------------------------------------------------
+// COMPROBAR SI ES PROFESIONAL DE SALUD
+// ----------------------------------------------------------
+
+const esProfesionalSalud = (usuario) => {
+  return (
+    usuario?.rol === 'profesional_salud' ||
+    usuario?.rol === 'doctor'
+  )
+}
+
+
+// ----------------------------------------------------------
+// COMPROBAR SI ES PACIENTE
+// ----------------------------------------------------------
+
+const esPaciente = (usuario) => {
+  return usuario?.rol === 'usuario'
+}
+
+
+// ----------------------------------------------------------
+// CONVERTIR FECHA/HORA A MILISEGUNDOS PARA ORDENAR
+// ----------------------------------------------------------
+
+const fechaHoraMillis = (fecha = '', hora = '') => {
+  try {
+    const [dia, mes, anio] = fecha.split('/')
+
+    return new Date(
+      `${anio}-${mes}-${dia}T${hora || '00:00'}:00`
+    ).getTime()
+  } catch {
+    return 0
+  }
+}
+
+
+// ----------------------------------------------------------
+// OBTENER MIS CITAS
+// ----------------------------------------------------------
+// Profesional:
+//   citas donde especialistaUid = su UID.
+//
+// Paciente:
+//   citas donde pacienteUid = su UID.
+// ----------------------------------------------------------
+
+const obtenerMisCitas = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const usuario = await obtenerUsuarioActual(uid)
+
+    if (!usuario) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró el perfil del usuario.',
+      })
+    }
+
+    const campo = esProfesionalSalud(usuario)
+      ? 'especialistaUid'
+      : 'pacienteUid'
+
+    const snapshot = await db
+      .collection('citas')
+      .where(campo, '==', uid)
+      .get()
+
+    const citas = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .sort(
+        (a, b) =>
+          fechaHoraMillis(a.fecha, a.hora) -
+          fechaHoraMillis(b.fecha, b.hora)
+      )
+
+    return res.json({
+      success: true,
+      citas,
+    })
+  } catch (error) {
+    console.error('Error al obtener citas:', error)
+
+    return res.status(500).json({
+      success: false,
+      message: 'No fue posible obtener las citas.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// CREAR CITA
+// ----------------------------------------------------------
+// Solo un profesional puede crearla.
+// ----------------------------------------------------------
+
+const crearCita = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const profesional = await obtenerUsuarioActual(uid)
+
+    if (!esProfesionalSalud(profesional)) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'Solo un profesional de salud puede crear citas.',
+      })
+    }
+
+    const {
+      pacienteUid,
+      fecha,
+      hora,
+      motivo = '',
+      lugar = '',
+      modalidad = 'Presencial',
+      notas = '',
+      recordatorioActivo = true,
+    } = req.body || {}
+
+    if (!pacienteUid || !fecha || !hora) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Paciente, fecha y hora son obligatorios.',
+      })
+    }
+
+    const paciente =
+      await obtenerUsuarioActual(pacienteUid)
+
+    if (!paciente) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'No se encontró el paciente seleccionado.',
+      })
+    }
+
+    // ------------------------------------------------------
+    // VALIDAR VÍNCULO PROFESIONAL-PACIENTE
+    // ------------------------------------------------------
+
+    const vinculosSnapshot = await db
+      .collection('seguimiento_profesional')
+      .where('profesionalUid', '==', uid)
+      .get()
+
+    const vinculoActivo =
+      vinculosSnapshot.docs.some((doc) => {
+        const vinculo = doc.data()
+
+        return (
+          vinculo.pacienteUid === pacienteUid &&
+          vinculo.estado === 'activo'
+        )
+      })
+
+    if (!vinculoActivo) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'El paciente seleccionado no está vinculado activamente a este profesional.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc()
+
+    const nuevaCita = {
+      pacienteUid,
+
+      nombrePaciente:
+        paciente.nombreCompleto ||
+        paciente.nombre ||
+        'Paciente',
+
+      especialistaUid: uid,
+
+      nombreEspecialista:
+        profesional.nombreCompleto ||
+        profesional.nombre ||
+        'Profesional de salud',
+
+      especialidad:
+        profesional.especialidad || '',
+
+      fecha,
+      hora,
+
+      zonaHoraria:
+        'America/Cancun',
+
+      motivo:
+        String(motivo).trim(),
+
+      lugar:
+        String(lugar).trim(),
+
+      modalidad,
+
+      notas:
+        String(notas).trim(),
+
+      estado:
+        'pendiente',
+
+      recordatorioActivo:
+        Boolean(recordatorioActivo),
+
+      creadoPor:
+        uid,
+
+      creadoEn:
+        FieldValue.serverTimestamp(),
+
+      actualizadoEn:
+        FieldValue.serverTimestamp(),
+    }
+
+    await citaRef.set(nuevaCita)
+
+    const creada =
+      await citaRef.get()
+
+    return res.status(201).json({
+      success: true,
+
+      cita: {
+        id: creada.id,
+        ...creada.data(),
+      },
+    })
+  } catch (error) {
+    console.error('Error al crear cita:', error)
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible crear la cita.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// ACTUALIZAR CITA
+// ----------------------------------------------------------
+// PROFESIONAL:
+// puede editar los datos de una cita que le pertenece.
+//
+// PACIENTE:
+// solo puede realizar estas acciones sobre SU cita:
+// - confirmar
+// - solicitar reagenda
+// - cancelar
+//
+// El paciente NO puede cambiar:
+// - fecha
+// - hora
+// - especialista
+// - paciente
+// - lugar
+// - modalidad
+// - notas
+// ----------------------------------------------------------
+
+const actualizarCita = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const usuario =
+      await obtenerUsuarioActual(uid)
+
+    if (!usuario) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'No se encontró el perfil del usuario.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc(
+        req.params.id
+      )
+
+    const snapshot =
+      await citaRef.get()
+
+    if (!snapshot.exists) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'La cita no existe.',
+      })
+    }
+
+    const citaActual =
+      snapshot.data()
+
+
+    // ======================================================
+    // ACTUALIZACIÓN COMO PROFESIONAL
+    // ======================================================
+
+    if (esProfesionalSalud(usuario)) {
+
+      if (
+        citaActual.especialistaUid !== uid
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            'No puedes modificar una cita de otro profesional.',
+        })
+      }
+
+      const permitidos = [
+        'fecha',
+        'hora',
+        'motivo',
+        'lugar',
+        'modalidad',
+        'notas',
+        'estado',
+        'recordatorioActivo',
+      ]
+
+      const cambios = {}
+
+      permitidos.forEach((campo) => {
+        if (
+          Object.prototype
+            .hasOwnProperty
+            .call(
+              req.body || {},
+              campo
+            )
+        ) {
+          cambios[campo] =
+            req.body[campo]
+        }
+      })
+
+
+      // ----------------------------------------------------
+      // SI EL PACIENTE PIDIÓ REAGENDA Y EL PROFESIONAL
+      // CAMBIA FECHA U HORA, LA CITA VUELVE A "PENDIENTE"
+      // PARA QUE EL PACIENTE CONFIRME LA NUEVA FECHA.
+      // ----------------------------------------------------
+
+      const cambioFecha =
+        Object.prototype
+          .hasOwnProperty
+          .call(
+            req.body || {},
+            'fecha'
+          )
+
+      const cambioHora =
+        Object.prototype
+          .hasOwnProperty
+          .call(
+            req.body || {},
+            'hora'
+          )
+
+      if (
+        citaActual.estado ===
+          'reagenda_solicitada' &&
+        (cambioFecha || cambioHora)
+      ) {
+        cambios.estado =
+          'pendiente'
+
+        cambios.reagendadoPor =
+          uid
+
+        cambios.fechaReagendaProfesional =
+          FieldValue.serverTimestamp()
+      }
+
+
+      cambios.actualizadoEn =
+        FieldValue.serverTimestamp()
+
+
+      await citaRef.update(
+        cambios
+      )
+    }
+
+
+    // ======================================================
+    // ACTUALIZACIÓN COMO PACIENTE
+    // ======================================================
+
+    else if (esPaciente(usuario)) {
+
+      // El paciente solo puede actuar sobre su propia cita.
+      if (
+        citaActual.pacienteUid !== uid
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            'No puedes modificar una cita que no te pertenece.',
+        })
+      }
+
+
+      const estadoSolicitado =
+        req.body?.estado
+
+
+      // ----------------------------------------------------
+      // CONFIRMAR
+      // ----------------------------------------------------
+
+      if (
+        estadoSolicitado ===
+        'confirmada'
+      ) {
+
+        if (
+          citaActual.estado !==
+          'pendiente'
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              'Esta cita ya no puede confirmarse.',
+          })
+        }
+
+        await citaRef.update({
+          estado:
+            'confirmada',
+
+          fechaConfirmacionPaciente:
+            FieldValue.serverTimestamp(),
+
+          actualizadoEn:
+            FieldValue.serverTimestamp(),
+        })
+      }
+
+
+      // ----------------------------------------------------
+      // SOLICITAR REAGENDA
+      // ----------------------------------------------------
+
+      else if (
+        estadoSolicitado ===
+        'reagenda_solicitada'
+      ) {
+
+        if (
+          citaActual.estado ===
+            'cancelada' ||
+          citaActual.estado ===
+            'completada' ||
+          citaActual.estado ===
+            'reagenda_solicitada'
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              'Esta cita no admite una solicitud de reagenda.',
+          })
+        }
+
+
+        const motivoReagenda =
+          String(
+            req.body?.motivoReagenda ||
+            ''
+          ).trim()
+
+
+        if (
+          motivoReagenda.length < 5
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              'Escribe brevemente el motivo de la reagenda.',
+          })
+        }
+
+
+        await citaRef.update({
+          estado:
+            'reagenda_solicitada',
+
+          motivoReagenda,
+
+          fechaSolicitudReagenda:
+            FieldValue.serverTimestamp(),
+
+          actualizadoEn:
+            FieldValue.serverTimestamp(),
+        })
+      }
+
+
+      // ----------------------------------------------------
+      // CANCELAR
+      // ----------------------------------------------------
+
+      else if (
+        estadoSolicitado ===
+        'cancelada'
+      ) {
+
+        if (
+          citaActual.estado ===
+            'cancelada' ||
+          citaActual.estado ===
+            'completada'
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              'Esta cita ya no puede cancelarse.',
+          })
+        }
+
+
+        const motivoCancelacion =
+          String(
+            req.body?.motivoCancelacion ||
+            ''
+          ).trim()
+
+
+        await citaRef.update({
+          estado:
+            'cancelada',
+
+          motivoCancelacion,
+
+          fechaCancelacion:
+            FieldValue.serverTimestamp(),
+
+          canceladaPor:
+            uid,
+
+          actualizadoEn:
+            FieldValue.serverTimestamp(),
+        })
+      }
+
+
+      // ----------------------------------------------------
+      // CUALQUIER OTRO CAMBIO ESTÁ PROHIBIDO
+      // ----------------------------------------------------
+
+      else {
+        return res.status(403).json({
+          success: false,
+          message:
+            'El paciente solo puede confirmar, solicitar reagenda o cancelar su cita.',
+        })
+      }
+    }
+
+
+    // ======================================================
+    // ROL NO PERMITIDO
+    // ======================================================
+
+    else {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No tienes permiso para modificar citas.',
+      })
+    }
+
+
+    const actualizada =
+      await citaRef.get()
+
+
+    return res.json({
+      success: true,
+
+      cita: {
+        id: actualizada.id,
+        ...actualizada.data(),
+      },
+    })
+
+  } catch (error) {
+
+    console.error(
+      'Error al actualizar cita:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible actualizar la cita.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// CONFIRMAR CITA (PACIENTE)
+// ----------------------------------------------------------
+// El paciente NO edita la cita.
+// Solamente confirma su asistencia.
+// ----------------------------------------------------------
+
+const confirmarCitaPaciente = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const usuario = await obtenerUsuarioActual(uid)
+
+    if (!usuario || !esPaciente(usuario)) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'Solo el paciente puede confirmar esta cita.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc(req.params.id)
+
+    const snapshot =
+      await citaRef.get()
+
+    if (!snapshot.exists) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'La cita no existe.',
+      })
+    }
+
+    const citaActual =
+      snapshot.data()
+
+    if (citaActual.pacienteUid !== uid) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No puedes confirmar una cita que no te pertenece.',
+      })
+    }
+
+    if (citaActual.estado !== 'pendiente') {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Esta cita ya no puede confirmarse.',
+      })
+    }
+
+    await citaRef.update({
+      estado:
+        'confirmada',
+
+      fechaConfirmacionPaciente:
+        FieldValue.serverTimestamp(),
+
+      confirmadoPorPaciente:
+        uid,
+
+      actualizadoEn:
+        FieldValue.serverTimestamp(),
+    })
+
+    const actualizada =
+      await citaRef.get()
+
+    return res.json({
+      success: true,
+      message:
+        'Cita confirmada correctamente.',
+      cita: {
+        id: actualizada.id,
+        ...actualizada.data(),
+      },
+    })
+  } catch (error) {
+    console.error(
+      'Error al confirmar cita:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible confirmar la cita.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// CANCELAR CITA (PACIENTE)
+// ----------------------------------------------------------
+// El paciente NO elimina la cita.
+// Solo registra que ya no podrá asistir.
+// ----------------------------------------------------------
+
+const cancelarCitaPaciente = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const usuario = await obtenerUsuarioActual(uid)
+
+    if (!usuario || !esPaciente(usuario)) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'Solo el paciente puede cancelar esta cita.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc(req.params.id)
+
+    const snapshot =
+      await citaRef.get()
+
+    if (!snapshot.exists) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'La cita no existe.',
+      })
+    }
+
+    const citaActual =
+      snapshot.data()
+
+    if (citaActual.pacienteUid !== uid) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No puedes cancelar una cita que no te pertenece.',
+      })
+    }
+
+    if (
+      citaActual.estado === 'cancelada' ||
+      citaActual.estado === 'completada'
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Esta cita ya no puede cancelarse.',
+      })
+    }
+
+    const motivoCancelacion =
+      String(
+        req.body?.motivoCancelacion || ''
+      ).trim()
+
+    await citaRef.update({
+      estado:
+        'cancelada',
+
+      motivoCancelacion,
+
+      fechaCancelacion:
+        FieldValue.serverTimestamp(),
+
+      canceladaPorPaciente:
+        uid,
+
+      actualizadoEn:
+        FieldValue.serverTimestamp(),
+    })
+
+    const actualizada =
+      await citaRef.get()
+
+    return res.json({
+      success: true,
+      message:
+        'Cita cancelada correctamente.',
+      cita: {
+        id: actualizada.id,
+        ...actualizada.data(),
+      },
+    })
+  } catch (error) {
+    console.error(
+      'Error al cancelar cita:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible cancelar la cita.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// SOLICITAR REAGENDA (PACIENTE)
+// ----------------------------------------------------------
+// Esta acción NO modifica la fecha ni la hora de la cita.
+// Solamente registra una solicitud para que el profesional
+// decida si puede cambiarla.
+// ----------------------------------------------------------
+
+const solicitarReagendaPaciente = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const usuario = await obtenerUsuarioActual(uid)
+
+    if (!usuario || !esPaciente(usuario)) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'Solo el paciente puede enviar esta solicitud.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc(req.params.id)
+
+    const snapshot =
+      await citaRef.get()
+
+    if (!snapshot.exists) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'La cita no existe.',
+      })
+    }
+
+    const citaActual =
+      snapshot.data()
+
+    if (citaActual.pacienteUid !== uid) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No puedes solicitar cambios sobre una cita que no te pertenece.',
+      })
+    }
+
+    if (
+      citaActual.estado === 'cancelada' ||
+      citaActual.estado === 'completada'
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Esta cita ya no admite una solicitud de reagenda.',
+      })
+    }
+
+    if (
+      citaActual.estado === 'reagenda_solicitada'
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Ya existe una solicitud de reagenda pendiente.',
+      })
+    }
+
+    const motivoReagenda =
+      String(
+        req.body?.motivoReagenda || ''
+      ).trim()
+
+    if (motivoReagenda.length < 5) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Escribe brevemente el motivo de la solicitud.',
+      })
+    }
+
+    await citaRef.update({
+      // La fecha y la hora NO cambian.
+      estado:
+        'reagenda_solicitada',
+
+      motivoReagenda,
+
+      fechaSolicitudReagenda:
+        FieldValue.serverTimestamp(),
+
+      solicitadoPorPaciente:
+        uid,
+
+      actualizadoEn:
+        FieldValue.serverTimestamp(),
+    })
+
+    const actualizada =
+      await citaRef.get()
+
+    return res.json({
+      success: true,
+      message:
+        'Solicitud de reagenda enviada al profesional.',
+      cita: {
+        id: actualizada.id,
+        ...actualizada.data(),
+      },
+    })
+  } catch (error) {
+    console.error(
+      'Error al solicitar reagenda:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible enviar la solicitud de reagenda.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// ELIMINAR CITA
+// ----------------------------------------------------------
+// Solo el profesional propietario puede eliminar físicamente
+// la cita.
+//
+// El paciente NO usa DELETE: su acción "Cancelar" cambia
+// el estado a "cancelada" para conservar el historial.
+// ----------------------------------------------------------
+
+const eliminarCita = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const profesional =
+      await obtenerUsuarioActual(uid)
+
+    if (
+      !esProfesionalSalud(
+        profesional
+      )
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No tienes permiso para eliminar citas.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc(
+        req.params.id
+      )
+
+    const snapshot =
+      await citaRef.get()
+
+    if (!snapshot.exists) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'La cita no existe.',
+      })
+    }
+
+    if (
+      snapshot.data().especialistaUid !== uid
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No puedes eliminar una cita de otro profesional.',
+      })
+    }
+
+    await citaRef.delete()
+
+    return res.json({
+      success: true,
+      message:
+        'Cita eliminada correctamente.',
+    })
+
+  } catch (error) {
+
+    console.error(
+      'Error al eliminar cita:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible eliminar la cita.',
+    })
+  }
+}
+
+
+module.exports = {
+  obtenerMisCitas,
+  crearCita,
+  actualizarCita,
+  confirmarCitaPaciente,
+  solicitarReagendaPaciente,
+  cancelarCitaPaciente,
+  eliminarCita,
+}
