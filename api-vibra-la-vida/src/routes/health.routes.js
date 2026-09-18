@@ -1,46 +1,134 @@
-// Importamos Express.
-const express = require("express");
+// ============================================================================
+// HEALTH ROUTES - VIBRA LA VIDA
+// ============================================================================
 
-// Importamos controladores.
+const express =
+  require("express");
+
+
 const {
+
   syncHealthData,
+
   getLatestHealthData,
+
   getHealthHistory,
+
   deleteHealthRecord,
-} = require("../controllers/health.controller");
 
-// Importamos middleware de autenticación.
-const { verifyFirebaseToken } = require("../middlewares/auth.middleware");
+  getLatestPatientHealthData,
 
-// Creamos el router.
-const router = express.Router();
+  getPatientHealthHistory,
 
-/**
- * Guardar datos de Health Connect.
- *
- * POST /api/health-connect/sync
- */
-router.post("/sync", verifyFirebaseToken, syncHealthData);
+} =
+  require(
+    "../controllers/health.controller"
+  );
 
-/**
- * Obtener último registro.
- *
- * GET /api/health-connect/latest
- */
-router.get("/latest", verifyFirebaseToken, getLatestHealthData);
 
-/**
- * Obtener historial.
- *
- * GET /api/health-connect/history
- */
-router.get("/history", verifyFirebaseToken, getHealthHistory);
+const {
+  verifyFirebaseToken,
+} =
+  require(
+    "../middlewares/auth.middleware"
+  );
 
-/**
- * Eliminar registro.
- *
- * DELETE /api/health-connect/:id
- */
-router.delete("/:id", verifyFirebaseToken, deleteHealthRecord);
 
-module.exports = router;
+const router =
+  express.Router();
+
+
+// ============================================================================
+// USUARIO: SINCRONIZAR SUS PROPIOS DATOS
+// ============================================================================
+
+router.post(
+
+  "/sync",
+
+  verifyFirebaseToken,
+
+  syncHealthData
+);
+
+
+// ============================================================================
+// USUARIO: OBTENER SU ÚLTIMO REGISTRO
+// ============================================================================
+
+router.get(
+
+  "/latest",
+
+  verifyFirebaseToken,
+
+  getLatestHealthData
+);
+
+
+// ============================================================================
+// USUARIO: OBTENER SU HISTORIAL
+// ============================================================================
+
+router.get(
+
+  "/history",
+
+  verifyFirebaseToken,
+
+  getHealthHistory
+);
+
+
+// ============================================================================
+// PROFESIONAL: ÚLTIMO REGISTRO DEL PACIENTE VINCULADO
+// ============================================================================
+//
+// GET /api/health-connect/paciente/:pacienteUid/latest
+//
+// ============================================================================
+
+router.get(
+
+  "/paciente/:pacienteUid/latest",
+
+  verifyFirebaseToken,
+
+  getLatestPatientHealthData
+);
+
+
+// ============================================================================
+// PROFESIONAL: HISTORIAL DEL PACIENTE VINCULADO
+// ============================================================================
+//
+// GET /api/health-connect/paciente/:pacienteUid/history?limit=30
+//
+// ============================================================================
+
+router.get(
+
+  "/paciente/:pacienteUid/history",
+
+  verifyFirebaseToken,
+
+  getPatientHealthHistory
+);
+
+
+// ============================================================================
+// USUARIO: ELIMINAR SU PROPIO REGISTRO
+// ============================================================================
+
+router.delete(
+
+  "/:id",
+
+  verifyFirebaseToken,
+
+  deleteHealthRecord
+);
+
+
+module.exports =
+  router;

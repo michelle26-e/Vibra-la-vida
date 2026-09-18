@@ -1,176 +1,1435 @@
-// Importamos Firestore y FieldValue.
-const { db, FieldValue } = require("../config/firebase");
+// ============================================================================
+// HEALTH CONTROLLER - VIBRA LA VIDA
+// ============================================================================
+//
+// INTEGRACIÓN SEGURA:
+//
+// Reloj / Health Connect
+//          ↓
+// App Android
+//          ↓
+// POST /api/health-connect/sync
+//          ↓
+// API Express en Render
+//          ↓
+// Firestore
+//
+// ESTRUCTURA:
+//
+// usuarios/{uid}/health_connect/{YYYY-MM-DD}
+//
+// Se utiliza UN documento por día.
+//
+// Así, si durante el mismo día Android vuelve a sincronizar,
+// el documento se actualiza en lugar de crear cientos de registros.
+//
+// ============================================================================
+
+
+// ============================================================================
+// FIREBASE
+// ============================================================================
+
+const {
+  db,
+  FieldValue,
+} = require("../config/firebase");
+
+
+// ============================================================================
+// UTILIDADES
+// ============================================================================
 
 /**
- * Guardar sincronización de Health Connect.
+ * Indica si una propiedad realmente llegó en el body.
  *
- * Aquí la app Android mandará:
- * - pasos
- * - frecuencia cardíaca
- * - sueño en minutos
- * - fuente del dato
+ * Esto es importante porque no queremos borrar datos anteriores
+ * cuando Android realiza una actualización parcial.
  */
-async function syncHealthData(req, res) {
+function tieneCampo(
+  objeto,
+  campo
+) {
+
+  return Object.prototype.hasOwnProperty.call(
+    objeto,
+    campo
+  );
+}
+
+
+/**
+ * Convierte a número.
+ *
+ * null / undefined / "" -> null
+ *
+ * Si recibe algo que no puede convertirse a número,
+ * regresa null.
+ */
+function numeroONull(
+  valor
+) {
+
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+
+    return null;
+  }
+
+
+  const numero =
+    Number(valor);
+
+
+  if (
+    !Number.isFinite(numero)
+  ) {
+
+    return null;
+  }
+
+
+  return numero;
+}
+
+
+/**
+ * Obtiene la fecha que será utilizada como ID del documento.
+ *
+ * Formato esperado:
+ *
+ * YYYY-MM-DD
+ *
+ * Android ya envía esta fecha en HealthConnectSyncRequest.
+ *
+ * Si por compatibilidad con una versión anterior no llega la fecha,
+ * utilizamos la fecha actual del servidor.
+ */
+function obtenerFechaDocumento(
+  fecha
+) {
+
+  if (
+    typeof fecha === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(
+      fecha
+    )
+  ) {
+
+    return fecha;
+  }
+
+
+  return new Date()
+    .toISOString()
+    .slice(
+      0,
+      10
+    );
+}
+
+
+/**
+ * Limpia un texto opcional.
+ */
+function textoONull(
+  valor
+) {
+
+  if (
+    valor === null ||
+    valor === undefined
+  ) {
+
+    return null;
+  }
+
+
+  const texto =
+    String(valor).trim();
+
+
+  return texto || null;
+}
+
+
+// ============================================================================
+// SINCRONIZAR HEALTH CONNECT
+// ============================================================================
+//
+// POST /api/health-connect/sync
+//
+// Ejemplo:
+//
+// {
+//   "fecha": "2026-09-18",
+//   "pasos": 5320,
+//   "frecuenciaCardiaca": 76,
+//   "frecuenciaCardiacaMinima": 58,
+//   "frecuenciaCardiacaMaxima": 121,
+//   "cantidadMedicionesFrecuenciaCardiaca": 42,
+//   "suenoMinutos": 438,
+//   "inicioSueno": "2026-09-17T23:20:00Z",
+//   "finSueno": "2026-09-18T06:38:00Z",
+//   "suenoLigeroMinutos": 250,
+//   "suenoProfundoMinutos": 120,
+//   "suenoRemMinutos": 68,
+//   "despiertoMinutos": 15,
+//   "fuente": "Mi Fitness / Health Connect",
+//   "fechaLectura": "2026-09-18T08:00:00Z"
+// }
+//
+// ============================================================================
+
+async function syncHealthData(
+  req,
+  res
+) {
+
   try {
-    const uid = req.user.uid;
 
-    const {
-      pasos,
-      frecuenciaCardiaca,
-      suenoMinutos,
-      fuente,
-      fechaLectura,
-    } = req.body;
+    // ========================================================================
+    // 1. USUARIO AUTENTICADO
+    // ========================================================================
 
-    const healthRef = await db
-      .collection("usuarios")
-      .doc(uid)
-      .collection("health_connect")
-      .add({
-        pasos: pasos ?? null,
-        frecuenciaCardiaca: frecuenciaCardiaca ?? null,
-        suenoMinutos: suenoMinutos ?? null,
-        fuente: fuente ?? "Health Connect",
-        fechaLectura: fechaLectura ?? null,
-        fechaSincronizacion: FieldValue.serverTimestamp(),
+    const uid =
+      req.user?.uid;
+
+
+    if (!uid) {
+
+      return res
+        .status(401)
+        .json({
+
+          success: false,
+
+          message:
+            "No se pudo identificar al usuario autenticado.",
+        });
+    }
+
+
+    // ========================================================================
+    // 2. BODY
+    // ========================================================================
+
+    const body =
+      req.body || {};
+
+
+    const fecha =
+      obtenerFechaDocumento(
+        body.fecha
+      );
+
+
+    // ========================================================================
+    // 3. CAMPOS NUMÉRICOS SOPORTADOS
+    // ========================================================================
+
+    const camposNumericos = [
+
+      "pasos",
+
+      "frecuenciaCardiaca",
+
+      "frecuenciaCardiacaMinima",
+
+      "frecuenciaCardiacaMaxima",
+
+      "cantidadMedicionesFrecuenciaCardiaca",
+
+      "suenoMinutos",
+
+      "suenoLigeroMinutos",
+
+      "suenoProfundoMinutos",
+
+      "suenoRemMinutos",
+
+      "despiertoMinutos",
+    ];
+
+
+    // ========================================================================
+    // 4. VALIDAR LOS NÚMEROS QUE SÍ LLEGARON
+    // ========================================================================
+
+    for (
+      const campo of camposNumericos
+    ) {
+
+      if (
+        !tieneCampo(
+          body,
+          campo
+        )
+      ) {
+
+        continue;
+      }
+
+
+      const valorOriginal =
+        body[campo];
+
+
+      const valor =
+        numeroONull(
+          valorOriginal
+        );
+
+
+      // Si el cliente mandó un valor no vacío pero no es numérico.
+      if (
+        valorOriginal !== null &&
+        valorOriginal !== undefined &&
+        valorOriginal !== "" &&
+        valor === null
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            success: false,
+
+            message:
+              `El campo ${campo} debe ser numérico.`,
+          });
+      }
+
+
+      // Las métricas que manejamos aquí no pueden ser negativas.
+      if (
+        valor !== null &&
+        valor < 0
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            success: false,
+
+            message:
+              `El campo ${campo} no puede ser negativo.`,
+          });
+      }
+    }
+
+
+    // ========================================================================
+    // 5. DOCUMENTO DIARIO
+    // ========================================================================
+
+    const healthRef =
+      db
+        .collection("usuarios")
+        .doc(uid)
+        .collection("health_connect")
+        .doc(fecha);
+
+
+    const healthDoc =
+      await healthRef.get();
+
+
+    // ========================================================================
+    // 6. DATOS BASE
+    // ========================================================================
+    //
+    // Solamente agregamos al objeto los campos que Android realmente mandó.
+    //
+    // De esta manera:
+    //
+    // Primera sincronización:
+    // pasos = 5000
+    //
+    // Segunda sincronización:
+    // frecuenciaCardiaca = 75
+    //
+    // NO borra pasos.
+    // ========================================================================
+
+    const datos = {
+
+      uid,
+
+      fecha,
+
+      fechaSincronizacion:
+        FieldValue.serverTimestamp(),
+
+      actualizadoEn:
+        FieldValue.serverTimestamp(),
+    };
+
+
+    // ========================================================================
+    // 7. AGREGAR CAMPOS NUMÉRICOS PRESENTES
+    // ========================================================================
+
+    for (
+      const campo of camposNumericos
+    ) {
+
+      if (
+        tieneCampo(
+          body,
+          campo
+        )
+      ) {
+
+        datos[campo] =
+          numeroONull(
+            body[campo]
+          );
+      }
+    }
+
+
+    // ========================================================================
+    // 8. SUEÑO - HORAS DE INICIO / FIN
+    // ========================================================================
+
+    if (
+      tieneCampo(
+        body,
+        "inicioSueno"
+      )
+    ) {
+
+      datos.inicioSueno =
+        textoONull(
+          body.inicioSueno
+        );
+    }
+
+
+    if (
+      tieneCampo(
+        body,
+        "finSueno"
+      )
+    ) {
+
+      datos.finSueno =
+        textoONull(
+          body.finSueno
+        );
+    }
+
+
+    // ========================================================================
+    // 9. FUENTE
+    // ========================================================================
+
+    if (
+      tieneCampo(
+        body,
+        "fuente"
+      )
+    ) {
+
+      datos.fuente =
+        textoONull(
+          body.fuente
+        ) ||
+        "Health Connect";
+
+    } else if (
+      !healthDoc.exists
+    ) {
+
+      datos.fuente =
+        "Health Connect";
+    }
+
+
+    // ========================================================================
+    // 10. FECHA DE LECTURA
+    // ========================================================================
+
+    if (
+      tieneCampo(
+        body,
+        "fechaLectura"
+      )
+    ) {
+
+      datos.fechaLectura =
+        textoONull(
+          body.fechaLectura
+        );
+    }
+
+
+    // ========================================================================
+    // 11. FECHA DE CREACIÓN
+    // ========================================================================
+
+    if (
+      !healthDoc.exists
+    ) {
+
+      datos.creadoEn =
+        FieldValue.serverTimestamp();
+    }
+
+
+    // ========================================================================
+    // 12. GUARDAR
+    // ========================================================================
+
+    await healthRef.set(
+      datos,
+      {
+        merge: true,
+      }
+    );
+
+
+    // ========================================================================
+    // 13. RESPUESTA
+    // ========================================================================
+
+    return res
+      .status(
+        healthDoc.exists
+          ? 200
+          : 201
+      )
+      .json({
+
+        success: true,
+
+        message:
+          healthDoc.exists
+            ? "Datos de Health Connect actualizados correctamente."
+            : "Datos de Health Connect guardados correctamente.",
+
+        healthRecordId:
+          fecha,
+
+        fecha,
       });
 
-    return res.status(201).json({
-      success: true,
-      message: "Datos de Health Connect guardados correctamente.",
-      healthRecordId: healthRef.id,
-    });
-  } catch (error) {
-    console.error("Error en syncHealthData:", error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Error al guardar datos de Health Connect.",
-      error: error.message,
-    });
+  } catch (error) {
+
+    console.error(
+      "Error en syncHealthData:",
+      error
+    );
+
+
+    return res
+      .status(500)
+      .json({
+
+        success: false,
+
+        message:
+          "Error al guardar datos de Health Connect.",
+
+        error:
+          error.message,
+      });
   }
 }
 
-/**
- * Obtener el último registro de Health Connect.
- */
-async function getLatestHealthData(req, res) {
+
+// ============================================================================
+// OBTENER ÚLTIMO REGISTRO
+// ============================================================================
+//
+// GET /api/health-connect/latest
+//
+// ============================================================================
+
+async function getLatestHealthData(
+  req,
+  res
+) {
+
   try {
-    const uid = req.user.uid;
 
-    const snapshot = await db
-      .collection("usuarios")
-      .doc(uid)
-      .collection("health_connect")
-      .orderBy("fechaSincronizacion", "desc")
-      .limit(1)
-      .get();
+    const uid =
+      req.user?.uid;
 
-    if (snapshot.empty) {
+
+    if (!uid) {
+
+      return res
+        .status(401)
+        .json({
+
+          success: false,
+
+          message:
+            "No se pudo identificar al usuario autenticado.",
+        });
+    }
+
+
+    const snapshot =
+      await db
+        .collection("usuarios")
+        .doc(uid)
+        .collection("health_connect")
+        .orderBy(
+          "fechaSincronizacion",
+          "desc"
+        )
+        .limit(1)
+        .get();
+
+
+    if (
+      snapshot.empty
+    ) {
+
       return res.json({
+
         success: true,
-        message: "No hay datos de Health Connect registrados.",
+
+        message:
+          "No hay datos de Health Connect registrados.",
+
         data: null,
       });
     }
 
-    const doc = snapshot.docs[0];
+
+    const doc =
+      snapshot.docs[0];
+
 
     return res.json({
+
       success: true,
+
       data: {
-        id: doc.id,
+
+        id:
+          doc.id,
+
         ...doc.data(),
       },
     });
-  } catch (error) {
-    console.error("Error en getLatestHealthData:", error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Error al obtener el último registro de Health Connect.",
-      error: error.message,
-    });
+
+  } catch (error) {
+
+    console.error(
+      "Error en getLatestHealthData:",
+      error
+    );
+
+
+    return res
+      .status(500)
+      .json({
+
+        success: false,
+
+        message:
+          "Error al obtener el último registro de Health Connect.",
+
+        error:
+          error.message,
+      });
   }
 }
 
-/**
- * Obtener historial completo de Health Connect.
- */
-async function getHealthHistory(req, res) {
+
+// ============================================================================
+// OBTENER HISTORIAL
+// ============================================================================
+//
+// GET /api/health-connect/history
+//
+// Opcional:
+//
+// GET /api/health-connect/history?limit=30
+//
+// Máximo: 90
+//
+// ============================================================================
+
+async function getHealthHistory(
+  req,
+  res
+) {
+
   try {
-    const uid = req.user.uid;
 
-    const snapshot = await db
-      .collection("usuarios")
-      .doc(uid)
-      .collection("health_connect")
-      .orderBy("fechaSincronizacion", "desc")
-      .get();
+    const uid =
+      req.user?.uid;
 
-    const history = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+
+    if (!uid) {
+
+      return res
+        .status(401)
+        .json({
+
+          success: false,
+
+          message:
+            "No se pudo identificar al usuario autenticado.",
+        });
+    }
+
+
+    const requestedLimit =
+      Number(
+        req.query.limit
+      );
+
+
+    const limit =
+      Number.isFinite(
+        requestedLimit
+      ) &&
+      requestedLimit > 0
+
+        ? Math.min(
+            Math.trunc(
+              requestedLimit
+            ),
+            90
+          )
+
+        : 30;
+
+
+    const snapshot =
+      await db
+        .collection("usuarios")
+        .doc(uid)
+        .collection("health_connect")
+        .orderBy(
+          "fechaSincronizacion",
+          "desc"
+        )
+        .limit(limit)
+        .get();
+
+
+    const history =
+      snapshot.docs.map(
+        (doc) => ({
+
+          id:
+            doc.id,
+
+          ...doc.data(),
+        })
+      );
+
 
     return res.json({
+
       success: true,
+
+      count:
+        history.length,
+
       history,
     });
-  } catch (error) {
-    console.error("Error en getHealthHistory:", error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Error al obtener historial de Health Connect.",
-      error: error.message,
-    });
+
+  } catch (error) {
+
+    console.error(
+      "Error en getHealthHistory:",
+      error
+    );
+
+
+    return res
+      .status(500)
+      .json({
+
+        success: false,
+
+        message:
+          "Error al obtener historial de Health Connect.",
+
+        error:
+          error.message,
+      });
   }
 }
 
-/**
- * Eliminar un registro de Health Connect.
- */
-async function deleteHealthRecord(req, res) {
+
+// ============================================================================
+// ELIMINAR UN REGISTRO
+// ============================================================================
+//
+// DELETE /api/health-connect/:id
+//
+// El ID nuevo normalmente será:
+//
+// YYYY-MM-DD
+//
+// También continúa funcionando con IDs antiguos de Firestore.
+//
+// ============================================================================
+
+async function deleteHealthRecord(
+  req,
+  res
+) {
+
   try {
-    const uid = req.user.uid;
-    const { id } = req.params;
 
-    const healthRef = db
-      .collection("usuarios")
-      .doc(uid)
-      .collection("health_connect")
-      .doc(id);
+    const uid =
+      req.user?.uid;
 
-    const healthDoc = await healthRef.get();
 
-    if (!healthDoc.exists) {
-      return res.status(404).json({
-        success: false,
-        message: "Registro de Health Connect no encontrado.",
-      });
+    const {
+      id,
+    } = req.params;
+
+
+    if (!uid) {
+
+      return res
+        .status(401)
+        .json({
+
+          success: false,
+
+          message:
+            "No se pudo identificar al usuario autenticado.",
+        });
     }
+
+
+    if (
+      !id
+    ) {
+
+      return res
+        .status(400)
+        .json({
+
+          success: false,
+
+          message:
+            "No se indicó el registro de Health Connect.",
+        });
+    }
+
+
+    const healthRef =
+      db
+        .collection("usuarios")
+        .doc(uid)
+        .collection("health_connect")
+        .doc(id);
+
+
+    const healthDoc =
+      await healthRef.get();
+
+
+    if (
+      !healthDoc.exists
+    ) {
+
+      return res
+        .status(404)
+        .json({
+
+          success: false,
+
+          message:
+            "Registro de Health Connect no encontrado.",
+        });
+    }
+
 
     await healthRef.delete();
 
-    return res.json({
-      success: true,
-      message: "Registro de Health Connect eliminado correctamente.",
-    });
-  } catch (error) {
-    console.error("Error en deleteHealthRecord:", error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Error al eliminar registro de Health Connect.",
-      error: error.message,
+    return res.json({
+
+      success: true,
+
+      message:
+        "Registro de Health Connect eliminado correctamente.",
     });
+
+
+  } catch (error) {
+
+    console.error(
+      "Error en deleteHealthRecord:",
+      error
+    );
+
+
+    return res
+      .status(500)
+      .json({
+
+        success: false,
+
+        message:
+          "Error al eliminar registro de Health Connect.",
+
+        error:
+          error.message,
+      });
   }
 }
 
+
+
+
+// ============================================================================
+// ACCESO DEL PROFESIONAL A HEALTH CONNECT DEL PACIENTE
+// ============================================================================
+//
+// Estas funciones permiten que el panel profesional consulte Health Connect
+// de un paciente SIN leer directamente la subcolección desde Vue.
+//
+// Se valida:
+//
+// 1. Que el usuario autenticado sea profesional.
+// 2. Que exista un vínculo ACTIVO en seguimiento_profesional.
+// 3. Solo entonces se leen los datos del paciente.
+//
+// Esto conserva el sistema que YA utiliza la web:
+//
+// seguimiento_profesional
+//
+// y NO introduce todavía relaciones_especialista_paciente.
+//
+// ============================================================================
+
+
+// ============================================================================
+// COMPROBAR SI EL USUARIO ES PROFESIONAL
+// ============================================================================
+
+async function validarProfesionalActual(
+  profesionalUid
+) {
+
+  const profesionalDoc =
+    await db
+      .collection("usuarios")
+      .doc(profesionalUid)
+      .get();
+
+
+  if (!profesionalDoc.exists) {
+
+    return {
+      autorizado: false,
+      status: 404,
+      message:
+        "No se encontró el perfil profesional.",
+    };
+  }
+
+
+  const profesional =
+    profesionalDoc.data();
+
+
+  const rol =
+    String(
+      profesional.rol || ""
+    )
+      .trim()
+      .toLowerCase();
+
+
+  const roles =
+    Array.isArray(
+      profesional.roles
+    )
+      ? profesional.roles.map(
+          (item) =>
+            String(item)
+              .trim()
+              .toLowerCase()
+        )
+      : [];
+
+
+  const esProfesional =
+    rol === "profesional_salud" ||
+    rol === "doctor" ||
+    rol === "especialista" ||
+    roles.includes("especialista");
+
+
+  if (!esProfesional) {
+
+    return {
+      autorizado: false,
+      status: 403,
+      message:
+        "Esta acción requiere una cuenta profesional.",
+    };
+  }
+
+
+  return {
+    autorizado: true,
+    profesional,
+  };
+}
+
+
+// ============================================================================
+// VALIDAR VÍNCULO ACTIVO
+// ============================================================================
+
+async function validarVinculoProfesionalPaciente(
+  profesionalUid,
+  pacienteUid
+) {
+
+  const profesional =
+    await validarProfesionalActual(
+      profesionalUid
+    );
+
+
+  if (!profesional.autorizado) {
+
+    return profesional;
+  }
+
+
+  const pacienteDoc =
+    await db
+      .collection("usuarios")
+      .doc(pacienteUid)
+      .get();
+
+
+  if (!pacienteDoc.exists) {
+
+    return {
+      autorizado: false,
+      status: 404,
+      message:
+        "No se encontró el paciente.",
+    };
+  }
+
+
+  // --------------------------------------------------------------------------
+  // Buscamos todos los vínculos del profesional.
+  //
+  // Filtramos pacienteUid + estado en Node para evitar depender
+  // de un índice compuesto nuevo en Firestore.
+  // --------------------------------------------------------------------------
+
+  const vinculosSnapshot =
+    await db
+      .collection(
+        "seguimiento_profesional"
+      )
+      .where(
+        "profesionalUid",
+        "==",
+        profesionalUid
+      )
+      .get();
+
+
+  const vinculoActivo =
+    vinculosSnapshot.docs.some(
+      (documento) => {
+
+        const vinculo =
+          documento.data();
+
+
+        return (
+          vinculo.pacienteUid ===
+            pacienteUid &&
+          vinculo.estado ===
+            "activo"
+        );
+      }
+    );
+
+
+  if (!vinculoActivo) {
+
+    return {
+      autorizado: false,
+      status: 403,
+      code:
+        "VINCULO_NO_ACTIVO",
+      message:
+        "No tienes un vínculo activo con este paciente.",
+    };
+  }
+
+
+  return {
+    autorizado: true,
+    paciente: {
+      id:
+        pacienteDoc.id,
+      ...pacienteDoc.data(),
+    },
+  };
+}
+
+
+// ============================================================================
+// OBTENER ÚLTIMO HEALTH CONNECT DE UN PACIENTE
+// ============================================================================
+//
+// GET /api/health-connect/paciente/:pacienteUid/latest
+//
+// Solo profesional con vínculo activo.
+//
+// ============================================================================
+
+async function getLatestPatientHealthData(
+  req,
+  res
+) {
+
+  try {
+
+    const profesionalUid =
+      req.user?.uid;
+
+
+    const pacienteUid =
+      String(
+        req.params?.pacienteUid ||
+        ""
+      ).trim();
+
+
+    if (!profesionalUid) {
+
+      return res
+        .status(401)
+        .json({
+
+          success: false,
+
+          message:
+            "No se pudo identificar al usuario autenticado.",
+        });
+    }
+
+
+    if (!pacienteUid) {
+
+      return res
+        .status(400)
+        .json({
+
+          success: false,
+
+          message:
+            "El paciente es obligatorio.",
+        });
+    }
+
+
+    const acceso =
+      await validarVinculoProfesionalPaciente(
+        profesionalUid,
+        pacienteUid
+      );
+
+
+    if (!acceso.autorizado) {
+
+      return res
+        .status(
+          acceso.status
+        )
+        .json({
+
+          success: false,
+
+          code:
+            acceso.code || null,
+
+          message:
+            acceso.message,
+        });
+    }
+
+
+    const snapshot =
+      await db
+        .collection("usuarios")
+        .doc(pacienteUid)
+        .collection("health_connect")
+        .orderBy(
+          "fechaSincronizacion",
+          "desc"
+        )
+        .limit(1)
+        .get();
+
+
+    if (snapshot.empty) {
+
+      return res.json({
+
+        success: true,
+
+        pacienteUid,
+
+        data: null,
+
+        message:
+          "El paciente todavía no tiene datos de Health Connect sincronizados.",
+      });
+    }
+
+
+    const documento =
+      snapshot.docs[0];
+
+
+    return res.json({
+
+      success: true,
+
+      pacienteUid,
+
+      data: {
+
+        id:
+          documento.id,
+
+        ...documento.data(),
+      },
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Error en getLatestPatientHealthData:",
+      error
+    );
+
+
+    return res
+      .status(500)
+      .json({
+
+        success: false,
+
+        message:
+          "Error al obtener Health Connect del paciente.",
+
+        error:
+          error.message,
+      });
+  }
+}
+
+
+// ============================================================================
+// HISTORIAL DE HEALTH CONNECT DE UN PACIENTE
+// ============================================================================
+//
+// GET /api/health-connect/paciente/:pacienteUid/history?limit=30
+//
+// Solo profesional con vínculo activo.
+//
+// ============================================================================
+
+async function getPatientHealthHistory(
+  req,
+  res
+) {
+
+  try {
+
+    const profesionalUid =
+      req.user?.uid;
+
+
+    const pacienteUid =
+      String(
+        req.params?.pacienteUid ||
+        ""
+      ).trim();
+
+
+    if (!profesionalUid) {
+
+      return res
+        .status(401)
+        .json({
+
+          success: false,
+
+          message:
+            "No se pudo identificar al usuario autenticado.",
+        });
+    }
+
+
+    if (!pacienteUid) {
+
+      return res
+        .status(400)
+        .json({
+
+          success: false,
+
+          message:
+            "El paciente es obligatorio.",
+        });
+    }
+
+
+    const acceso =
+      await validarVinculoProfesionalPaciente(
+        profesionalUid,
+        pacienteUid
+      );
+
+
+    if (!acceso.autorizado) {
+
+      return res
+        .status(
+          acceso.status
+        )
+        .json({
+
+          success: false,
+
+          code:
+            acceso.code || null,
+
+          message:
+            acceso.message,
+        });
+    }
+
+
+    const limiteSolicitado =
+      Number(
+        req.query.limit
+      );
+
+
+    const limite =
+      Number.isFinite(
+        limiteSolicitado
+      ) &&
+      limiteSolicitado > 0
+
+        ? Math.min(
+            Math.trunc(
+              limiteSolicitado
+            ),
+            90
+          )
+
+        : 30;
+
+
+    const snapshot =
+      await db
+        .collection("usuarios")
+        .doc(pacienteUid)
+        .collection("health_connect")
+        .orderBy(
+          "fechaSincronizacion",
+          "desc"
+        )
+        .limit(limite)
+        .get();
+
+
+    const history =
+      snapshot.docs.map(
+        (documento) => ({
+
+          id:
+            documento.id,
+
+          ...documento.data(),
+        })
+      );
+
+
+    return res.json({
+
+      success: true,
+
+      pacienteUid,
+
+      count:
+        history.length,
+
+      history,
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Error en getPatientHealthHistory:",
+      error
+    );
+
+
+    return res
+      .status(500)
+      .json({
+
+        success: false,
+
+        message:
+          "Error al obtener el historial de Health Connect del paciente.",
+
+        error:
+          error.message,
+      });
+  }
+}
+
+
+// ============================================================================
+// EXPORTACIONES
+// ============================================================================
+
 module.exports = {
+
   syncHealthData,
+
   getLatestHealthData,
+
   getHealthHistory,
+
   deleteHealthRecord,
+
+  getLatestPatientHealthData,
+
+  getPatientHealthHistory,
 };
