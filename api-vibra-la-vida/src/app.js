@@ -1,225 +1,111 @@
-// ============================================================================
-// APP.JS - VIBRA LA VIDA
-// ============================================================================
-
-
-// ============================================================================
-// IMPORTACIONES
-// ============================================================================
-
+// Importamos Express.
 const express = require("express");
+
+// Importamos CORS para permitir peticiones desde Android y Web.
 const cors = require("cors");
 
+// Importamos rutas.
+const authRoutes = require("./routes/auth.routes");
+const userRoutes = require("./routes/user.routes");
+const resultsRoutes = require("./routes/results.routes");
+const healthRoutes = require("./routes/health.routes");
+const historyRoutes = require("./routes/history.routes");
+const doctorRoutes = require("./routes/doctor.routes");
+const calculadorasRoutes = require("./routes/calculadoras.routes");
 
-// ============================================================================
-// IMPORTAR RUTAS
-// ============================================================================
+// Rutas de citas médicas.
+const citasRoutes = require("./routes/citas.routes");
 
-const authRoutes =
-  require("./routes/auth.routes");
+// Creamos la aplicación de Express.
+const app = express();
 
-const userRoutes =
-  require("./routes/user.routes");
+/**
+ * Middlewares globales.
+ */
 
-const resultsRoutes =
-  require("./routes/results.routes");
+// Permite recibir JSON en el body de las peticiones.
+app.use(express.json());
 
-const healthRoutes =
-  require("./routes/health.routes");
+// Permite peticiones desde otros orígenes.
+app.use(cors());
 
-const historyRoutes =
-  require("./routes/history.routes");
+/**
+ * Ruta principal de prueba.
+ */
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message:
+      "API RESTful de Vibra la Vida funcionando con Firebase.",
+  });
+});
 
-const doctorRoutes =
-  require("./routes/doctor.routes");
+/**
+ * Ruta para probar si el servidor está activo.
+ */
+app.get("/api/status", (req, res) => {
+  res.json({
+    success: true,
+    message: "Servidor activo.",
+    timestamp: new Date().toISOString(),
+  });
+});
 
-const calculadorasRoutes =
-  require("./routes/calculadoras.routes");
+/**
+ * Rutas principales de la API.
+ */
+app.use("/api/auth", authRoutes);
 
-// Rutas para citas médicas.
-const citasRoutes =
-  require("./routes/citas.routes");
+app.use("/api/users", userRoutes);
 
-
-// ============================================================================
-// CREAR APLICACIÓN EXPRESS
-// ============================================================================
-
-const app =
-  express();
-
-
-// ============================================================================
-// MIDDLEWARES GLOBALES
-// ============================================================================
-
-// Permite recibir JSON en el body.
-app.use(
-  express.json()
-);
-
-// Permite peticiones desde Android, Web, etc.
-app.use(
-  cors()
-);
-
-
-// ============================================================================
-// RUTA PRINCIPAL
-// ============================================================================
-
-app.get(
-  "/",
-  (req, res) => {
-    res.json({
-      success: true,
-      message:
-        "API RESTful de Vibra la Vida funcionando con Firebase.",
-    });
-  }
-);
-
-
-// ============================================================================
-// STATUS
-// ============================================================================
-
-app.get(
-  "/api/status",
-  (req, res) => {
-    res.json({
-      success: true,
-      message:
-        "Servidor activo.",
-      timestamp:
-        new Date().toISOString(),
-    });
-  }
-);
-
-
-// ============================================================================
-// RUTAS PRINCIPALES
-// ============================================================================
-
-
-// ---------------------------------------------------------------------------
-// AUTENTICACIÓN
-// ---------------------------------------------------------------------------
-
-app.use(
-  "/api/auth",
-  authRoutes
-);
-
-
-// ---------------------------------------------------------------------------
-// USUARIOS
-// ---------------------------------------------------------------------------
-
-app.use(
-  "/api/users",
-  userRoutes
-);
-
-
-// ---------------------------------------------------------------------------
-// RESULTADOS
-// ---------------------------------------------------------------------------
-
-app.use(
-  "/api/results",
-  resultsRoutes
-);
-
-
-// ---------------------------------------------------------------------------
-// HEALTH CONNECT
-// ---------------------------------------------------------------------------
+app.use("/api/results", resultsRoutes);
 
 app.use(
   "/api/health-connect",
   healthRoutes
 );
 
-
-// ---------------------------------------------------------------------------
-// HISTORIAL
-// ---------------------------------------------------------------------------
-
 app.use(
   "/api/history",
   historyRoutes
 );
 
-
-// ---------------------------------------------------------------------------
-// PROFESIONALES / VERIFICACIÓN DE CÉDULA
-// ---------------------------------------------------------------------------
-
+// Rutas para doctores.
 app.use(
   "/api/doctores",
   doctorRoutes
 );
 
-
-// ---------------------------------------------------------------------------
-// CALCULADORAS
-// ---------------------------------------------------------------------------
-
+// Rutas para calculadoras.
 app.use(
   "/api/calculadoras",
   calculadorasRoutes
 );
 
-
-// ---------------------------------------------------------------------------
-// CITAS MÉDICAS
-// ---------------------------------------------------------------------------
-//
-// GET    /api/citas
-// POST   /api/citas
-//
-// ACCIONES DEL PACIENTE:
-// POST   /api/citas/:id/confirmar
-// POST   /api/citas/:id/solicitar-reagenda
-// POST   /api/citas/:id/cancelar
-//
-// ACCIONES DEL PROFESIONAL:
-// PUT    /api/citas/:id
+// Rutas para citas médicas.
+// Incluye:
+// GET  /api/citas
+// POST /api/citas
+// POST /api/citas/:id/confirmar
+// POST /api/citas/:id/solicitar-reagenda
+// POST /api/citas/:id/cancelar
+// PUT  /api/citas/:id
 // DELETE /api/citas/:id
-//
-// ---------------------------------------------------------------------------
-
 app.use(
   "/api/citas",
   citasRoutes
 );
 
+/**
+ * Ruta para manejar endpoints inexistentes.
+ * Debe ir al final, después de todas las rutas.
+ */
+app.use((req, res) => {
+  res.status(404).json({
+    ok: false,
+    mensaje: "Ruta no encontrada.",
+  });
+});
 
-// ============================================================================
-// RUTA NO ENCONTRADA
-// ============================================================================
-//
-// IMPORTANTE:
-// Siempre debe quedar al final de todas las rutas.
-//
-// ============================================================================
-
-app.use(
-  (req, res) => {
-    res.status(404).json({
-      success: false,
-      message:
-        "Ruta no encontrada.",
-    });
-  }
-);
-
-
-// ============================================================================
-// EXPORTAR APP
-// ============================================================================
-
-module.exports =
-  app;
+// Exportamos la aplicación para usarla desde server.js.
+module.exports = app;

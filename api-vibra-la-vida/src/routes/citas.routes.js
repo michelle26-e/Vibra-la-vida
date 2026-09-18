@@ -11,6 +11,7 @@ const {
   confirmarCitaPaciente,
   solicitarReagendaPaciente,
   cancelarCitaPaciente,
+  reagendarCitaProfesional,
   eliminarCita,
 } = require('../controllers/citas.controller')
 
@@ -107,6 +108,19 @@ router.post(
 router.put(
   '/:id',
   actualizarCita
+)
+
+
+// ----------------------------------------------------------
+// REAGENDAR CITA COMO PROFESIONAL
+// ----------------------------------------------------------
+// El profesional propone una nueva fecha/hora.
+// Después el paciente debe volver a confirmar.
+// ----------------------------------------------------------
+
+router.post(
+  '/:id/reagendar-profesional',
+  reagendarCitaProfesional
 )
 
 

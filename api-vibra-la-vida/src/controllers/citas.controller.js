@@ -897,16 +897,6 @@ const solicitarReagendaPaciente = async (req, res) => {
       })
     }
 
-    if (
-      citaActual.estado === 'reagenda_solicitada'
-    ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          'Ya existe una solicitud de reagenda pendiente.',
-      })
-    }
-
     const motivoReagenda =
       String(
         req.body?.motivoReagenda || ''
@@ -920,22 +910,37 @@ const solicitarReagendaPaciente = async (req, res) => {
       })
     }
 
-    await citaRef.update({
+    const cambiosReagenda = {
       // La fecha y la hora NO cambian.
       estado:
         'reagenda_solicitada',
 
       motivoReagenda,
 
-      fechaSolicitudReagenda:
-        FieldValue.serverTimestamp(),
-
       solicitadoPorPaciente:
         uid,
 
       actualizadoEn:
         FieldValue.serverTimestamp(),
-    })
+    }
+
+    // Si es la primera solicitud, guardamos cuándo se creó.
+    // Si ya existía, conservamos esa fecha y registramos
+    // únicamente cuándo se actualizó el motivo.
+    if (
+      citaActual.estado ===
+      'reagenda_solicitada'
+    ) {
+      cambiosReagenda.fechaUltimaActualizacionReagenda =
+        FieldValue.serverTimestamp()
+    } else {
+      cambiosReagenda.fechaSolicitudReagenda =
+        FieldValue.serverTimestamp()
+    }
+
+    await citaRef.update(
+      cambiosReagenda
+    )
 
     const actualizada =
       await citaRef.get()
@@ -943,7 +948,9 @@ const solicitarReagendaPaciente = async (req, res) => {
     return res.json({
       success: true,
       message:
-        'Solicitud de reagenda enviada al profesional.',
+        citaActual.estado === 'reagenda_solicitada'
+          ? 'Solicitud de reagenda actualizada correctamente.'
+          : 'Solicitud de reagenda enviada al profesional.',
       cita: {
         id: actualizada.id,
         ...actualizada.data(),
@@ -959,6 +966,198 @@ const solicitarReagendaPaciente = async (req, res) => {
       success: false,
       message:
         'No fue posible enviar la solicitud de reagenda.',
+    })
+  }
+}
+
+
+// ----------------------------------------------------------
+// REAGENDAR CITA (PROFESIONAL)
+// ----------------------------------------------------------
+// Esta ruta es exclusiva del profesional.
+//
+// El profesional propone una nueva fecha y/o hora.
+// La cita vuelve a estado "pendiente" para que el paciente
+// confirme la nueva propuesta.
+// ----------------------------------------------------------
+
+const reagendarCitaProfesional = async (req, res) => {
+  try {
+    const uid = req.user.uid
+    const profesional =
+      await obtenerUsuarioActual(uid)
+
+    if (!esProfesionalSalud(profesional)) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'Solo un profesional de salud puede reagendar citas.',
+      })
+    }
+
+    const citaRef =
+      db.collection('citas').doc(
+        req.params.id
+      )
+
+    const snapshot =
+      await citaRef.get()
+
+    if (!snapshot.exists) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'La cita no existe.',
+      })
+    }
+
+    const citaActual =
+      snapshot.data()
+
+    if (
+      citaActual.especialistaUid !==
+      uid
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'No puedes reagendar una cita de otro profesional.',
+      })
+    }
+
+    if (
+      citaActual.estado === 'cancelada' ||
+      citaActual.estado === 'completada'
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Esta cita ya no puede reagendarse.',
+      })
+    }
+
+    const {
+      fecha,
+      hora,
+      motivo,
+      lugar,
+      modalidad,
+      notas,
+      recordatorioActivo,
+    } = req.body || {}
+
+    if (!fecha || !hora) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'La nueva fecha y hora son obligatorias.',
+      })
+    }
+
+    const fechaNueva =
+      String(fecha).trim()
+
+    const horaNueva =
+      String(hora).trim()
+
+    if (
+      fechaNueva === citaActual.fecha &&
+      horaNueva === citaActual.hora
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Selecciona una fecha o una hora diferente para reagendar.',
+      })
+    }
+
+    const cambios = {
+      // Guardamos la cita anterior para referencia.
+      fechaAnterior:
+        citaActual.fecha || null,
+
+      horaAnterior:
+        citaActual.hora || null,
+
+      fecha:
+        fechaNueva,
+
+      hora:
+        horaNueva,
+
+      // El paciente debe confirmar la nueva propuesta.
+      estado:
+        'pendiente',
+
+      reagendadoPor:
+        uid,
+
+      fechaReagendaProfesional:
+        FieldValue.serverTimestamp(),
+
+      requiereConfirmacionPaciente:
+        true,
+
+      actualizadoEn:
+        FieldValue.serverTimestamp(),
+    }
+
+    if (motivo !== undefined) {
+      cambios.motivo =
+        String(motivo).trim()
+    }
+
+    if (lugar !== undefined) {
+      cambios.lugar =
+        String(lugar).trim()
+    }
+
+    if (modalidad !== undefined) {
+      cambios.modalidad =
+        modalidad
+    }
+
+    if (notas !== undefined) {
+      cambios.notas =
+        String(notas).trim()
+    }
+
+    if (
+      recordatorioActivo !==
+      undefined
+    ) {
+      cambios.recordatorioActivo =
+        Boolean(recordatorioActivo)
+    }
+
+    await citaRef.update(
+      cambios
+    )
+
+    const actualizada =
+      await citaRef.get()
+
+    return res.json({
+      success: true,
+      message:
+        'Cita reagendada. El paciente debe confirmar la nueva fecha.',
+      cita: {
+        id: actualizada.id,
+        ...actualizada.data(),
+      },
+    })
+
+  } catch (error) {
+
+    console.error(
+      'Error al reagendar cita:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'No fue posible reagendar la cita.',
     })
   }
 }
@@ -1049,5 +1248,6 @@ module.exports = {
   confirmarCitaPaciente,
   solicitarReagendaPaciente,
   cancelarCitaPaciente,
+  reagendarCitaProfesional,
   eliminarCita,
 }
